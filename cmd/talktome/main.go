@@ -11,12 +11,24 @@ func main() {
 	openAIToken := mustReadEnvVar("TALKTOME_OPEN_AI_TOKEN")
 	textGen := textgeneration.NewOpenAIGenerator(openAIToken)
 
-	content, err := textGen.GenerateArtDescription("Caspar David Friedrich", "Der Wanderer über dem Wolkenmeer")
+	artistName := "Caspar David Friedrich"
+	artName := "Der Wanderer über dem Wolkenmeer"
+
+	fmt.Printf("Generate description for %s's \"%s\"\n", artistName, artName)
+
+	description, err := textGen.GenerateArtDescription(artistName, artName)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println(description)
 
-	fmt.Println(content)
+	fmt.Printf("Generate tasks for %s's \"%s\"\n", artistName, artName)
+
+	tasks, err := textGen.GenerateTasks(artistName, artName)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(tasks)
 }
 
 func mustReadEnvVar(name string) string {

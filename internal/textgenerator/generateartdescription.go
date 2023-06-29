@@ -1,10 +1,7 @@
 package textgeneration
 
 import (
-	"context"
 	"fmt"
-
-	openai "github.com/sashabaranov/go-openai"
 )
 
 const descriptionPrompt = `
@@ -16,22 +13,5 @@ Do not use more than 200 words.
 `
 
 func (generator *textGenerator) GenerateArtDescription(artistName string, artName string) (string, error) {
-	resp, err := generator.client.CreateChatCompletion(
-		context.Background(),
-		openai.ChatCompletionRequest{
-			Model: generator.model,
-			Messages: []openai.ChatCompletionMessage{
-				{
-					Role:    openai.ChatMessageRoleUser,
-					Content: fmt.Sprintf(descriptionPrompt, artistName, artName),
-				},
-			},
-		},
-	)
-
-	if err != nil {
-		return "", err
-	}
-
-	return resp.Choices[0].Message.Content, nil
+	return generator.GenerateText(fmt.Sprintf(descriptionPrompt, artistName, artName))
 }
