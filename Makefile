@@ -1,3 +1,4 @@
+
 .PHONY: build
 build:
 	go build -o build/talktome cmd/talktome/main.go
