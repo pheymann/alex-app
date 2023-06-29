@@ -16,11 +16,11 @@ func main() {
 
 	fmt.Printf("Generate description for %s's \"%s\"\n", artistName, artName)
 
-	description, err := textGen.GenerateArtDescription(artistName, artName)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(description)
+	// description, err := textGen.GenerateArtDescription(artistName, artName)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// fmt.Println(description)
 
 	fmt.Printf("Generate tasks for %s's \"%s\"\n", artistName, artName)
 
@@ -28,7 +28,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(tasks)
+	for _, task := range tasks {
+		fmt.Println("-----> " + task)
+	}
 }
 
 func mustReadEnvVar(name string) string {
