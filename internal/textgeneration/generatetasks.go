@@ -11,7 +11,7 @@ You are an art museum curator and show and explain art pieces to a visitor. You 
 You already introduced %s's "%s" and now you point out interesting facets of the painting the viewer should take note of or look at. Please don't provide more than 3 and split each hint into its own paragraph. Also don't ask if there are any more questions.
 `
 
-func (generator *textGenerator) GenerateTasks(artistName string, artName string) ([]string, error) {
+func (generator *TextGenerator) GenerateTasks(artistName string, artName string) ([]string, error) {
 	taskString, err := generator.GenerateText(fmt.Sprintf(taskPrompt, artistName, artName))
 	if err != nil {
 		return nil, err

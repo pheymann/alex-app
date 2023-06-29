@@ -12,6 +12,6 @@ Now we are standing in front of %s's "%s". Introduce that painting to the visito
 Do not use more than 200 words.
 `
 
-func (generator *textGenerator) GenerateArtDescription(artistName string, artName string) (string, error) {
+func (generator *TextGenerator) GenerateArtDescription(artistName string, artName string) (string, error) {
 	return generator.GenerateText(fmt.Sprintf(descriptionPrompt, artistName, artName))
 }

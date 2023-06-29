@@ -4,31 +4,23 @@ import (
 	"fmt"
 	"os"
 
-	textgeneration "talktome.com/internal/textgenerator"
+	"talktome.com/internal/cmd/talktome"
 )
 
 func main() {
 	openAIToken := mustReadEnvVar("TALKTOME_OPEN_AI_TOKEN")
-	textGen := textgeneration.NewOpenAIGenerator(openAIToken)
+	talktome := talktome.NewTalkToMe(openAIToken)
 
 	artistName := "Caspar David Friedrich"
 	artName := "Der Wanderer über dem Wolkenmeer"
 
-	fmt.Printf("Generate description for %s's \"%s\"\n", artistName, artName)
-
-	// description, err := textGen.GenerateArtDescription(artistName, artName)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// fmt.Println(description)
-
-	fmt.Printf("Generate tasks for %s's \"%s\"\n", artistName, artName)
-
-	tasks, err := textGen.GenerateTasks(artistName, artName)
+	presentation, err := talktome.GenerateArtPresentation(artistName, artName)
 	if err != nil {
 		panic(err)
 	}
-	for _, task := range tasks {
+
+	fmt.Println("= " + presentation.Description)
+	for _, task := range presentation.Tasks {
 		fmt.Println("-----> " + task)
 	}
 }

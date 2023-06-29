@@ -6,7 +6,7 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
-func (generator *textGenerator) GenerateText(prompt string) (string, error) {
+func (generator *TextGenerator) GenerateText(prompt string) (string, error) {
 	resp, err := generator.client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
