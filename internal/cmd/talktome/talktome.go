@@ -28,7 +28,8 @@ var (
 )
 
 func (talktome TalkToMe) GetOrCreatePresentation(piece art.ArtPiece) (art.ArtPresentation, error) {
-	presentation, err := talktome.artStorage.FindArtPresentation(art.ArtPresentation{Piece: piece})
+	presentationID := fmt.Sprintf("%s::%s", piece.ArtistName, piece.Name)
+	presentation, err := talktome.artStorage.FindArtPresentation(presentationID)
 	if err != nil {
 		return emptyPresentation, err
 	}
@@ -98,6 +99,7 @@ func (talktome TalkToMe) generateTextContent(piece art.ArtPiece) (art.ArtPresent
 	}
 
 	return art.ArtPresentation{
+		ID:          fmt.Sprintf("%s::%s", piece.ArtistName, piece.Name),
 		Piece:       piece,
 		Description: description,
 		Tasks:       tasks,

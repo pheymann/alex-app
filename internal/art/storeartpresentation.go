@@ -15,7 +15,7 @@ func (ctx *StorageCtx) StoreArtPresentation(presentation ArtPresentation) error 
 	}
 
 	_, err = ctx.dynamoDBClient.PutItem(&dynamodb.PutItemInput{
-		TableName: aws.String("ArtPiecePresentation"),
+		TableName: aws.String(ctx.table),
 		Item:      item,
 	})
 	if err != nil {

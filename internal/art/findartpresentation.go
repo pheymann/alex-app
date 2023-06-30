@@ -8,10 +8,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-func (ctx *StorageCtx) FindArtPresentation(presentation ArtPresentation) (*ArtPresentation, error) {
-	key, err := dynamodbattribute.MarshalMap(presentation)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal presentation :%w", err)
+func (ctx *StorageCtx) FindArtPresentation(presentationUUID string) (*ArtPresentation, error) {
+	key := map[string]*dynamodb.AttributeValue{
+		"id": {
+			S: aws.String(presentationUUID),
+		},
 	}
 
 	input := &dynamodb.GetItemInput{
@@ -28,10 +29,11 @@ func (ctx *StorageCtx) FindArtPresentation(presentation ArtPresentation) (*ArtPr
 		return nil, nil
 	}
 
-	err = dynamodbattribute.UnmarshalMap(result.Item, &presentation)
+	var presentation *ArtPresentation
+	err = dynamodbattribute.UnmarshalMap(result.Item, presentation)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal presentation :%w", err)
 	}
 
-	return &presentation, nil
+	return presentation, nil
 }

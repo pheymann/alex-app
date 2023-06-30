@@ -2,3 +2,5 @@ vendor/
 build/
 
 .env.test
+.DS_Store
+*.wav

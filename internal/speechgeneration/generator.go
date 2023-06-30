@@ -22,5 +22,6 @@ func NewResembleGenerator(token string, projectUUID string, callbackURL string) 
 		httpClient:  &http.Client{},
 		projectUUID: projectUUID,
 		callbackURL: callbackURL,
+		voiceUUID:   "7c8e47ca",
 	}
 }

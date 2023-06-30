@@ -65,7 +65,7 @@ func main() {
 
 	// AWS init
 	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String("us-east-1"), // Replace with your desired region
+		Region: aws.String("eu-central-1"),
 	})
 	if err != nil {
 		panic(err)
