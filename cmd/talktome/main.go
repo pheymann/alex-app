@@ -1,50 +1,97 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"talktome.com/internal/art"
 	"talktome.com/internal/cmd/talktome"
+	"talktome.com/internal/speechgeneration"
+	"talktome.com/internal/textgeneration"
 )
 
+type handlerCtx struct {
+	talkttome talktome.TalkToMe
+}
+
+func (handlerCtx handlerCtx) handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	if event.HTTPMethod == "POST" {
+		var artPiece art.ArtPiece
+
+		if err := json.Unmarshal([]byte(event.Body), &artPiece); err != nil {
+			fmt.Printf("[ERROR] Couldn't parse body: %s\n", err)
+			return events.APIGatewayProxyResponse{
+				StatusCode: 400,
+				Body:       "Couldn't parse body",
+			}, nil
+		}
+
+		presentation, err := handlerCtx.talkttome.GetOrCreatePresentation(artPiece)
+		if err != nil {
+			fmt.Printf("[ERROR] Failed to get or create presentation: %s\n", err)
+			return events.APIGatewayProxyResponse{
+				StatusCode: 400,
+				Body:       "Failed to get or create presentation",
+			}, nil
+		}
+
+		jsonPresentation, err := json.Marshal(presentation)
+		if err != nil {
+			fmt.Printf("[ERROR] Failed tp marshal presentation: %s\n", err)
+			return events.APIGatewayProxyResponse{
+				StatusCode: 400,
+				Body:       "Failed tp marshal presentation",
+			}, nil
+		}
+
+		return events.APIGatewayProxyResponse{
+			StatusCode: 200,
+			Headers:    map[string]string{"Content-Type": "application/json"},
+			Body:       string(jsonPresentation),
+		}, nil
+	}
+
+	fmt.Printf("[ERROR] Only POST requests are allowed.\n")
+	return events.APIGatewayProxyResponse{
+		StatusCode: 400,
+		Body:       "Only POST requests are allowed.",
+	}, nil
+}
+
 func main() {
+	// ENV VAR init
 	openAIToken := mustReadEnvVar("TALKTOME_OPEN_AI_TOKEN")
 	resembleToken := mustReadEnvVar("TALKTOME_RESEMBLE_TOKEN")
 	resembleProjectUUID := mustReadEnvVar("TALKTOME_RESEMBLE_PROJECT_UUID")
 	serviceDomain := mustReadEnvVar("TALKTOME_SERVICE_DOMAIN")
 	resembleCallBackURL := fmt.Sprintf("https://%s/callback/clip", serviceDomain)
+	artPresentationDynamoDBTable := mustReadEnvVar("TALKTOME_ART_PRESENTATION_TABLE")
 
-	talktome := talktome.NewTalkToMe(openAIToken, resembleToken, resembleProjectUUID, resembleCallBackURL)
-
-	artistName := "Caspar David Friedrich"
-	artName := "Der Wanderer über dem Wolkenmeer"
-
-	presentation, err := talktome.GenerateArtPresentation(artistName, artName)
+	// AWS init
+	sess, err := session.NewSession(&aws.Config{
+		Region: aws.String("us-east-1"), // Replace with your desired region
+	})
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println("= " + presentation.Description)
-	for _, task := range presentation.Tasks {
-		fmt.Println("-----> " + task)
-	}
+	dynamoDBClient := dynamodb.New(sess)
 
-	rawAudioClip, err := talktome.DownloadSpeechClip("https://app.resemble.ai/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBCTUFNQ3cwPSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--b9d5ed35f6bf3f3deb0f5e44e9ad77b19ec8203b/CLI+Test-238771b5.wav")
-	if err != nil {
-		panic(err)
-	}
+	// internal init
+	textGen := textgeneration.NewOpenAIGenerator(openAIToken)
+	speechGen := speechgeneration.NewResembleGenerator(resembleToken, resembleProjectUUID, resembleCallBackURL)
+	artStorage := art.NewStorageCtx(dynamoDBClient, artPresentationDynamoDBTable)
 
-	file, err := os.Create("test.wav")
-	if err != nil {
-		panic(err)
-	}
+	talktome := talktome.NewTalkToMe(textGen, speechGen, artStorage)
 
-	defer file.Close()
-
-	_, err = file.Write(rawAudioClip)
-	if err != nil {
-		panic(err)
-	}
+	lambda.Start(handlerCtx{talkttome: talktome}.handler)
 }
 
 func mustReadEnvVar(name string) string {

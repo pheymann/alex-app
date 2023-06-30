@@ -1,0 +1,6 @@
+package art
+
+type ArtPiece struct {
+	ArtistName string `json:"artist_name" dynamodbav:"artist_name"`
+	Name       string `json:"art_piece_name" dynamodbav:"art_piece_name"`
+}
