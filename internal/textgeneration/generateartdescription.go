@@ -13,5 +13,10 @@ Do not use more than 200 words.
 `
 
 func (generator *TextGenerator) GenerateArtDescription(artistName string, artName string) (string, error) {
-	return generator.GenerateText(fmt.Sprintf(descriptionPrompt, artistName, artName))
+	description, err := generator.GenerateText(fmt.Sprintf(descriptionPrompt, artistName, artName))
+	if err != nil {
+		return "", fmt.Errorf("failed to generate description for %s's \"%s\": %w", artistName, artName, err)
+	}
+
+	return description, nil
 }

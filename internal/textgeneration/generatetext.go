@@ -2,6 +2,7 @@ package textgeneration
 
 import (
 	"context"
+	"fmt"
 
 	openai "github.com/sashabaranov/go-openai"
 )
@@ -21,7 +22,7 @@ func (generator *TextGenerator) GenerateText(prompt string) (string, error) {
 	)
 
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to generate text: %w", err)
 	}
 
 	return resp.Choices[0].Message.Content, nil

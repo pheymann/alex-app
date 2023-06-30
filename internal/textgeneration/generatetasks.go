@@ -14,7 +14,7 @@ You already introduced %s's "%s" and now you point out interesting facets of the
 func (generator *TextGenerator) GenerateTasks(artistName string, artName string) ([]string, error) {
 	taskString, err := generator.GenerateText(fmt.Sprintf(taskPrompt, artistName, artName))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to generate tasks for %s's \"%s\": %w", artistName, artName, err)
 	}
 
 	return strings.Split(taskString, "\n\n"), nil
