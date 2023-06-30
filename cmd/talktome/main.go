@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -13,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"talktome.com/internal/art"
 	"talktome.com/internal/cmd/talktome"
+	"talktome.com/internal/shared"
 	"talktome.com/internal/speechgeneration"
 	"talktome.com/internal/textgeneration"
 )
@@ -67,12 +67,12 @@ func (handlerCtx handlerCtx) handler(ctx context.Context, event events.APIGatewa
 
 func main() {
 	// ENV VAR init
-	openAIToken := mustReadEnvVar("TALKTOME_OPEN_AI_TOKEN")
-	resembleToken := mustReadEnvVar("TALKTOME_RESEMBLE_TOKEN")
-	resembleProjectUUID := mustReadEnvVar("TALKTOME_RESEMBLE_PROJECT_UUID")
-	serviceDomain := mustReadEnvVar("TALKTOME_SERVICE_DOMAIN")
+	openAIToken := shared.MustReadEnvVar("TALKTOME_OPEN_AI_TOKEN")
+	resembleToken := shared.MustReadEnvVar("TALKTOME_RESEMBLE_TOKEN")
+	resembleProjectUUID := shared.MustReadEnvVar("TALKTOME_RESEMBLE_PROJECT_UUID")
+	serviceDomain := shared.MustReadEnvVar("TALKTOME_SERVICE_DOMAIN")
 	resembleCallBackURL := fmt.Sprintf("https://%s/callback/clip", serviceDomain)
-	artPresentationDynamoDBTable := mustReadEnvVar("TALKTOME_ART_PRESENTATION_TABLE")
+	artPresentationDynamoDBTable := shared.MustReadEnvVar("TALKTOME_ART_PRESENTATION_TABLE")
 
 	// AWS init
 	sess, err := session.NewSession(&aws.Config{
@@ -87,18 +87,9 @@ func main() {
 	// internal init
 	textGen := textgeneration.NewOpenAIGenerator(openAIToken)
 	speechGen := speechgeneration.NewResembleGenerator(resembleToken, resembleProjectUUID, resembleCallBackURL)
-	artStorage := art.NewStorageCtx(dynamoDBClient, artPresentationDynamoDBTable)
+	artStorage := art.NewStorageCtx(dynamoDBClient, artPresentationDynamoDBTable, nil, "")
 
 	talktome := talktome.NewTalkToMe(textGen, speechGen, artStorage)
 
 	lambda.Start(handlerCtx{talkttome: talktome}.handler)
-}
-
-func mustReadEnvVar(name string) string {
-	value, exists := os.LookupEnv(name)
-	if exists {
-		return value
-	} else {
-		panic(fmt.Sprintf("FATAL: env var %s does not exists", name))
-	}
 }

@@ -28,7 +28,7 @@ var (
 )
 
 func (talktome TalkToMe) GetOrCreatePresentation(piece art.ArtPiece) (art.ArtPresentation, error) {
-	presentation, err := talktome.artStorage.FindArtPresentation(piece)
+	presentation, err := talktome.artStorage.FindArtPresentation(art.ArtPresentation{Piece: piece})
 	if err != nil {
 		return emptyPresentation, err
 	}
@@ -107,9 +107,4 @@ func (talktome TalkToMe) generateTextContent(piece art.ArtPiece) (art.ArtPresent
 func (talktome TalkToMe) generateSpeechClip(text string) (response.Clip, error) {
 	fmt.Printf("[DEBUG] Generate speech clip for %s\n", text)
 	return talktome.speechGen.GenerateSpeechClip(text)
-}
-
-func (talktome TalkToMe) DownloadSpeechClip(clipURL string) ([]byte, error) {
-	fmt.Printf("[DEBUG] Download speech clip %s\n", clipURL)
-	return talktome.speechGen.DownloadSpeechClip(clipURL)
 }

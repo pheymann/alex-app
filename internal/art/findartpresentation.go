@@ -8,8 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-func (ctx *StorageCtx) FindArtPresentation(piece ArtPiece) (*ArtPresentation, error) {
-	presentation := ArtPresentation{Piece: piece}
+func (ctx *StorageCtx) FindArtPresentation(presentation ArtPresentation) (*ArtPresentation, error) {
 	key, err := dynamodbattribute.MarshalMap(presentation)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal presentation :%w", err)
