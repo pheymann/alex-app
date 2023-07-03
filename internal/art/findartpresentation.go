@@ -29,11 +29,11 @@ func (ctx *StorageCtx) FindArtPresentation(presentationUUID string) (*ArtPresent
 		return nil, nil
 	}
 
-	var presentation *ArtPresentation
-	err = dynamodbattribute.UnmarshalMap(result.Item, presentation)
+	var presentation ArtPresentation = ArtPresentation{}
+	err = dynamodbattribute.UnmarshalMap(result.Item, &presentation)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal presentation :%w", err)
 	}
 
-	return presentation, nil
+	return &presentation, nil
 }
