@@ -55,13 +55,16 @@ func (talktome TalkToMe) GetOrCreatePresentation(piece art.ArtPiece) (art.ArtPre
 		}
 	}
 
-	// for index, task := range presentation.Tasks {
-	// 	if task.TaskClipUUID == "" {
-	// 		talktome.generateAndStoreClip(presentation.ID, presentation.Description, &presentation, func(presentation *art.ArtPresentation, uuid string) {
-	// 			presentation.Tasks[index].TaskClipUUID = uuid
-	// 		})
-	// 	}
-	// }
+	for index, task := range presentation.Tasks {
+		if task.TaskClipUUID == "" {
+			err := talktome.generateAndStoreClip(presentation.ID+fmt.Sprint(index+1), presentation.Description, &presentation, func(presentation *art.ArtPresentation, uuid string) {
+				presentation.Tasks[index].TaskClipUUID = uuid
+			})
+			if err != nil {
+				return emptyPresentation, err
+			}
+		}
+	}
 
 	return presentation, nil
 }
@@ -104,17 +107,17 @@ func (talktome TalkToMe) generateTextContent(piece art.ArtPiece) (art.ArtPresent
 
 	fmt.Printf("[DEBUG] Generate tasks for %s's \"%s\"\n", piece.ArtistName, piece.Name)
 
-	// taskTexts, err := talktome.textGen.GenerateTasks(piece.ArtistName, piece.Name)
-	// if err != nil {
-	// 	return emptyPresentation, err
-	// }
+	taskTexts, err := talktome.textGen.GenerateTasks(piece.ArtistName, piece.Name)
+	if err != nil {
+		return emptyPresentation, err
+	}
 
 	var tasks = []art.ArtPresentationTask{}
-	// for _, text := range taskTexts {
-	// 	tasks = append(tasks, art.ArtPresentationTask{
-	// 		Task: text,
-	// 	})
-	// }
+	for _, text := range taskTexts {
+		tasks = append(tasks, art.ArtPresentationTask{
+			Task: text,
+		})
+	}
 
 	return art.ArtPresentation{
 		ID:          fmt.Sprintf("%s::%s", piece.ArtistName, piece.Name),
