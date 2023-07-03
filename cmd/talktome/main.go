@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/polly"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"talktome.com/internal/art"
 	"talktome.com/internal/cmd/talktome"
 	"talktome.com/internal/shared"
@@ -80,12 +81,13 @@ func main() {
 	}
 
 	dynamoDBClient := dynamodb.New(sess)
+	s3 := s3.New(sess)
 	pollyClient := polly.New(sess)
 
 	// internal init
 	textGen := textgeneration.NewOpenAIGenerator(openAIToken)
 	speechGen := speechgeneration.NewPollySpeechGenerator(pollyClient)
-	artStorage := art.NewStorageCtx(dynamoDBClient, artPresentationDynamoDBTable, nil, "")
+	artStorage := art.NewStorageCtx(dynamoDBClient, artPresentationDynamoDBTable, s3, "talktome-artaudioclips")
 
 	talktome := talktome.NewTalkToMe(textGen, speechGen, artStorage)
 
