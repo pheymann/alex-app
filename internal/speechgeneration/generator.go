@@ -1,27 +1,36 @@
 package speechgeneration
 
 import (
-	"net/http"
-
-	resemble "github.com/resemble-ai/resemble-go/v2"
+	"github.com/aws/aws-sdk-go/service/polly"
 )
 
 type SpeechGenerator struct {
-	client      *resemble.Client
-	httpClient  *http.Client
-	voiceUUID   string
-	projectUUID string
-	callbackURL string
+	client       *polly.Polly
+	engine       string
+	outputFormat string
+	englishVoice voice
+	germanVoice  voice
 }
 
-func NewResembleGenerator(token string, projectUUID string, callbackURL string) *SpeechGenerator {
-	client := resemble.NewClient(token)
+type voice struct {
+	male   string
+	female string
+}
 
+func NewPollySpeechGenerator(pollyClient *polly.Polly) *SpeechGenerator {
 	return &SpeechGenerator{
-		client:      client,
-		httpClient:  &http.Client{},
-		projectUUID: projectUUID,
-		callbackURL: callbackURL,
-		voiceUUID:   "7c8e47ca",
+		client:       pollyClient,
+		engine:       polly.EngineNeural,
+		outputFormat: polly.OutputFormatMp3,
+		englishVoice: voice{
+			// the quality of Matthew is better than Ruth
+			male:   polly.VoiceIdMatthew,
+			female: polly.VoiceIdRuth,
+		},
+		germanVoice: voice{
+			male: polly.VoiceIdDaniel,
+			// quality isn't the best
+			female: polly.VoiceIdVicki,
+		},
 	}
 }

@@ -1,43 +1,43 @@
 package speechgeneration
 
 import (
+	"encoding/hex"
 	"fmt"
 	"io"
+	"math/rand"
+	"os"
 
-	"github.com/resemble-ai/resemble-go/v2/request"
-	"github.com/resemble-ai/resemble-go/v2/response"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/polly"
 )
 
-func (generator *SpeechGenerator) GenerateSpeechClip(text string) (response.Clip, error) {
-	clip, err := generator.client.Clip.CreateAsync(generator.projectUUID, generator.callbackURL, request.Payload{
-		"voice_uuid": generator.voiceUUID,
-		"body":       text,
-		"raw":        false,
+func (generator *SpeechGenerator) GenerateSpeechClip(title string, text string) (*os.File, error) {
+	fmt.Printf("[DEBUG] synthesize clip for %s\n", title)
+	resp, err := generator.client.SynthesizeSpeech(&polly.SynthesizeSpeechInput{
+		Engine:       &generator.engine,
+		OutputFormat: &generator.outputFormat,
+		Text:         aws.String(text),
+		// TODO: make this a selection
+		VoiceId: &generator.englishVoice.male,
 	})
 
 	if err != nil {
-		return response.Clip{}, fmt.Errorf("failed to generate a clip: %w", err)
+		return nil, fmt.Errorf("failed to send Polly request: %w", err)
 	}
 
-	if !clip.Success {
-		return response.Clip{}, fmt.Errorf("resemble.ai clip generation unsuccessful: %s", clip.Item.Body)
-	}
-
-	return clip, nil
-}
-
-func (generator *SpeechGenerator) DownloadSpeechClip(clipURL string) ([]byte, error) {
-	response, err := generator.httpClient.Get(clipURL)
+	randomHash := rand.Intn(100)
+	clipName := hex.EncodeToString([]byte(title + fmt.Sprint(randomHash)))
+	outFile, err := os.Create(clipName + ".mp3")
 	if err != nil {
-		return nil, fmt.Errorf("failed to download clip %s: %w", clipURL, err)
+		return nil, fmt.Errorf("failed to create temporary mp3 file: %w", err)
 	}
+	defer outFile.Close()
 
-	defer response.Body.Close()
-
-	clipBytes, err := io.ReadAll(response.Body)
+	fmt.Printf("[DEBUG] store clip locally for %s in %s", title, clipName)
+	_, err = io.Copy(outFile, resp.AudioStream)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read clip %s: %w", clipURL, err)
+		return nil, fmt.Errorf("failed to download speech clip: %w", err)
 	}
 
-	return clipBytes, nil
+	return os.Open(outFile.Name())
 }

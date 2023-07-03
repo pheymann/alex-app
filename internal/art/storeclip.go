@@ -1,22 +1,22 @@
 package art
 
 import (
-	"bytes"
 	"fmt"
+	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-func (ctx *StorageCtx) StoreClip(clipUUID string, audioContent []byte) error {
+func (ctx *StorageCtx) StoreClip(clipFile *os.File) error {
 	input := &s3.PutObjectInput{
 		Bucket: aws.String(ctx.bucketName),
-		Key:    aws.String(clipUUID + ".wav"),
-		Body:   bytes.NewReader(audioContent),
+		Key:    aws.String(clipFile.Name()),
+		Body:   clipFile,
 	}
 
 	if _, err := ctx.s3Client.PutObject(input); err != nil {
-		return fmt.Errorf("failed to store WAV file for clip %s: %w", clipUUID, err)
+		return fmt.Errorf("failed to store WAV file for clip %s: %w", clipFile.Name(), err)
 	}
 
 	return nil

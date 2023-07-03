@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/polly"
 	"talktome.com/internal/art"
 	"talktome.com/internal/cmd/talktome"
 	"talktome.com/internal/shared"
@@ -68,10 +69,6 @@ func (handlerCtx handlerCtx) handler(ctx context.Context, event events.APIGatewa
 func main() {
 	// ENV VAR init
 	openAIToken := shared.MustReadEnvVar("TALKTOME_OPEN_AI_TOKEN")
-	resembleToken := shared.MustReadEnvVar("TALKTOME_RESEMBLE_TOKEN")
-	resembleProjectUUID := shared.MustReadEnvVar("TALKTOME_RESEMBLE_PROJECT_UUID")
-	serviceDomain := shared.MustReadEnvVar("TALKTOME_SERVICE_DOMAIN")
-	resembleCallBackURL := fmt.Sprintf("https://%s/callback/clip", serviceDomain)
 	artPresentationDynamoDBTable := shared.MustReadEnvVar("TALKTOME_ART_PRESENTATION_TABLE")
 
 	// AWS init
@@ -83,10 +80,11 @@ func main() {
 	}
 
 	dynamoDBClient := dynamodb.New(sess)
+	pollyClient := polly.New(sess)
 
 	// internal init
 	textGen := textgeneration.NewOpenAIGenerator(openAIToken)
-	speechGen := speechgeneration.NewResembleGenerator(resembleToken, resembleProjectUUID, resembleCallBackURL)
+	speechGen := speechgeneration.NewPollySpeechGenerator(pollyClient)
 	artStorage := art.NewStorageCtx(dynamoDBClient, artPresentationDynamoDBTable, nil, "")
 
 	talktome := talktome.NewTalkToMe(textGen, speechGen, artStorage)

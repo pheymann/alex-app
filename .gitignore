@@ -1,6 +1,8 @@
 vendor/
 build/
+.vscode/
 
 .env.test
 .DS_Store
 *.wav
+*.mp3
