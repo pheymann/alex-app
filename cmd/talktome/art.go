@@ -35,7 +35,7 @@ func (handlerCtx handlerCtx) handler(ctx context.Context, event events.APIGatewa
 			}, nil
 		}
 
-		conversation, err := handlerCtx.talkttome.TalkToMeArt(artPiece)
+		conversation, _, err := handlerCtx.talkttome.TalkToMeArt(artPiece, nil)
 		if err != nil {
 			fmt.Printf("[ERROR] Failed to get or create presentation: %s\n", err)
 			return events.APIGatewayProxyResponse{

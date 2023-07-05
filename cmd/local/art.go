@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -58,10 +59,34 @@ func main() {
 
 	talktome := talktome.NewTalkToMe(textGen, speechGen, artStorage)
 
-	conversation, err := talktome.TalkToMeArt(artPiece)
+	conversation, _, err := talktome.TalkToMeArt(artPiece, nil)
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Printf("=> %v", *conversation)
+
+	var prompt = "Can you show me 2 or 3 interesting aspects of that painting?"
+
+	// fmt.Print("Do you have a question? ")
+	// fmt.Scanln(prompt)
+
+	convContinued, clip, err := talktome.TalkToMeArt(artPiece, &prompt)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("=> %v", *convContinued)
+
+	file, err := os.Create("prompt.mp3")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	// Write the byte array to the file
+	_, err = file.Write(clip)
+	if err != nil {
+		panic(err)
+	}
 }
