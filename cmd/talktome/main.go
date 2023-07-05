@@ -35,7 +35,7 @@ func (handlerCtx handlerCtx) handler(ctx context.Context, event events.APIGatewa
 			}, nil
 		}
 
-		presentation, err := handlerCtx.talkttome.GetOrCreatePresentation(artPiece)
+		conversation, err := handlerCtx.talkttome.TalkToMeArt(artPiece)
 		if err != nil {
 			fmt.Printf("[ERROR] Failed to get or create presentation: %s\n", err)
 			return events.APIGatewayProxyResponse{
@@ -44,7 +44,7 @@ func (handlerCtx handlerCtx) handler(ctx context.Context, event events.APIGatewa
 			}, nil
 		}
 
-		jsonPresentation, err := json.Marshal(presentation)
+		jsonPresentation, err := json.Marshal(*conversation)
 		if err != nil {
 			fmt.Printf("[ERROR] Failed tp marshal presentation: %s\n", err)
 			return events.APIGatewayProxyResponse{

@@ -8,10 +8,10 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-func (ctx *StorageCtx) StoreArtPresentation(presentation ArtPresentation) error {
-	item, err := dynamodbattribute.MarshalMap(presentation)
+func (ctx *StorageCtx) StoreArtConversation(conversation ArtConversation) error {
+	item, err := dynamodbattribute.MarshalMap(conversation)
 	if err != nil {
-		return fmt.Errorf("failed to marshal presentation :%w", err)
+		return fmt.Errorf("failed to marshal conversation :%w", err)
 	}
 
 	_, err = ctx.dynamoDBClient.PutItem(&dynamodb.PutItemInput{
@@ -19,7 +19,7 @@ func (ctx *StorageCtx) StoreArtPresentation(presentation ArtPresentation) error 
 		Item:      item,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to store presentation :%w", err)
+		return fmt.Errorf("failed to store conversation :%w", err)
 	}
 
 	return nil

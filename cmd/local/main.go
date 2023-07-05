@@ -58,10 +58,10 @@ func main() {
 
 	talktome := talktome.NewTalkToMe(textGen, speechGen, artStorage)
 
-	presentation, err := talktome.GetOrCreatePresentation(artPiece)
+	conversation, err := talktome.TalkToMeArt(artPiece)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("=> %v", presentation)
+	fmt.Printf("=> %v", *conversation)
 }
