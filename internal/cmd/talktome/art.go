@@ -24,17 +24,17 @@ func (talktome TalkToMe) TalkToMeArt(piece art.ArtPiece) (*art.ArtConversation, 
 			return nil, err
 		}
 
+		fmt.Printf("[DEBUG] store conversation %s\n", conversation.ID)
+		if err := talktome.artStorage.StoreArtConversation(conversation); err != nil {
+			return nil, err
+		}
+
 		conversation = *newConversation
 	} else {
 		conversation = *lookedUpConversation
 	}
 
 	fmt.Printf("[DEBUG] conversation about %s continues with ID %s\n", piece.String(), conversation.ID)
-
-	fmt.Printf("[DEBUG] store conversation %s\n", conversation.ID)
-	if err := talktome.artStorage.StoreArtConversation(conversation); err != nil {
-		return nil, err
-	}
 
 	// checking the existence of the clip UUIDs to cover the case where generating text worked but something
 	// broke during clip creation last time we tried
