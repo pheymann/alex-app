@@ -7,12 +7,12 @@ import (
 )
 
 type TalkToMe struct {
-	textGen    *textgeneration.TextGenerator
-	speechGen  *speechgeneration.SpeechGenerator
-	artStorage *art.StorageCtx
+	textGen    textgeneration.TextGenerator
+	speechGen  speechgeneration.SpeechGenerator
+	artStorage art.StorageService
 }
 
-func NewTalkToMe(textGen *textgeneration.TextGenerator, speechGen *speechgeneration.SpeechGenerator, storage *art.StorageCtx) TalkToMe {
+func NewTalkToMe(textGen textgeneration.TextGenerator, speechGen speechgeneration.SpeechGenerator, storage art.StorageService) TalkToMe {
 	return TalkToMe{
 		textGen:    textGen,
 		speechGen:  speechGen,

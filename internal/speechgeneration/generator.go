@@ -1,10 +1,16 @@
 package speechgeneration
 
 import (
+	"os"
+
 	"github.com/aws/aws-sdk-go/service/polly"
 )
 
-type SpeechGenerator struct {
+type SpeechGenerator interface {
+	GenerateSpeechClip(title string, text string) (*os.File, error)
+}
+
+type AWSPollySpeechGenerator struct {
 	client       *polly.Polly
 	engine       string
 	outputFormat string
@@ -17,8 +23,8 @@ type voice struct {
 	female string
 }
 
-func NewPollySpeechGenerator(pollyClient *polly.Polly) *SpeechGenerator {
-	return &SpeechGenerator{
+func NewAWSPollySpeechGenerator(pollyClient *polly.Polly) *AWSPollySpeechGenerator {
+	return &AWSPollySpeechGenerator{
 		client:       pollyClient,
 		engine:       polly.EngineNeural,
 		outputFormat: polly.OutputFormatMp3,

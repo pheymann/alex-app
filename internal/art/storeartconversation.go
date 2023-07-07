@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-func (ctx *StorageCtx) StoreArtConversation(conversation ArtConversation) error {
+func (ctx *AWSStorageCtx) StoreArtConversation(conversation ArtConversation) error {
 	item, err := dynamodbattribute.MarshalMap(conversation)
 	if err != nil {
 		return fmt.Errorf("failed to marshal conversation :%w", err)

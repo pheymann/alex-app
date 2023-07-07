@@ -86,8 +86,8 @@ func main() {
 
 	// internal init
 	textGen := textgeneration.NewOpenAIGenerator(openAIToken)
-	speechGen := speechgeneration.NewPollySpeechGenerator(pollyClient)
-	artStorage := art.NewStorageCtx(dynamoDBClient, artPresentationDynamoDBTable, s3, "talktome-artaudioclips")
+	speechGen := speechgeneration.NewAWSPollySpeechGenerator(pollyClient)
+	artStorage := art.NewAWSStorageCtx(dynamoDBClient, artPresentationDynamoDBTable, s3, "talktome-artaudioclips")
 
 	talktome := talktome.NewTalkToMe(textGen, speechGen, artStorage)
 

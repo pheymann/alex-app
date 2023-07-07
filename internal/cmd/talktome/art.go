@@ -95,6 +95,9 @@ func (talktome TalkToMe) TalkToMeArt(piece art.ArtPiece, prompt *string) (*art.A
 		}
 	}
 
+	// don't show initialization prompts
+	conversation.ConversationStart.Messages = conversation.ConversationStart.Messages[3:]
+
 	return &conversation, promptClip, nil
 }
 

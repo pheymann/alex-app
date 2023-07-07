@@ -7,7 +7,7 @@ import (
 	"talktome.com/internal/textgeneration"
 )
 
-func StartArtConversation(textGen *textgeneration.TextGenerator, piece ArtPiece) (*ArtConversation, error) {
+func StartArtConversation(textGen textgeneration.TextGenerator, piece ArtPiece) (*ArtConversation, error) {
 	start := textgeneration.Conversation{
 		Messages: []textgeneration.Message{
 			{

@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-func (ctx *StorageCtx) StoreClip(clipFile *os.File) error {
+func (ctx *AWSStorageCtx) StoreClip(clipFile *os.File) error {
 	input := &s3.PutObjectInput{
 		Bucket: aws.String(ctx.bucketName),
 		Key:    aws.String(clipFile.Name()),

@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/polly"
 )
 
-func (generator *SpeechGenerator) GenerateSpeechClip(title string, text string) (*os.File, error) {
+func (generator *AWSPollySpeechGenerator) GenerateSpeechClip(title string, text string) (*os.File, error) {
 	fmt.Printf("[DEBUG] synthesize clip for %s\n", title)
 	resp, err := generator.client.SynthesizeSpeech(&polly.SynthesizeSpeechInput{
 		Engine:       &generator.engine,

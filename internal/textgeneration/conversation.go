@@ -3,12 +3,12 @@ package textgeneration
 import "github.com/sashabaranov/go-openai"
 
 type Conversation struct {
-	Messages []Message
+	Messages []Message `json:"messages" dynamodbav:"messages"`
 }
 
 type Message struct {
-	Role string
-	Text string
+	Role string `json:"role" dynamodbav:"role"`
+	Text string `json:"text" dynamodbav:"text"`
 }
 
 func (conversation *Conversation) AddPrompt(prompt string) {

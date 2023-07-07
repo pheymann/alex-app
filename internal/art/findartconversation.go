@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-func (ctx *StorageCtx) FindArtConversation(uuid string) (*ArtConversation, error) {
+func (ctx *AWSStorageCtx) FindArtConversation(uuid string) (*ArtConversation, error) {
 	key := map[string]*dynamodb.AttributeValue{
 		"id": {
 			S: aws.String(uuid),

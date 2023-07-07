@@ -7,7 +7,7 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
-func (generator *TextGenerator) ContinueConversation(conversation *Conversation) error {
+func (generator *OpenAITextGenerator) ContinueConversation(conversation *Conversation) error {
 	openAIConversation := []openai.ChatCompletionMessage{}
 
 	for _, message := range conversation.Messages {
