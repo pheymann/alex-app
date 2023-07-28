@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 
 function App() {
   const [artistNames, setArtistName] = useState('');
-  const [artPieceName, setSetArtPieceName] = useState('');
+  const [artPieceName, setArtPieceName] = useState('');
 
   const [messages, setMessages] = useState([]);
   const [audioClip, setAudioClip] = useState('');
@@ -37,7 +37,7 @@ function App() {
       <input
         type="text"
         value={artPieceName}
-        onChange={(e) => setSetArtPieceName(e.target.value)}
+        onChange={(e) => setArtPieceName(e.target.value)}
       />
       <button onClick={handleClick}>Send Request</button>
 

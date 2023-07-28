@@ -1,6 +1,6 @@
-package textgeneration
+package conversation
 
-func (conversation Conversation) FindLastMessageBy(role string) *Message {
+func (conversation Conversation) FindLastMessageBy(role Role) *Message {
 	lastIndex := len(conversation.Messages) - 1
 
 	for {

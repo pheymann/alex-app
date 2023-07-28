@@ -1,4 +1,4 @@
-package art
+package conversation
 
 import (
 	"os"
@@ -8,8 +8,8 @@ import (
 )
 
 type StorageService interface {
-	FindArtConversation(uuid string) (*ArtConversation, error)
-	StoreArtConversation(conversation ArtConversation) error
+	FindConversation(uuid string) (*Conversation, error)
+	StoreConversation(conversation Conversation) error
 	StoreClip(clip *os.File) error
 }
 
