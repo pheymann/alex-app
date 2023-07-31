@@ -7,12 +7,14 @@ import (
 	"math/rand"
 	"os"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/polly"
 )
 
 func (generator *AWSPollySpeechGenerator) GenerateSpeechClip(title string, text string) (*os.File, error) {
-	fmt.Printf("[DEBUG] synthesize clip for %s\n", title)
+	log.Debug().Msg("synthesize clip")
 	resp, err := generator.client.SynthesizeSpeech(&polly.SynthesizeSpeechInput{
 		Engine:       &generator.engine,
 		OutputFormat: &generator.outputFormat,
@@ -33,7 +35,6 @@ func (generator *AWSPollySpeechGenerator) GenerateSpeechClip(title string, text 
 	}
 	defer outFile.Close()
 
-	fmt.Printf("[DEBUG] store clip locally for %s in %s", title, clipName)
 	_, err = io.Copy(outFile, resp.AudioStream)
 	if err != nil {
 		return nil, fmt.Errorf("failed to download speech clip: %w", err)

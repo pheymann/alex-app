@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"io"
 	"net/http"
 	"os"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/sashabaranov/go-openai"
 	"talktome.com/internal/cmd/talktomeartcreate"
+	"talktome.com/internal/cmd/talktomecontinue"
 	"talktome.com/internal/conversation"
 	"talktome.com/internal/talktome"
 	"talktome.com/internal/user"
@@ -33,8 +35,18 @@ func (generator *mockSpeechGeneration) GenerateSpeechClip(title string, text str
 	if err != nil {
 		return nil, err
 	}
+	defer file.Close()
 
-	return file, nil
+	copyFile, err := os.CreateTemp("", "")
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := io.Copy(copyFile, file); err != nil {
+		return nil, err
+	}
+
+	return copyFile, nil
 }
 
 type mockConversationStorageService struct {
@@ -109,6 +121,29 @@ func handleCreateArtConversation(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func handleContinueConversation(w http.ResponseWriter, r *http.Request) {
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(r.Body)
+
+	event := events.APIGatewayProxyRequest{
+		HTTPMethod: r.Method,
+		Body:       buf.String(),
+	}
+
+	response, err := talktomecontinue.HandlerCtx{Ctx: mockCtx}.AWSHandler(context.TODO(), event)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+	if _, err := w.Write([]byte(response.Body)); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
 func fileHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		log.Info().Msgf(">> GET %s", r.URL.Path)
@@ -121,6 +156,7 @@ func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
 	http.HandleFunc("/api/conversation/create/art", handleCreateArtConversation)
+	http.HandleFunc("/api/conversation/continue", handleContinueConversation)
 	http.HandleFunc("/api/assets/", fileHandler)
 
 	port := ":8080"

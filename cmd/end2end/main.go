@@ -11,8 +11,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"talktome.com/internal/cmd/talktomeartcontinue"
 	"talktome.com/internal/cmd/talktomeartcreate"
+	"talktome.com/internal/cmd/talktomecontinue"
 	"talktome.com/internal/conversation"
 	"talktome.com/internal/shared"
 	"talktome.com/internal/speechgeneration"
@@ -75,20 +75,20 @@ func main() {
 
 	ctx := talktome.NewContext(textGen, speechGen, convStorage, userStorage)
 
-	var conv *conversation.Conversation
-
 	if *convUUID == "" {
 		log.Info().Msg("creating new conversation")
-		conv, err = talktomeartcreate.Handle(*userUUID, *artistName, *artPiece, ctx)
+		conv, err := talktomeartcreate.Handle(*userUUID, *artistName, *artPiece, ctx)
 		if err != nil {
 			panic(err)
 		}
-	} else {
-		conv, err = talktomeartcontinue.Handle(*userUUID, *convUUID, *message, ctx)
-		if err != nil {
-			panic(err)
-		}
-	}
 
-	fmt.Printf("%v", *conv)
+		fmt.Printf("%v", *conv)
+	} else {
+		message, err := talktomecontinue.Handle(*userUUID, *convUUID, *message, ctx)
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Printf("%v", *message)
+	}
 }

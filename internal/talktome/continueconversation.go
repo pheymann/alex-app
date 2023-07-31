@@ -8,7 +8,7 @@ import (
 )
 
 func (ctx Context) ContinueConversation(userUUID string, convUUID string, message string) (*conversation.Conversation, error) {
-	log.Debug().Str("user_uuid", userUUID).Str("conversation_uuid", convUUID).Msg("continue conversation")
+	log.Info().Str("user_uuid", userUUID).Str("conversation_uuid", convUUID).Msg("continue conversation")
 
 	user, err := ctx.userStorage.FindUser(userUUID)
 	if err != nil {
