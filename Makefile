@@ -5,4 +5,4 @@ build:
 
 .PHONY: start-mock-server
 start-mock-server:
-	go run cmd/mockserver/main.go
+	go run cmd/talktomeartcreate/mockserver/main.go

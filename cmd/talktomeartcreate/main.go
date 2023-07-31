@@ -7,6 +7,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/polly"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"talktome.com/internal/cmd/talktomeartcreate"
 	"talktome.com/internal/conversation"
 	"talktome.com/internal/shared"
@@ -16,6 +18,8 @@ import (
 )
 
 func main() {
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+
 	// ENV VAR init
 	openAIToken := shared.MustReadEnvVar("TALKTOME_OPEN_AI_TOKEN")
 	conversationDynamoDBTable := shared.MustReadEnvVar("TALKTOME_CONVERSATION_TABLE")
@@ -42,5 +46,6 @@ func main() {
 
 	ctx := talktome.NewContext(textGen, speechGen, convStorage, userStorage)
 
+	log.Info().Msg("starting 'art conversation creation' lambda")
 	lambda.Start(talktomeartcreate.HandlerCtx{Ctx: ctx}.AWSHandler)
 }

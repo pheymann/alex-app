@@ -26,5 +26,11 @@ func (ctx Context) StartConversation(userUUID string, conv conversation.Conversa
 		return nil, err
 	}
 
-	return ctx.ContinueConversation(userUUID, conv.ID, message)
+	continuedConv, err := ctx.ContinueConversation(userUUID, conv.ID, message)
+	if err != nil {
+		return nil, err
+	}
+
+	continuedConv.Messages = continuedConv.Messages[3:]
+	return continuedConv, nil
 }

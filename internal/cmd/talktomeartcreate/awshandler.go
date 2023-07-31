@@ -3,9 +3,9 @@ package talktomeartcreate
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/rs/zerolog/log"
 	"talktome.com/internal/talktome"
 )
 
@@ -16,15 +16,16 @@ type HandlerCtx struct {
 type ArtPiece struct {
 	ArtistName string `json:"artistName"`
 	ArtPiece   string `json:"artPiece"`
-	UserUUID   string `json:"userUUID"`
+	UserUUID   string `json:"userUuid"`
 }
 
 func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	if event.HTTPMethod == "POST" {
+		log.Debug().Msg("POSTed art conversation creation request")
 		var artPiece ArtPiece
 
 		if err := json.Unmarshal([]byte(event.Body), &artPiece); err != nil {
-			fmt.Printf("[ERROR] Couldn't parse body: %s\n", err)
+			log.Err(err).Msg("couldn't parse body")
 			return events.APIGatewayProxyResponse{
 				StatusCode: 400,
 				Body:       "Couldn't parse body",
@@ -33,7 +34,7 @@ func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGat
 
 		conversation, err := Handle(artPiece.UserUUID, artPiece.ArtistName, artPiece.ArtPiece, handlerCtx.Ctx)
 		if err != nil {
-			fmt.Printf("[ERROR] Failed to create art conversation: %s\n", err)
+			log.Err(err).Msg("failed to create art conversation")
 			return events.APIGatewayProxyResponse{
 				StatusCode: 400,
 				Body:       "Failed to get or create conversation",
@@ -42,7 +43,7 @@ func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGat
 
 		jsonPresentation, err := json.Marshal(*conversation)
 		if err != nil {
-			fmt.Printf("[ERROR] Failed tp marshal conversation: %s\n", err)
+			log.Err(err).Msg("failed to marshal conversation")
 			return events.APIGatewayProxyResponse{
 				StatusCode: 400,
 				Body:       "Failed tp marshal conversation",
@@ -56,7 +57,7 @@ func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGat
 		}, nil
 	}
 
-	fmt.Printf("[ERROR] Only POST requests are allowed.\n")
+	log.Error().Msg("only POST requests are allowed.")
 	return events.APIGatewayProxyResponse{
 		StatusCode: 400,
 		Body:       "Only POST requests are allowed.",

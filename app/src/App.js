@@ -6,21 +6,20 @@ function App() {
   const [artPieceName, setArtPieceName] = useState('');
 
   const [messages, setMessages] = useState([]);
-  const [audioClip, setAudioClip] = useState('');
 
-  const handleClick = () => {
-    fetch(`/api/art`, {
+  const handleStartConversation = () => {
+    fetch(`/api/conversation/create/art`, {
       method: 'POST',
       body: JSON.stringify({
-        artist_name: artistNames,
-        art_piece_name: artPieceName,
+        artistName: artistNames,
+        artPiece: artPieceName,
+        userUuid: "1",
       }),
     })
       .then(response => response.json())
       .then(data => {
         console.log(data);
-        setMessages(data.conversation_start.messages);
-        setAudioClip(data.conversation_start_clip_uuid);
+        setMessages(data.messages);
       })
       .catch(error => {
         console.log(error);
@@ -39,17 +38,18 @@ function App() {
         value={artPieceName}
         onChange={(e) => setArtPieceName(e.target.value)}
       />
-      <button onClick={handleClick}>Send Request</button>
+      <button onClick={handleStartConversation}>Start Conversation</button>
 
       { messages &&
         <div>
           {
             messages.map((message, index) => {
-              return <p key={index}>{message.text}</p>;
+              return <div key="{message.speechClipUuid}">
+                  <audio src="/api/assets/{message.speechClipUuid}" controls />
+                  <p key={index}>{message.text}</p>
+                </div>
             })
-          }
-
-          {audioClip && <audio src="/api/assets/{audioClip}" controls />}
+        }
         </div>
       }
     </div>

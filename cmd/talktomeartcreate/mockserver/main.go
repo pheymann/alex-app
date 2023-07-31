@@ -3,12 +3,12 @@ package main
 import (
 	"bytes"
 	"context"
-	"fmt"
-	"log"
 	"net/http"
 	"os"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/sashabaranov/go-openai"
 	"talktome.com/internal/cmd/talktomeartcreate"
 	"talktome.com/internal/conversation"
@@ -77,7 +77,11 @@ var (
 	mockTextGen     = &mockTextGeneration{}
 	mockSpeechGen   = &mockSpeechGeneration{}
 	mockConvStorage = &mockConversationStorageService{storage: make(map[string]*conversation.Conversation)}
-	mockUserStorage = &mockUserStorageService{storage: make(map[string]*user.User)}
+	mockUserStorage = &mockUserStorageService{storage: map[string]*user.User{
+		"1": {
+			ID: "1",
+		},
+	}}
 
 	mockCtx = talktome.NewContext(mockTextGen, mockSpeechGen, mockConvStorage, mockUserStorage)
 )
@@ -107,18 +111,19 @@ func handleCreateArtConversation(w http.ResponseWriter, r *http.Request) {
 
 func fileHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		fmt.Print(">> GET /api/assets: response = prompt.mp3\n")
+		log.Info().Msgf(">> GET %s", r.URL.Path)
 
 		http.ServeFile(w, r, "assets/prompt.mp3")
 	}
 }
 
 func main() {
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
 	http.HandleFunc("/api/conversation/create/art", handleCreateArtConversation)
 	http.HandleFunc("/api/assets/", fileHandler)
 
 	port := ":8080"
-	fmt.Printf("Server running on port %s\n", port)
-	log.Fatal(http.ListenAndServe(port, nil))
+	log.Info().Msgf("Server running on port %s", port)
+	log.Fatal().Err(http.ListenAndServe(port, nil))
 }
