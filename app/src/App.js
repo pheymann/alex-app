@@ -8,10 +8,6 @@ function App() {
   const [conversation, setConversation] = useState(null);
   const [prompt, setPrompt] = useState('');
 
-  const getRandomInt = () => {
-    return Math.floor(Math.random() * 101);
-  }
-
   const handleStartConversation = () => {
     fetch(`/api/conversation/create/art`, {
       method: 'POST',
@@ -84,7 +80,7 @@ function App() {
           {
 
             conversation.messages.map((message, index) => {
-              const key = message.speechClipUuid ? message.speechClipUuid : getRandomInt();
+              const key = `${message.speechClipUuid}_${index}`;
               return <div key={key}>
                   {message.speechClipUuid && <audio src={'/api/assets/' + message.speechClipUuid} controls /> }
                   <p>{message.text}</p>
