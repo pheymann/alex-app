@@ -42,14 +42,20 @@ function App() {
     })
       .then(response => response.json())
       .then(data => {
-        console.log(data);
-        conversation.messages.push({
-          text: prompt,
-        });
-        conversation.messages.push({
-          text: data.text,
-          speechClipUuid: data.speechClipUuid,
-        });
+        const newConversation = {
+          ...conversation,
+          messages: [...conversation.messages,
+            {
+              text: prompt,
+            },
+            {
+              text: data.text,
+              speechClipUuid: data.speechClipUuid,
+            }],
+        };
+
+        setConversation(newConversation);
+        setPrompt('');
       })
       .catch(error => {
         console.log(error);
@@ -80,7 +86,7 @@ function App() {
             conversation.messages.map((message, index) => {
               const key = message.speechClipUuid ? message.speechClipUuid : getRandomInt();
               return <div key={key}>
-                  {message.speechClipUuid && <audio src="/api/assets/{message.speechClipUuid}" controls /> }
+                  {message.speechClipUuid && <audio src={'/api/assets/' + message.speechClipUuid} controls /> }
                   <p>{message.text}</p>
                 </div>
             })
@@ -88,6 +94,7 @@ function App() {
           <div>
             <input
               type="text"
+              value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
             />
              <button onClick={handlePrompt}>Ask</button>
