@@ -1,4 +1,4 @@
-package art
+package user
 
 import (
 	"fmt"
@@ -6,9 +6,12 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/rs/zerolog/log"
 )
 
-func (ctx *AWSStorageCtx) FindArtConversation(uuid string) (*ArtConversation, error) {
+func (ctx *AWSStorageCtx) FindUser(uuid string) (*User, error) {
+	log.Debug().Str("uuid", uuid).Msg("find user")
+
 	key := map[string]*dynamodb.AttributeValue{
 		"id": {
 			S: aws.String(uuid),
@@ -29,11 +32,11 @@ func (ctx *AWSStorageCtx) FindArtConversation(uuid string) (*ArtConversation, er
 		return nil, nil
 	}
 
-	var conversation ArtConversation = ArtConversation{}
-	err = dynamodbattribute.UnmarshalMap(result.Item, &conversation)
+	var user = User{}
+	err = dynamodbattribute.UnmarshalMap(result.Item, &user)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal conversation :%w", err)
+		return nil, fmt.Errorf("failed to unmarshal user :%w", err)
 	}
 
-	return &conversation, nil
+	return &user, nil
 }

@@ -3,32 +3,68 @@ import React, { useState } from 'react';
 
 function App() {
   const [artistNames, setArtistName] = useState('');
-  const [artPieceName, setSetArtPieceName] = useState('');
+  const [artPieceName, setArtPieceName] = useState('');
 
-  const [messages, setMessages] = useState([]);
-  const [audioClip, setAudioClip] = useState('');
+  const [conversation, setConversation] = useState(null);
+  const [prompt, setPrompt] = useState('');
 
-  const handleClick = () => {
-    fetch(`/api/art`, {
+  const getRandomInt = () => {
+    return Math.floor(Math.random() * 101);
+  }
+
+  const handleStartConversation = () => {
+    fetch(`/api/conversation/create/art`, {
       method: 'POST',
       body: JSON.stringify({
-        artist_name: artistNames,
-        art_piece_name: artPieceName,
+        artistName: artistNames,
+        artPiece: artPieceName,
+        userUuid: "1",
       }),
     })
       .then(response => response.json())
       .then(data => {
         console.log(data);
-        setMessages(data.conversation_start.messages);
-        setAudioClip(data.conversation_start_clip_uuid);
+        setConversation(data);
       })
       .catch(error => {
         console.log(error);
       });
   };
 
+  const handlePrompt = () => {
+    fetch(`/api/conversation/continue`, {
+      method: 'POST',
+      body: JSON.stringify({
+        conversationUuid: conversation.id,
+        userUuid: "1",
+        prompt: prompt,
+      }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        const newConversation = {
+          ...conversation,
+          messages: [...conversation.messages,
+            {
+              text: prompt,
+            },
+            {
+              text: data.text,
+              speechClipUuid: data.speechClipUuid,
+            }],
+        };
+
+        setConversation(newConversation);
+        setPrompt('');
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+
   return (
     <div>
+
       <input
         type="text"
         value={artistNames}
@@ -37,19 +73,32 @@ function App() {
       <input
         type="text"
         value={artPieceName}
-        onChange={(e) => setSetArtPieceName(e.target.value)}
+        onChange={(e) => setArtPieceName(e.target.value)}
       />
-      <button onClick={handleClick}>Send Request</button>
+      { !conversation &&
+        <button onClick={handleStartConversation}>Start Conversation</button>
+      }
 
-      { messages &&
+      { conversation &&
         <div>
           {
-            messages.map((message, index) => {
-              return <p key={index}>{message.text}</p>;
+
+            conversation.messages.map((message, index) => {
+              const key = message.speechClipUuid ? message.speechClipUuid : getRandomInt();
+              return <div key={key}>
+                  {message.speechClipUuid && <audio src={'/api/assets/' + message.speechClipUuid} controls /> }
+                  <p>{message.text}</p>
+                </div>
             })
           }
-
-          {audioClip && <audio src="/api/assets/{audioClip}" controls />}
+          <div>
+            <input
+              type="text"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+            />
+             <button onClick={handlePrompt}>Ask</button>
+          </div>
         </div>
       }
     </div>

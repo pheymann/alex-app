@@ -1,4 +1,4 @@
-package textgeneration
+package conversation
 
 import (
 	"context"
@@ -7,12 +7,25 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
-func (generator *OpenAITextGenerator) ContinueConversation(conversation *Conversation) error {
+func (generator *OpenAITextGenerationService) GenerateNextMessage(conversation *Conversation) error {
 	openAIConversation := []openai.ChatCompletionMessage{}
 
 	for _, message := range conversation.Messages {
+		role := ""
+
+		switch message.Role {
+		case RoleAssistent:
+			role = openai.ChatMessageRoleAssistant
+		case RoleUser:
+			role = openai.ChatMessageRoleUser
+		case RoleSystem:
+			role = openai.ChatMessageRoleAssistant
+		default:
+			return fmt.Errorf("unknown role: %s", message.Role)
+		}
+
 		openAIConversation = append(openAIConversation, openai.ChatCompletionMessage{
-			Role:    message.Role,
+			Role:    role,
 			Content: message.Text,
 		})
 	}
@@ -30,8 +43,9 @@ func (generator *OpenAITextGenerator) ContinueConversation(conversation *Convers
 	}
 
 	conversation.Messages = append(conversation.Messages, Message{
-		Role: openai.ChatMessageRoleAssistant,
-		Text: resp.Choices[0].Message.Content,
+		Role:        RoleAssistent,
+		Text:        resp.Choices[0].Message.Content,
+		CanHaveClip: true,
 	})
 
 	return nil
