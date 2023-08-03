@@ -60,6 +60,17 @@ func (ctx *mockConversationStorageService) FindConversation(uuid string) (*conve
 	return nil, nil
 }
 
+func (ctx *mockConversationStorageService) FindAllConversations(uuids []string) ([]conversation.Conversation, error) {
+	var conversations []conversation.Conversation
+	for _, uuid := range uuids {
+		if conversation, ok := ctx.storage[uuid]; ok {
+			conversations = append(conversations, *conversation)
+		}
+	}
+
+	return conversations, nil
+}
+
 func (ctx *mockConversationStorageService) StoreConversation(conv conversation.Conversation) error {
 	ctx.storage[conv.ID] = &conv
 	return nil

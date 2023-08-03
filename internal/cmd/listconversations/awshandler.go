@@ -1,0 +1,54 @@
+package listconversations
+
+import (
+	"context"
+	"encoding/json"
+
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/rs/zerolog/log"
+	"talktome.com/internal/conversation"
+	"talktome.com/internal/user"
+)
+
+type HandlerCtx struct {
+	UserStorage user.StorageService
+	ConvStorage conversation.StorageService
+}
+
+func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	if event.HTTPMethod == "GET" {
+		log.Debug().Msg("Get conversation")
+
+		userUUID := event.Headers["User-UUID"]
+
+		conversations, err := Handle(userUUID, handlerCtx.UserStorage, handlerCtx.ConvStorage)
+		if err != nil {
+			log.Err(err).Msg("failed to fetch conversation")
+			return events.APIGatewayProxyResponse{
+				StatusCode: 400,
+				Body:       "Failed to fetch conversation",
+			}, nil
+		}
+
+		jsonConversations, err := json.Marshal(conversations)
+		if err != nil {
+			log.Err(err).Msg("failed to marshal conversations")
+			return events.APIGatewayProxyResponse{
+				StatusCode: 400,
+				Body:       "Failed tp marshal conversations",
+			}, nil
+		}
+
+		return events.APIGatewayProxyResponse{
+			StatusCode: 200,
+			Headers:    map[string]string{"Content-Type": "application/json"},
+			Body:       string(jsonConversations),
+		}, nil
+	}
+
+	log.Error().Msg("only GET requests are allowed.")
+	return events.APIGatewayProxyResponse{
+		StatusCode: 400,
+		Body:       "Only GET requests are allowed.",
+	}, nil
+}

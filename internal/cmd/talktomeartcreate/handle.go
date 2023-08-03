@@ -12,7 +12,11 @@ import (
 func Handle(userUUID string, artistName string, artPiece string, ctx talktome.Context) (*conversation.Conversation, error) {
 	log.Info().Str("user_uuid", userUUID).Msgf("create art conversation for %s's %s", artistName, artPiece)
 
-	conv := conversation.NewConversation(fmt.Sprintf("art:%s:%s", artistName, artPiece))
+	metadata := map[string]string{
+		"artistName": artistName,
+		"artPiece":   artPiece,
+	}
+	conv := conversation.NewConversation(metadata)
 	conv.Messages = []conversation.Message{
 		{
 			Role:        openai.ChatMessageRoleSystem,

@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"talktome.com/internal/cmd/listconversations"
 	"talktome.com/internal/cmd/talktomeartcreate"
 	"talktome.com/internal/cmd/talktomecontinue"
 	"talktome.com/internal/conversation"
@@ -23,6 +24,8 @@ import (
 func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
+	operation := flag.String("operation", "", "--operation <operation>")
+
 	userUUID := flag.String("user-uuid", "", "--user-uuid <uuid>")
 
 	convUUID := flag.String("conv-uuid", "", "--conv-uuid <uuid>")
@@ -33,20 +36,31 @@ func main() {
 
 	flag.Parse()
 
-	if *userUUID == "" {
-		panic("missing user uuid")
+	if *operation == "" {
+		panic("missing operation")
 	}
 
-	if *convUUID == "" {
-		if *artistName == "" {
-			panic("missing artist name")
-		} else if *artPiece == "" {
-			panic("missing art piece name")
-		}
-	} else {
-		if *message == "" {
-			panic("if 'conv-uuid' is set you have to provide a message")
-		}
+	switch *operation {
+	case "create-art":
+		createArtConversation(*userUUID, artistName, artPiece)
+		return
+	case "continue":
+		continueConversation(*userUUID, convUUID, message)
+		return
+	case "list-all":
+		listAllConversations(*userUUID)
+		return
+
+	default:
+		panic(fmt.Sprintf("unknown operation: %s", *operation))
+	}
+}
+
+func createArtConversation(userUUID string, artistName, artPiece *string) {
+	if *artistName == "" {
+		panic("missing artist name")
+	} else if *artPiece == "" {
+		panic("missing art piece name")
 	}
 
 	// ENV VAR init
@@ -75,20 +89,81 @@ func main() {
 
 	ctx := talktome.NewContext(textGen, speechGen, convStorage, userStorage)
 
-	if *convUUID == "" {
-		log.Info().Msg("creating new conversation")
-		conv, err := talktomeartcreate.Handle(*userUUID, *artistName, *artPiece, ctx)
-		if err != nil {
-			panic(err)
-		}
-
-		fmt.Printf("%v", *conv)
-	} else {
-		message, err := talktomecontinue.Handle(*userUUID, *convUUID, *message, ctx)
-		if err != nil {
-			panic(err)
-		}
-
-		fmt.Printf("%v", *message)
+	log.Info().Msg("creating new art conversation")
+	conv, err := talktomeartcreate.Handle(userUUID, *artistName, *artPiece, ctx)
+	if err != nil {
+		panic(err)
 	}
+
+	fmt.Printf("%+v", *conv)
+}
+
+func continueConversation(userUUID string, convUUID, message *string) {
+	if *message == "" {
+		panic("if 'conv-uuid' is set you have to provide a message")
+	} else if *convUUID == "" {
+		panic("missing conversation uuid")
+	}
+
+	// ENV VAR init
+	openAIToken := shared.MustReadEnvVar("TALKTOME_OPEN_AI_TOKEN")
+	conversationDynamoDBTable := shared.MustReadEnvVar("TALKTOME_CONVERSATION_TABLE")
+	userDynamoDBTable := shared.MustReadEnvVar("TALKTOME_USER_TABLE")
+	conversationClipBucket := shared.MustReadEnvVar("TALKTOME_CONVERSATION_CLIP_BUCKET")
+
+	// AWS init
+	sess, err := session.NewSession(&aws.Config{
+		Region: aws.String("eu-central-1"),
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	dynamoDBClient := dynamodb.New(sess)
+	s3 := s3.New(sess)
+	pollyClient := polly.New(sess)
+
+	// internal init
+	textGen := conversation.NewOpenAIGenerator(openAIToken)
+	speechGen := speechgeneration.NewAWSPollySpeechGenerator(pollyClient)
+	convStorage := conversation.NewAWSStorageCtx(dynamoDBClient, conversationDynamoDBTable, s3, conversationClipBucket)
+	userStorage := user.NewAWSStorageCtx(dynamoDBClient, userDynamoDBTable)
+
+	ctx := talktome.NewContext(textGen, speechGen, convStorage, userStorage)
+
+	log.Info().Msg("continue conversation")
+	conv, err := talktomecontinue.Handle(userUUID, *convUUID, *message, ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%+v", *conv)
+}
+
+func listAllConversations(userUUID string) {
+	// ENV VAR init
+	conversationDynamoDBTable := shared.MustReadEnvVar("TALKTOME_CONVERSATION_TABLE")
+	userDynamoDBTable := shared.MustReadEnvVar("TALKTOME_USER_TABLE")
+
+	// AWS init
+	sess, err := session.NewSession(&aws.Config{
+		Region: aws.String("eu-central-1"),
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	dynamoDBClient := dynamodb.New(sess)
+
+	// internal init
+	convStorage := conversation.NewAWSStorageCtx(dynamoDBClient, conversationDynamoDBTable, nil, "")
+	userStorage := user.NewAWSStorageCtx(dynamoDBClient, userDynamoDBTable)
+
+	log.Info().Msg("list all conversations")
+	conv, err := listconversations.Handle(userUUID, userStorage, convStorage)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%+v\n", conv)
 }

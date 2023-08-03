@@ -9,6 +9,7 @@ import (
 
 type StorageService interface {
 	FindConversation(uuid string) (*Conversation, error)
+	FindAllConversations(uuids []string) ([]Conversation, error)
 	StoreConversation(conversation Conversation) error
 	StoreClip(clip *os.File) error
 }

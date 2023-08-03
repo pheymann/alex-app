@@ -7,9 +7,9 @@ import (
 )
 
 type Conversation struct {
-	ID          string    `json:"id" dynamodbav:"id"`
-	Information string    `json:"information" dynamodbav:"information"`
-	Messages    []Message `json:"messages" dynamodbav:"messages"`
+	ID       string            `json:"id" dynamodbav:"id"`
+	Metadata map[string]string `json:"metadata" dynamodbav:"metadata"`
+	Messages []Message         `json:"messages" dynamodbav:"messages"`
 }
 
 type Message struct {
@@ -27,16 +27,21 @@ const (
 	RoleSystem    Role = "system"
 )
 
-func NewConversation(information string) Conversation {
+func NewConversation(metadata map[string]string) Conversation {
 	return Conversation{
-		ID:          GenerateStableID(information),
-		Information: information,
-		Messages:    []Message{},
+		ID:       GenerateStableID(metadata),
+		Metadata: metadata,
+		Messages: []Message{},
 	}
 }
 
-func GenerateStableID(information string) string {
-	return base64.StdEncoding.EncodeToString([]byte(information))
+func GenerateStableID(metadata map[string]string) string {
+	idSeed := ""
+	for _, value := range metadata {
+		idSeed += "::" + value
+	}
+
+	return base64.StdEncoding.EncodeToString([]byte(idSeed))
 }
 
 func (conversation *Conversation) AddMessage(text string) {
