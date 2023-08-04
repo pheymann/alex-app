@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
-export default function ArtConversation(conversationId) {
+export default function ArtConversation() {
+  const pathParams = useParams();
+
   const [artistNames, setArtistName] = useState('');
   const [artPieceName, setArtPieceName] = useState('');
 
@@ -10,10 +13,13 @@ export default function ArtConversation(conversationId) {
   const handleStartConversation = () => {
     fetch(`/api/conversation/create/art`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'User-UUID': '1',
+      },
       body: JSON.stringify({
         artistName: artistNames,
         artPiece: artPieceName,
-        userUuid: "1",
       }),
     })
       .then(response => response.json())
@@ -29,9 +35,12 @@ export default function ArtConversation(conversationId) {
   const handlePrompt = () => {
     fetch(`/api/conversation/continue`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'User-UUID': '1',
+      },
       body: JSON.stringify({
         conversationUuid: conversation.id,
-        userUuid: "1",
         prompt: prompt,
       }),
     })
@@ -57,22 +66,26 @@ export default function ArtConversation(conversationId) {
       });
   }
 
+  const conversationId = pathParams.id;
+
   useEffect(() => {
     if (!conversationId) {
       return;
     }
 
+    console.log(conversationId)
+
     fetch(`/api/conversation/${conversationId}`, {
-      method: 'POST',
-      body: JSON.stringify({
-        userUuid: "1",
-      }),
+      method: 'GET',
+      headers: {
+        'User-UUID': '1',
+      },
     })
       .then(response => response.json())
       .then(data => {
         setConversation(data);
-        setArtistName(data.artistName);
-        setArtPieceName(data.artPiece);
+        setArtistName(data.metadata.artistName);
+        setArtPieceName(data.metadata.artPiece);
       })
       .catch(error => {
         console.log(error);

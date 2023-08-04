@@ -16,12 +16,14 @@ type HandlerCtx struct {
 type ArtPiece struct {
 	ArtistName string `json:"artistName"`
 	ArtPiece   string `json:"artPiece"`
-	UserUUID   string `json:"userUuid"`
 }
 
 func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	if event.HTTPMethod == "POST" {
 		log.Debug().Msg("POSTed art conversation creation request")
+
+		userUUID := event.Headers["User-UUID"]
+
 		var artPiece ArtPiece
 
 		if err := json.Unmarshal([]byte(event.Body), &artPiece); err != nil {
@@ -32,7 +34,7 @@ func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGat
 			}, nil
 		}
 
-		conversation, err := Handle(artPiece.UserUUID, artPiece.ArtistName, artPiece.ArtPiece, handlerCtx.Ctx)
+		conversation, err := Handle(userUUID, artPiece.ArtistName, artPiece.ArtPiece, handlerCtx.Ctx)
 		if err != nil {
 			log.Err(err).Msg("failed to create art conversation")
 			return events.APIGatewayProxyResponse{

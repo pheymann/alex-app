@@ -8,12 +8,7 @@ import (
 	"talktome.com/internal/user"
 )
 
-type ConversationRef struct {
-	ID       string            `json:"id"`
-	Metadata map[string]string `json:"metadata"`
-}
-
-func Handle(userUUID string, userStorage user.StorageService, convStorage conversation.StorageService) ([]ConversationRef, error) {
+func Handle(userUUID string, userStorage user.StorageService, convStorage conversation.StorageService) ([]conversation.ConversationRef, error) {
 	log.Info().Str("user_uuid", userUUID).Msg("fetch all conversations")
 
 	user, err := userStorage.FindUser(userUUID)
@@ -28,11 +23,11 @@ func Handle(userUUID string, userStorage user.StorageService, convStorage conver
 		return nil, err
 	}
 
-	conversationRef := make([]ConversationRef, len(conversations))
-	for index, conversation := range conversations {
-		conversationRef[index] = ConversationRef{
-			ID:       conversation.ID,
-			Metadata: conversation.Metadata,
+	conversationRef := make([]conversation.ConversationRef, len(conversations))
+	for index, conv := range conversations {
+		conversationRef[index] = conversation.ConversationRef{
+			ID:       conv.ID,
+			Metadata: conv.Metadata,
 		}
 	}
 

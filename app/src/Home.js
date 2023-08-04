@@ -6,13 +6,14 @@ export default function Home() {
 
   useEffect(() => {
     fetch(`/api/conversation/list`, {
-      method: 'POST',
-      body: JSON.stringify({
-        userUuid: "1",
-      }),
+      method: 'GET',
+      headers: {
+        'User-UUID': '1',
+      },
     })
       .then(response => response.json())
       .then(data => {
+        console.log(data);
         setConversations(data);
       })
       .catch(error => {
@@ -36,10 +37,10 @@ export default function Home() {
               <div key={key}>
                 <h2>
                   <Link to={`/conversation/${conversation.id}`}>
-                    {conversation.artPiece}
+                    {conversation.metadata.artPiece}
                   </Link>
                 </h2>
-                <p>by {conversation.artistName}</p>
+                <p>by {conversation.metadata.artistName}</p>
               </div>
             );
           })

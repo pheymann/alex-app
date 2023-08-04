@@ -7,10 +7,14 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gorilla/mux"
+
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/sashabaranov/go-openai"
+	"talktome.com/internal/cmd/getconversation"
+	"talktome.com/internal/cmd/listconversations"
 	"talktome.com/internal/cmd/talktomeartcreate"
 	"talktome.com/internal/cmd/talktomecontinue"
 	"talktome.com/internal/conversation"
@@ -99,10 +103,27 @@ func (ctx *mockUserStorageService) StoreUser(user user.User) error {
 var (
 	mockTextGen     = &mockTextGeneration{}
 	mockSpeechGen   = &mockSpeechGeneration{}
-	mockConvStorage = &mockConversationStorageService{storage: make(map[string]*conversation.Conversation)}
+	mockConvStorage = &mockConversationStorageService{storage: map[string]*conversation.Conversation{
+		"1": {
+			ID: "1",
+			Metadata: map[string]string{
+				"artistName": "Jon Doe",
+				"artPiece":   "The Art Piece",
+			},
+			Messages: []conversation.Message{
+				{
+					Role: openai.ChatMessageRoleUser,
+					Text: "Hello",
+				},
+			},
+		},
+	}}
 	mockUserStorage = &mockUserStorageService{storage: map[string]*user.User{
 		"1": {
 			ID: "1",
+			ConversationUUIDs: []string{
+				"1",
+			},
 		},
 	}}
 
@@ -116,6 +137,9 @@ func handleCreateArtConversation(w http.ResponseWriter, r *http.Request) {
 	event := events.APIGatewayProxyRequest{
 		HTTPMethod: r.Method,
 		Body:       buf.String(),
+		Headers: map[string]string{
+			"User-UUID": r.Header.Get("User-UUID"),
+		},
 	}
 
 	response, err := talktomeartcreate.HandlerCtx{Ctx: mockCtx}.AWSHandler(context.TODO(), event)
@@ -139,9 +163,61 @@ func handleContinueConversation(w http.ResponseWriter, r *http.Request) {
 	event := events.APIGatewayProxyRequest{
 		HTTPMethod: r.Method,
 		Body:       buf.String(),
+		Headers: map[string]string{
+			"User-UUID": r.Header.Get("User-UUID"),
+		},
 	}
 
 	response, err := talktomecontinue.HandlerCtx{Ctx: mockCtx}.AWSHandler(context.TODO(), event)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+	if _, err := w.Write([]byte(response.Body)); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func handleGetConversation(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	event := events.APIGatewayProxyRequest{
+		HTTPMethod: r.Method,
+		PathParameters: map[string]string{
+			"uuid": vars["id"],
+		},
+		Headers: map[string]string{
+			"User-UUID": r.Header.Get("User-UUID"),
+		},
+	}
+
+	response, err := getconversation.HandlerCtx{UserStorage: mockUserStorage, ConvStorage: mockConvStorage}.AWSHandler(context.TODO(), event)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+	if _, err := w.Write([]byte(response.Body)); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func handleListConversations(w http.ResponseWriter, r *http.Request) {
+	event := events.APIGatewayProxyRequest{
+		HTTPMethod: r.Method,
+		Headers: map[string]string{
+			"User-UUID": r.Header.Get("User-UUID"),
+		},
+	}
+
+	response, err := listconversations.HandlerCtx{UserStorage: mockUserStorage, ConvStorage: mockConvStorage}.AWSHandler(context.TODO(), event)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -165,12 +241,15 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	router := mux.NewRouter()
 
-	http.HandleFunc("/api/conversation/create/art", handleCreateArtConversation)
-	http.HandleFunc("/api/conversation/continue", handleContinueConversation)
-	http.HandleFunc("/api/assets/", fileHandler)
+	router.HandleFunc("/api/conversation/create/art", handleCreateArtConversation).Methods(http.MethodPost)
+	router.HandleFunc("/api/conversation/continue", handleContinueConversation).Methods(http.MethodPost)
+	router.HandleFunc("/api/conversation/list", handleListConversations).Methods(http.MethodGet)
+	router.HandleFunc("/api/conversation/{id}", handleGetConversation).Methods(http.MethodGet)
+	router.HandleFunc("/api/assets/", fileHandler).Methods(http.MethodGet)
 
 	port := ":8080"
 	log.Info().Msgf("Server running on port %s", port)
-	log.Fatal().Err(http.ListenAndServe(port, nil))
+	log.Fatal().Err(http.ListenAndServe(port, router))
 }

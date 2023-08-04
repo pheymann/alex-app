@@ -17,18 +17,17 @@ type HandlerCtx struct {
 
 func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	if event.HTTPMethod == "GET" {
-		log.Debug().Msg("Get conversation")
-
 		userUUID := event.Headers["User-UUID"]
 
 		conversations, err := Handle(userUUID, handlerCtx.UserStorage, handlerCtx.ConvStorage)
 		if err != nil {
-			log.Err(err).Msg("failed to fetch conversation")
+			log.Err(err).Msg("failed to list conversations")
 			return events.APIGatewayProxyResponse{
 				StatusCode: 400,
-				Body:       "Failed to fetch conversation",
+				Body:       "Failed to list conversations",
 			}, nil
 		}
+		log.Debug().Msgf("found %d conversations", len(conversations))
 
 		jsonConversations, err := json.Marshal(conversations)
 		if err != nil {

@@ -15,13 +15,15 @@ type HandlerCtx struct {
 
 type conversationRequest struct {
 	ConversationUUID string `json:"conversationUuid"`
-	UserUUID         string `json:"userUuid"`
 	Prompt           string `json:"prompt"`
 }
 
 func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	if event.HTTPMethod == "POST" {
 		log.Debug().Msg("POSTed conversation continuation request")
+		// TODO: add user id to log context
+		userUUID := event.Headers["User-UUID"]
+
 		var convReq conversationRequest
 
 		if err := json.Unmarshal([]byte(event.Body), &convReq); err != nil {
@@ -32,7 +34,7 @@ func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGat
 			}, nil
 		}
 
-		message, err := Handle(convReq.UserUUID, convReq.ConversationUUID, convReq.Prompt, handlerCtx.Ctx)
+		message, err := Handle(userUUID, convReq.ConversationUUID, convReq.Prompt, handlerCtx.Ctx)
 		if err != nil {
 			log.Err(err).Msg("failed to continue conversation")
 			return events.APIGatewayProxyResponse{
