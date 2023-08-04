@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"talktome.com/internal/cmd/getconversation"
 	"talktome.com/internal/cmd/listconversations"
 	"talktome.com/internal/cmd/talktomeartcreate"
 	"talktome.com/internal/cmd/talktomecontinue"
@@ -49,6 +50,9 @@ func main() {
 		return
 	case "list-all":
 		listAllConversations(*userUUID)
+		return
+	case "get":
+		getConversation(*userUUID, convUUID)
 		return
 
 	default:
@@ -161,6 +165,38 @@ func listAllConversations(userUUID string) {
 
 	log.Info().Msg("list all conversations")
 	conv, err := listconversations.Handle(userUUID, userStorage, convStorage)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%+v\n", conv)
+}
+
+func getConversation(userUUID string, convUUID *string) {
+	if *convUUID == "" {
+		panic("missing conversation uuid")
+	}
+
+	// ENV VAR init
+	conversationDynamoDBTable := shared.MustReadEnvVar("TALKTOME_CONVERSATION_TABLE")
+	userDynamoDBTable := shared.MustReadEnvVar("TALKTOME_USER_TABLE")
+
+	// AWS init
+	sess, err := session.NewSession(&aws.Config{
+		Region: aws.String("eu-central-1"),
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	dynamoDBClient := dynamodb.New(sess)
+
+	// internal init
+	convStorage := conversation.NewAWSStorageCtx(dynamoDBClient, conversationDynamoDBTable, nil, "")
+	userStorage := user.NewAWSStorageCtx(dynamoDBClient, userDynamoDBTable)
+
+	log.Info().Msg("list all conversations")
+	conv, err := getconversation.Handle(userUUID, *convUUID, userStorage, convStorage)
 	if err != nil {
 		panic(err)
 	}
