@@ -4,14 +4,45 @@ import { useParams } from 'react-router-dom';
 export default function ArtConversation() {
   const pathParams = useParams();
 
-  const [artistNames, setArtistName] = useState('');
+  const [artistName, setArtistName] = useState('');
   const [artPieceName, setArtPieceName] = useState('');
 
   const [conversation, setConversation] = useState(null);
-  const [prompt, setPrompt] = useState('');
 
+  const conversationId = pathParams.id;
+
+  useEffect(() => {
+    if (!conversationId || conversationId === 'new') {
+      return;
+    }
+
+    fetch(`/api/conversation/${conversationId}`, {
+      method: 'GET',
+      headers: {
+        'User-UUID': '1',
+      },
+    })
+      .then(response => response.json())
+      .then(data => {
+        setConversation(data);
+        setArtistName(data.metadata.artistName);
+        setArtPieceName(data.metadata.artPiece);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }, [conversationId]);
+
+  if (!conversation) {
+    return <NewConversation artPieceName={artPieceName} setArtPieceName={setArtPieceName} artistName={setArtistName} setConversation={setConversation} />;
+  } else {
+    return <ContinueConversation artPieceName={artPieceName} artistName={artistName} conversation={conversation} setConversation={setConversation} />;
+  }
+}
+
+function NewConversation(artPieceName, setArtPieceName, artistName, setArtistName, setConversation) {
   const handleStartConversation = () => {
-    if (artistNames === '' || artPieceName === '') {
+    if (artistName === '' || artPieceName === '') {
       // TODO: show error message
       console.error('missing artist name or art piece name');
       return;
@@ -24,7 +55,7 @@ export default function ArtConversation() {
         'User-UUID': '1',
       },
       body: JSON.stringify({
-        artistName: artistNames,
+        artistName: artistName,
         artPiece: artPieceName,
       }),
     })
@@ -36,6 +67,31 @@ export default function ArtConversation() {
         console.log(error);
       });
   };
+
+  return (
+    <div>
+      Tell me something about
+      <input
+        type='text'
+        value={artPieceName}
+        placeholder='Mona Lisa'
+        onChange={(e) => setArtPieceName(e.target.value)}
+      />
+      by
+      <input
+        type='text'
+        value={artistName}
+        placeholder='Leonardo da Vinci'
+        onChange={(e) => setArtistName(e.target.value)}
+      />
+
+      <button className='btn btn-primary' onClick={handleStartConversation}>Start</button>
+    </div>
+  );
+}
+
+function ContinueConversation({artPieceName, artistName, conversation, setConversation}) {
+  const [prompt, setPrompt] = useState('');
 
   const handlePrompt = () => {
     if (prompt === '') {
@@ -77,73 +133,31 @@ export default function ArtConversation() {
       });
   }
 
-  const conversationId = pathParams.id;
-
-  useEffect(() => {
-    if (!conversationId || conversationId === 'new') {
-      return;
-    }
-
-    fetch(`/api/conversation/${conversationId}`, {
-      method: 'GET',
-      headers: {
-        'User-UUID': '1',
-      },
-    })
-      .then(response => response.json())
-      .then(data => {
-        setConversation(data);
-        setArtistName(data.metadata.artistName);
-        setArtPieceName(data.metadata.artPiece);
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  }, [conversationId]);
-
   return (
     <div>
-      Tell me something about
-      <input
-        type='text'
-        value={artPieceName}
-        onChange={(e) => setArtPieceName(e.target.value)}
-      />
-      by
-      <input
-        type='text'
-        value={artistNames}
-        onChange={(e) => setArtistName(e.target.value)}
-      />
+      Tell me something about {artPieceName} by {artistName}
 
-      { !conversation &&
-        <button className='btn btn-primary' onClick={handleStartConversation}>Start Conversation</button>
-      }
+      <div>
+        {
+          conversation.messages.map((message, index) => {
+            const key = `${message.speechClipUuid}_${index}`;
 
-      { conversation &&
+            if (message.role === 'user') {
+              return <UserMessage key={key} message={message} />
+            } else {
+              return <AssistantMessage key={key} index={index} message={message} />
+            }
+          })
+        }
         <div>
-          {
-
-            conversation.messages.map((message, index) => {
-              const key = `${message.speechClipUuid}_${index}`;
-
-              if (message.role === 'user') {
-                return <UserMessage key={key} message={message} />
-              } else {
-                return <AssistantMessage key={key} index={index} message={message} />
-              }
-            })
-          }
-          <div>
-            <input
-              type='text'
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-            />
-             <button className='btn btn-primary' onClick={handlePrompt}>Ask</button>
-          </div>
+          <input
+            type='text'
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+          />
+          <button className='btn btn-primary' onClick={handlePrompt}>Ask</button>
         </div>
-      }
+      </div>
     </div>
   );
 }

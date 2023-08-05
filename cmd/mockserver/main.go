@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/mux"
 
@@ -29,6 +30,10 @@ func (generator *mockTextGeneration) GenerateNextMessage(conv *conversation.Conv
 		Role: openai.ChatMessageRoleAssistant,
 		Text: "A long explanation ....",
 	})
+
+	// simulate OpenAI generation time
+	time.Sleep(5 * time.Second)
+
 	return nil
 }
 
@@ -49,6 +54,9 @@ func (generator *mockSpeechGeneration) GenerateSpeechClip(title string, text str
 	if _, err := io.Copy(copyFile, file); err != nil {
 		return nil, err
 	}
+
+	// simulate Polly generation time
+	time.Sleep(3 * time.Second)
 
 	return copyFile, nil
 }
@@ -112,7 +120,7 @@ var (
 			},
 			Messages: []conversation.Message{
 				{
-					Role:           openai.ChatMessageRoleUser,
+					Role:           openai.ChatMessageRoleAssistant,
 					Text:           "Hello",
 					SpeechClipUUID: "1",
 				},
