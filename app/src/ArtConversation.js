@@ -150,7 +150,7 @@ export default function ArtConversation() {
 
 function UserMessage({ message }) {
   return (
-    <div>
+    <div className='card card-body'>
       <p>
         {message.text}
       </p>
