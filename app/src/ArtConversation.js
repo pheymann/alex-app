@@ -6,13 +6,15 @@ export default function ArtConversation() {
 
   const [artistName, setArtistName] = useState('');
   const [artPieceName, setArtPieceName] = useState('');
-
   const [conversation, setConversation] = useState(null);
+
+  const [loading, setLoading] = useState(true);
 
   const conversationId = pathParams.id;
 
   useEffect(() => {
     if (!conversationId || conversationId === 'new') {
+      setLoading(false);
       return;
     }
 
@@ -27,11 +29,20 @@ export default function ArtConversation() {
         setConversation(data);
         setArtistName(data.metadata.artistName);
         setArtPieceName(data.metadata.artPiece);
+        setLoading(false);
       })
       .catch(error => {
         console.log(error);
       });
   }, [conversationId]);
+
+  if (loading) {
+    return(
+      <div className="spinner-border" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </div>
+    );
+  }
 
   if (!conversation) {
     return <NewConversation artPieceName={artPieceName} setArtPieceName={setArtPieceName} artistName={setArtistName} setConversation={setConversation} />;
@@ -92,6 +103,7 @@ function NewConversation(artPieceName, setArtPieceName, artistName, setArtistNam
 
 function ContinueConversation({artPieceName, artistName, conversation, setConversation}) {
   const [prompt, setPrompt] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handlePrompt = () => {
     if (prompt === '') {
@@ -99,6 +111,8 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
       console.error('missing prompt');
       return;
     }
+
+    setLoading(true);
 
     fetch(`/api/conversation/continue`, {
       method: 'POST',
@@ -127,6 +141,7 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
 
         setConversation(newConversation);
         setPrompt('');
+        setLoading(false);
       })
       .catch(error => {
         console.log(error);
@@ -149,14 +164,23 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
             }
           })
         }
-        <div>
-          <input
-            type='text'
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-          />
-          <button className='btn btn-primary' onClick={handlePrompt}>Ask</button>
-        </div>
+
+        { !loading &&
+          <div>
+            <input
+              type='text'
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+            />
+            <button className='btn btn-primary' onClick={handlePrompt}>Ask</button>
+          </div>
+        }
+
+        { loading &&
+           <div className="spinner-border" role="status">
+             <span className="visually-hidden">Loading...</span>
+           </div>
+        }
       </div>
     </div>
   );
