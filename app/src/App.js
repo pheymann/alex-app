@@ -5,8 +5,8 @@ import ArtConversation from './ArtConversation';
 export default function App() {
   return (
     <Routes>
-      <Route exact path="/" element={<Home />} />
-      <Route path="/conversation/:id" element={<ArtConversation />} />
+      <Route exact path='/' element={<Home />} />
+      <Route path='/conversation/:id' element={<ArtConversation />} />
     </Routes>
   );
 }

@@ -105,19 +105,19 @@ export default function ArtConversation() {
     <div>
       Tell me something about
       <input
-        type="text"
+        type='text'
         value={artPieceName}
         onChange={(e) => setArtPieceName(e.target.value)}
       />
       by
       <input
-        type="text"
+        type='text'
         value={artistNames}
         onChange={(e) => setArtistName(e.target.value)}
       />
 
       { !conversation &&
-        <button className="btn btn-primary" onClick={handleStartConversation}>Start Conversation</button>
+        <button className='btn btn-primary' onClick={handleStartConversation}>Start Conversation</button>
       }
 
       { conversation &&
@@ -136,11 +136,11 @@ export default function ArtConversation() {
           }
           <div>
             <input
-              type="text"
+              type='text'
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
             />
-             <button className="btn btn-primary" onClick={handlePrompt}>Ask</button>
+             <button className='btn btn-primary' onClick={handlePrompt}>Ask</button>
           </div>
         </div>
       }
@@ -165,13 +165,14 @@ function AssistantMessage({ index, message }) {
     <div>
       <audio src={'/api/assets/speechclip/' + message.speechClipUuid} controls />
 
-
-      <button className="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target={`#${answerInTextId}`} aria-expanded="false">
+      <button className='btn btn-primary' type='button' data-bs-toggle='collapse' data-bs-target={`#${answerInTextId}`} aria-expanded='false'>
         Show Text
       </button>
-      <div className="collapse" id={answerInTextId}>
-        <div className="card card-body">
-          {message.text}
+      <div className='collapse' id={answerInTextId}>
+        <div className='card card-body'>
+          <p>
+            {message.text}
+          </p>
         </div>
       </div>
     </div>
