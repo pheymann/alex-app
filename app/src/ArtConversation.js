@@ -30,7 +30,6 @@ export default function ArtConversation() {
     })
       .then(response => response.json())
       .then(data => {
-        console.log(data);
         setConversation(data);
       })
       .catch(error => {
@@ -81,11 +80,9 @@ export default function ArtConversation() {
   const conversationId = pathParams.id;
 
   useEffect(() => {
-    if (!conversationId) {
+    if (!conversationId || conversationId === 'new') {
       return;
     }
-
-    console.log(conversationId)
 
     fetch(`/api/conversation/${conversationId}`, {
       method: 'GET',
@@ -112,7 +109,7 @@ export default function ArtConversation() {
         value={artPieceName}
         onChange={(e) => setArtPieceName(e.target.value)}
       />
-      from
+      by
       <input
         type="text"
         value={artistNames}
@@ -120,7 +117,7 @@ export default function ArtConversation() {
       />
 
       { !conversation &&
-        <button class="btn btn-primary" onClick={handleStartConversation}>Start Conversation</button>
+        <button className="btn btn-primary" onClick={handleStartConversation}>Start Conversation</button>
       }
 
       { conversation &&
@@ -130,10 +127,11 @@ export default function ArtConversation() {
             conversation.messages.map((message, index) => {
               const key = `${message.speechClipUuid}_${index}`;
 
-              return <div key={key}>
-                  {message.speechClipUuid && <audio src={'/api/assets/speechclip/' + message.speechClipUuid} controls /> }
-                  <p>{message.text}</p>
-                </div>
+              if (message.role === 'user') {
+                return <UserMessage key={key} message={message} />
+              } else {
+                return <AssistantMessage key={key} index={index} message={message} />
+              }
             })
           }
           <div>
@@ -142,10 +140,40 @@ export default function ArtConversation() {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
             />
-             <button class="btn btn-primary" onClick={handlePrompt}>Ask</button>
+             <button className="btn btn-primary" onClick={handlePrompt}>Ask</button>
           </div>
         </div>
       }
+    </div>
+  );
+}
+
+function UserMessage({ message }) {
+  return (
+    <div>
+      <p>
+        {message.text}
+      </p>
+    </div>
+  );
+}
+
+function AssistantMessage({ index, message }) {
+  const answerInTextId = `answerInText_${index}`;
+
+  return (
+    <div>
+      <audio src={'/api/assets/speechclip/' + message.speechClipUuid} controls />
+
+
+      <button className="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target={`#${answerInTextId}`} aria-expanded="false">
+        Show Text
+      </button>
+      <div className="collapse" id={answerInTextId}>
+        <div className="card card-body">
+          {message.text}
+        </div>
+      </div>
     </div>
   );
 }
