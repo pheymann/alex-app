@@ -11,6 +11,10 @@ import (
 func (ctx Context) ContinueConversation(userUUID string, convUUID string, message string) (*conversation.Conversation, error) {
 	log.Info().Str("user_uuid", userUUID).Str("conversation_uuid", convUUID).Msg("continue conversation")
 
+	if message == "" {
+		return nil, fmt.Errorf("message cannot be empty")
+	}
+
 	user, err := ctx.userStorage.FindUser(userUUID)
 	if err != nil {
 		return nil, err

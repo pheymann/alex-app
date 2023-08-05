@@ -11,6 +11,12 @@ export default function ArtConversation() {
   const [prompt, setPrompt] = useState('');
 
   const handleStartConversation = () => {
+    if (artistNames === '' || artPieceName === '') {
+      // TODO: show error message
+      console.error('missing artist name or art piece name');
+      return;
+    }
+
     fetch(`/api/conversation/create/art`, {
       method: 'POST',
       headers: {
@@ -33,6 +39,12 @@ export default function ArtConversation() {
   };
 
   const handlePrompt = () => {
+    if (prompt === '') {
+      // TODO: show error message
+      console.error('missing prompt');
+      return;
+    }
+
     fetch(`/api/conversation/continue`, {
       method: 'POST',
       headers: {
@@ -94,18 +106,21 @@ export default function ArtConversation() {
 
   return (
     <div>
-      <input
-        type="text"
-        value={artistNames}
-        onChange={(e) => setArtistName(e.target.value)}
-      />
+      Tell me something about
       <input
         type="text"
         value={artPieceName}
         onChange={(e) => setArtPieceName(e.target.value)}
       />
+      from
+      <input
+        type="text"
+        value={artistNames}
+        onChange={(e) => setArtistName(e.target.value)}
+      />
+
       { !conversation &&
-        <button onClick={handleStartConversation}>Start Conversation</button>
+        <button class="btn btn-primary" onClick={handleStartConversation}>Start Conversation</button>
       }
 
       { conversation &&
@@ -127,7 +142,7 @@ export default function ArtConversation() {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
             />
-             <button onClick={handlePrompt}>Ask</button>
+             <button class="btn btn-primary" onClick={handlePrompt}>Ask</button>
           </div>
         </div>
       }
