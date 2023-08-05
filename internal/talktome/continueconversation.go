@@ -2,6 +2,7 @@ package talktome
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/rs/zerolog/log"
 	"talktome.com/internal/conversation"
@@ -43,7 +44,7 @@ func (ctx Context) ContinueConversation(userUUID string, convUUID string, messag
 		return nil, err
 	}
 
-	conv.Messages[lastMessageIndex].SpeechClipUUID = clipFile.Name()
+	conv.Messages[lastMessageIndex].SpeechClipUUID = filepath.Base(clipFile.Name())
 
 	if err := ctx.conversationStorage.StoreConversation(conv); err != nil {
 		return nil, err

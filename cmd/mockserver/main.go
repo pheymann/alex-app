@@ -41,7 +41,7 @@ func (generator *mockSpeechGeneration) GenerateSpeechClip(title string, text str
 	}
 	defer file.Close()
 
-	copyFile, err := os.CreateTemp("", "")
+	copyFile, err := os.CreateTemp("", "speechclip*.mp3")
 	if err != nil {
 		return nil, err
 	}
@@ -112,8 +112,9 @@ var (
 			},
 			Messages: []conversation.Message{
 				{
-					Role: openai.ChatMessageRoleUser,
-					Text: "Hello",
+					Role:           openai.ChatMessageRoleUser,
+					Text:           "Hello",
+					SpeechClipUUID: "1",
 				},
 			},
 		},
@@ -233,8 +234,6 @@ func handleListConversations(w http.ResponseWriter, r *http.Request) {
 
 func fileHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		log.Info().Msgf(">> GET %s", r.URL.Path)
-
 		http.ServeFile(w, r, "assets/prompt.mp3")
 	}
 }
@@ -247,7 +246,7 @@ func main() {
 	router.HandleFunc("/api/conversation/continue", handleContinueConversation).Methods(http.MethodPost)
 	router.HandleFunc("/api/conversation/list", handleListConversations).Methods(http.MethodGet)
 	router.HandleFunc("/api/conversation/{id}", handleGetConversation).Methods(http.MethodGet)
-	router.HandleFunc("/api/assets/", fileHandler).Methods(http.MethodGet)
+	router.HandleFunc("/api/assets/speechclip/{id}", fileHandler).Methods(http.MethodGet)
 
 	port := ":8080"
 	log.Info().Msgf("Server running on port %s", port)

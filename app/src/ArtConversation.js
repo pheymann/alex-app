@@ -116,7 +116,7 @@ export default function ArtConversation() {
               const key = `${message.speechClipUuid}_${index}`;
 
               return <div key={key}>
-                  {message.speechClipUuid && <audio src={'/api/assets/' + message.speechClipUuid} controls /> }
+                  {message.speechClipUuid && <audio src={'/api/assets/speechclip/' + message.speechClipUuid} controls /> }
                   <p>{message.text}</p>
                 </div>
             })
