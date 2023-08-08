@@ -1,14 +1,15 @@
 import {useState, useEffect} from 'react';
 import { Link } from 'react-router-dom';
 
-export default function Home() {
+export default function Home({ awsContext }) {
   const [conversations, setConversations] = useState([]);
 
   useEffect(() => {
     fetch(`/api/conversation/list`, {
       method: 'GET',
       headers: {
-        'User-UUID': '1',
+        'User-UUID': awsContext.userUUID,
+        'Authorization': `Bearer ${awsContext.token}`,
       },
     })
       .then(response => response.json())
@@ -18,7 +19,7 @@ export default function Home() {
       .catch(error => {
         console.log(error);
       });
-  }, []);
+  }, [awsContext.token, awsContext.userUUID]);
 
   return (
     <div>

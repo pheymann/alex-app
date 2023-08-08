@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-export default function ArtConversation() {
+export default function ArtConversation({ awsContext }) {
   const pathParams = useParams();
 
   const [artistName, setArtistName] = useState('');
@@ -21,7 +21,8 @@ export default function ArtConversation() {
     fetch(`/api/conversation/${conversationId}`, {
       method: 'GET',
       headers: {
-        'User-UUID': '1',
+        'User-UUID': awsContext.userUUID,
+        'Authorization': `Bearer ${awsContext.token}`,
       },
     })
       .then(response => response.json())
@@ -34,7 +35,7 @@ export default function ArtConversation() {
       .catch(error => {
         console.log(error);
       });
-  }, [conversationId]);
+  }, [conversationId, awsContext.token, awsContext.userUUID]);
 
   if (loading) {
     return(
@@ -45,13 +46,13 @@ export default function ArtConversation() {
   }
 
   if (!conversation) {
-    return <NewConversation artPieceName={artPieceName} setArtPieceName={setArtPieceName} artistName={setArtistName} setConversation={setConversation} />;
+    return <NewConversation artPieceName={artPieceName} setArtPieceName={setArtPieceName} artistName={setArtistName} setConversation={setConversation} awsContext={awsContext} />;
   } else {
-    return <ContinueConversation artPieceName={artPieceName} artistName={artistName} conversation={conversation} setConversation={setConversation} />;
+    return <ContinueConversation artPieceName={artPieceName} artistName={artistName} conversation={conversation} setConversation={setConversation} awsContext={awsContext} />;
   }
 }
 
-function NewConversation(artPieceName, setArtPieceName, artistName, setArtistName, setConversation) {
+function NewConversation({artPieceName, setArtPieceName, artistName, setArtistName, setConversation, awsContext}) {
   const handleStartConversation = () => {
     if (artistName === '' || artPieceName === '') {
       // TODO: show error message
@@ -63,7 +64,8 @@ function NewConversation(artPieceName, setArtPieceName, artistName, setArtistNam
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'User-UUID': '1',
+        'User-UUID': awsContext.userUUID,
+        'Authorization': `Bearer ${awsContext.token}`,
       },
       body: JSON.stringify({
         artistName: artistName,
@@ -101,7 +103,7 @@ function NewConversation(artPieceName, setArtPieceName, artistName, setArtistNam
   );
 }
 
-function ContinueConversation({artPieceName, artistName, conversation, setConversation}) {
+function ContinueConversation({artPieceName, artistName, conversation, setConversation, awsContext}) {
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -118,7 +120,8 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'User-UUID': '1',
+        'User-UUID': awsContext.userUUID,
+        'Authorization': `Bearer ${awsContext.token}`,
       },
       body: JSON.stringify({
         conversationUuid: conversation.id,
