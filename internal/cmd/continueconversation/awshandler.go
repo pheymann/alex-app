@@ -1,4 +1,4 @@
-package talktomeartcreate
+package continueconversation
 
 import (
 	"context"
@@ -13,20 +13,20 @@ type HandlerCtx struct {
 	Ctx talktome.Context
 }
 
-type ArtPiece struct {
-	ArtistName string `json:"artistName"`
-	ArtPiece   string `json:"artPiece"`
+type conversationRequest struct {
+	ConversationUUID string `json:"conversationUuid"`
+	Prompt           string `json:"prompt"`
 }
 
 func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	if event.HTTPMethod == "POST" {
-		log.Debug().Msg("POSTed art conversation creation request")
-
+		log.Debug().Msg("POSTed conversation continuation request")
+		// TODO: add user id to log context
 		userUUID := event.Headers["User-UUID"]
 
-		var artPiece ArtPiece
+		var convReq conversationRequest
 
-		if err := json.Unmarshal([]byte(event.Body), &artPiece); err != nil {
+		if err := json.Unmarshal([]byte(event.Body), &convReq); err != nil {
 			log.Err(err).Msg("couldn't parse body")
 			return events.APIGatewayProxyResponse{
 				StatusCode: 400,
@@ -34,21 +34,21 @@ func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGat
 			}, nil
 		}
 
-		conversation, err := Handle(userUUID, artPiece.ArtistName, artPiece.ArtPiece, handlerCtx.Ctx)
+		message, err := Handle(userUUID, convReq.ConversationUUID, convReq.Prompt, handlerCtx.Ctx)
 		if err != nil {
-			log.Err(err).Msg("failed to create art conversation")
+			log.Err(err).Msg("failed to continue conversation")
 			return events.APIGatewayProxyResponse{
 				StatusCode: 400,
-				Body:       "Failed to get or create conversation",
+				Body:       "Failed to continue conversation",
 			}, nil
 		}
 
-		jsonPresentation, err := json.Marshal(*conversation)
+		jsonPresentation, err := json.Marshal(*message)
 		if err != nil {
-			log.Err(err).Msg("failed to marshal conversation")
+			log.Err(err).Msg("failed to marshal response")
 			return events.APIGatewayProxyResponse{
 				StatusCode: 400,
-				Body:       "Failed tp marshal conversation",
+				Body:       "Failed to marshal response",
 			}, nil
 		}
 

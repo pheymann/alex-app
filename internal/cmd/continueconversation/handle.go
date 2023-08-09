@@ -1,4 +1,4 @@
-package talktomecontinue
+package continueconversation
 
 import (
 	"talktome.com/internal/conversation"

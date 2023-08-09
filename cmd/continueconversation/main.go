@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"talktome.com/internal/cmd/talktomecontinue"
+	"talktome.com/internal/cmd/continueconversation"
 	"talktome.com/internal/conversation"
 	"talktome.com/internal/shared"
 	"talktome.com/internal/speechgeneration"
@@ -47,5 +47,5 @@ func main() {
 	ctx := talktome.NewContext(textGen, speechGen, convStorage, userStorage)
 
 	log.Info().Msg("starting 'continue conversation' lambda")
-	lambda.Start(talktomecontinue.HandlerCtx{Ctx: ctx}.AWSHandler)
+	lambda.Start(continueconversation.HandlerCtx{Ctx: ctx}.AWSHandler)
 }

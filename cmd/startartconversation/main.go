@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"talktome.com/internal/cmd/talktomeartcreate"
+	talktomeartcreate "talktome.com/internal/cmd/startartconversation"
 	"talktome.com/internal/conversation"
 	"talktome.com/internal/shared"
 	"talktome.com/internal/speechgeneration"
@@ -46,6 +46,6 @@ func main() {
 
 	ctx := talktome.NewContext(textGen, speechGen, convStorage, userStorage)
 
-	log.Info().Msg("starting 'art conversation creation' lambda")
+	log.Info().Msg("starting 'start art conversation' lambda")
 	lambda.Start(talktomeartcreate.HandlerCtx{Ctx: ctx}.AWSHandler)
 }

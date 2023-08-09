@@ -11,10 +11,10 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"talktome.com/internal/cmd/continueconversation"
 	"talktome.com/internal/cmd/getconversation"
 	"talktome.com/internal/cmd/listconversations"
-	"talktome.com/internal/cmd/talktomeartcreate"
-	"talktome.com/internal/cmd/talktomecontinue"
+	"talktome.com/internal/cmd/startartconversation"
 	"talktome.com/internal/conversation"
 	"talktome.com/internal/shared"
 	"talktome.com/internal/speechgeneration"
@@ -94,7 +94,7 @@ func createArtConversation(userUUID string, artistName, artPiece *string) {
 	ctx := talktome.NewContext(textGen, speechGen, convStorage, userStorage)
 
 	log.Info().Msg("creating new art conversation")
-	conv, err := talktomeartcreate.Handle(userUUID, *artistName, *artPiece, ctx)
+	conv, err := startartconversation.Handle(userUUID, *artistName, *artPiece, ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -136,7 +136,7 @@ func continueConversation(userUUID string, convUUID, message *string) {
 	ctx := talktome.NewContext(textGen, speechGen, convStorage, userStorage)
 
 	log.Info().Msg("continue conversation")
-	conv, err := talktomecontinue.Handle(userUUID, *convUUID, *message, ctx)
+	conv, err := continueconversation.Handle(userUUID, *convUUID, *message, ctx)
 	if err != nil {
 		panic(err)
 	}

@@ -1,4 +1,4 @@
-package talktomeartcreate
+package startartconversation
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 )
 
 func Handle(userUUID string, artistName string, artPiece string, ctx talktome.Context) (*conversation.Conversation, error) {
-	log.Info().Str("user_uuid", userUUID).Msgf("create art conversation for %s's %s", artistName, artPiece)
+	log.Info().Str("user_uuid", userUUID).Msgf("start art conversation for %s's %s", artistName, artPiece)
 
 	if artistName == "" && artPiece == "" {
 		return nil, fmt.Errorf("artist name and art piece cannot be empty")

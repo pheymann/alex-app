@@ -14,10 +14,10 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/sashabaranov/go-openai"
+	"talktome.com/internal/cmd/continueconversation"
 	"talktome.com/internal/cmd/getconversation"
 	"talktome.com/internal/cmd/listconversations"
-	"talktome.com/internal/cmd/talktomeartcreate"
-	"talktome.com/internal/cmd/talktomecontinue"
+	"talktome.com/internal/cmd/startartconversation"
 	"talktome.com/internal/conversation"
 	"talktome.com/internal/talktome"
 	"talktome.com/internal/user"
@@ -151,7 +151,7 @@ func handleCreateArtConversation(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	response, err := talktomeartcreate.HandlerCtx{Ctx: mockCtx}.AWSHandler(context.TODO(), event)
+	response, err := startartconversation.HandlerCtx{Ctx: mockCtx}.AWSHandler(context.TODO(), event)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -177,7 +177,7 @@ func handleContinueConversation(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	response, err := talktomecontinue.HandlerCtx{Ctx: mockCtx}.AWSHandler(context.TODO(), event)
+	response, err := continueconversation.HandlerCtx{Ctx: mockCtx}.AWSHandler(context.TODO(), event)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
