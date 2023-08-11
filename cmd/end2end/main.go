@@ -195,7 +195,7 @@ func getConversation(userUUID string, convUUID *string) {
 	convStorage := conversation.NewAWSStorageCtx(dynamoDBClient, conversationDynamoDBTable, nil, "")
 	userStorage := user.NewAWSStorageCtx(dynamoDBClient, userDynamoDBTable)
 
-	log.Info().Msg("list all conversations")
+	log.Info().Msg("get conversation")
 	conv, err := getconversation.Handle(userUUID, *convUUID, userStorage, convStorage)
 	if err != nil {
 		panic(err)

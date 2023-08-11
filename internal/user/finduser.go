@@ -25,7 +25,7 @@ func (ctx *AWSStorageCtx) FindUser(uuid string) (*User, error) {
 
 	result, err := ctx.dynamoDBClient.GetItem(input)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load presentation :%w", err)
+		return nil, fmt.Errorf("failed to load user :%w", err)
 	}
 
 	if result.Item == nil || len(result.Item) == 0 {

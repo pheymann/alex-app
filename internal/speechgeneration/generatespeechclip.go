@@ -29,7 +29,7 @@ func (generator *AWSPollySpeechGenerator) GenerateSpeechClip(title string, text 
 
 	randomHash := rand.Intn(100)
 	clipName := hex.EncodeToString([]byte(title + fmt.Sprint(randomHash)))
-	outFile, err := os.Create(clipName + ".mp3")
+	outFile, err := os.CreateTemp("", clipName+".mp3")
 	if err != nil {
 		return nil, fmt.Errorf("failed to create temporary mp3 file: %w", err)
 	}

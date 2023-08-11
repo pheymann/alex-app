@@ -5,6 +5,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/ssm"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"talktome.com/internal/cmd/getconversation"
@@ -16,10 +17,6 @@ import (
 func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
-	// ENV VAR init
-	conversationDynamoDBTable := shared.MustReadEnvVar("TALKTOME_CONVERSATION_TABLE")
-	userTable := shared.MustReadEnvVar("TALKTOME_USER_TABLE")
-
 	// AWS init
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String("eu-central-1"),
@@ -28,12 +25,17 @@ func main() {
 		panic(err)
 	}
 
+	ssmClient := ssm.New(sess)
+
+	conversationDynamoDBTable := shared.MustReadParameter("talktome-table-conversation", ssmClient)
+	userTable := shared.MustReadParameter("talktome-table-user", ssmClient)
+
 	dynamoDBClient := dynamodb.New(sess)
 
 	// internal init
 	convStorage := conversation.NewAWSStorageCtx(dynamoDBClient, conversationDynamoDBTable, nil, "")
 	userStorage := user.NewAWSStorageCtx(dynamoDBClient, userTable)
 
-	log.Info().Msg("starting 'get conversation' lambda")
+	log.Info().Str("conversation_table", conversationDynamoDBTable).Str("user_table", userTable).Msg("starting 'get conversation' lambda")
 	lambda.Start(getconversation.HandlerCtx{UserStorage: userStorage, ConvStorage: convStorage}.AWSHandler)
 }
