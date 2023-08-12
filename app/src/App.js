@@ -6,8 +6,6 @@ import ArtConversation from './ArtConversation';
 import Login from './Login';
 import { useEffect, useState } from 'react';
 
-const isProduction = process.env.NODE_ENV === 'production';
-
 Amplify.configure({
   Auth: {
       region: awsExports.REGION,
@@ -38,22 +36,16 @@ export default function App() {
       }
     };
 
-    if (isProduction) {
-      checkAuth();
-    } else {
-      setAwsContext({
-        awsSession: null,
-        user: {
-          username: 'test',
-          attributes: {
-            sub: '1',
-          },
-        },
-        userUUID: '1',
-        token: 'test',
-      });
-    }
+    checkAuth();
   }, [navigate]);
+
+  if (!awsContext) {
+    return(
+      <div className="spinner-border" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </div>
+    );
+  }
 
   return (
     <Routes>

@@ -128,8 +128,8 @@ var (
 		},
 	}}
 	mockUserStorage = &mockUserStorageService{storage: map[string]*user.User{
-		"1": {
-			ID: "1",
+		"63843862-6011-7074-c467-1e88663dacf4": {
+			ID: "63843862-6011-7074-c467-1e88663dacf4",
 			ConversationUUIDs: []string{
 				"1",
 			},
