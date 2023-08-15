@@ -88,8 +88,12 @@ func (ctx *mockConversationStorageService) StoreConversation(conv conversation.C
 	return nil
 }
 
-func (ctx *mockConversationStorageService) StoreClip(clipFile *os.File) error {
-	return nil
+func (ctx *mockConversationStorageService) StoreClip(clipFile *os.File) (string, error) {
+	return "prompt.mp3", nil
+}
+
+func (ctx *mockConversationStorageService) GenerateClipAccess(audioClipUUID string) (string, error) {
+	return "/assets/prompt.mp3", nil
 }
 
 type mockUserStorageService struct {

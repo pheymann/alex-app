@@ -2,7 +2,6 @@ package talktome
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/rs/zerolog/log"
 	"talktome.com/internal/conversation"
@@ -44,11 +43,19 @@ func (ctx Context) ContinueConversation(userUUID string, convUUID string, messag
 	}
 	defer clipFile.Close()
 
-	if err := ctx.conversationStorage.StoreClip(clipFile); err != nil {
+	clipFileName, err := ctx.conversationStorage.StoreClip(clipFile)
+	if err != nil {
 		return nil, err
 	}
 
-	conv.Messages[lastMessageIndex].SpeechClipUUID = filepath.Base(clipFile.Name())
+	conv.Messages[lastMessageIndex].SpeechClipUUID = clipFileName
+
+	preSignedURL, err := ctx.conversationStorage.GenerateClipAccess(clipFileName)
+	if err != nil {
+		return nil, err
+	}
+
+	conv.Messages[lastMessageIndex].SpeechClipURL = preSignedURL
 
 	if err := ctx.conversationStorage.StoreConversation(conv); err != nil {
 		return nil, err

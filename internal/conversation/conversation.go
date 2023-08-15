@@ -17,6 +17,7 @@ type Message struct {
 	Text           string `json:"text" dynamodbav:"text"`
 	CanHaveClip    bool   `json:"canHaveClip" dynamodbav:"can_have_clip"`
 	SpeechClipUUID string `json:"speechClipUuid" dynamodbav:"speech_clip_uuid"`
+	SpeechClipURL  string `json:"speechClipUrl" dynamodbav:"speech_clip_url"`
 }
 
 type Role = string

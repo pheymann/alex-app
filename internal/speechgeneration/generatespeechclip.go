@@ -1,10 +1,8 @@
 package speechgeneration
 
 import (
-	"encoding/hex"
 	"fmt"
 	"io"
-	"math/rand"
 	"os"
 
 	"github.com/rs/zerolog/log"
@@ -27,9 +25,7 @@ func (generator *AWSPollySpeechGenerator) GenerateSpeechClip(title string, text 
 		return nil, fmt.Errorf("failed to send Polly request: %w", err)
 	}
 
-	randomHash := rand.Intn(100)
-	clipName := hex.EncodeToString([]byte(title + fmt.Sprint(randomHash)))
-	outFile, err := os.CreateTemp("", clipName+".mp3")
+	outFile, err := os.CreateTemp("", "*.mp3")
 	if err != nil {
 		return nil, fmt.Errorf("failed to create temporary mp3 file: %w", err)
 	}
