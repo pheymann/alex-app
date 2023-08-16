@@ -15,6 +15,7 @@ Amplify.configure({
 })
 
 export default function App() {
+  const [loading, setLoading] = useState(true);
   const [awsContext, setAwsContext] = useState(null);
   const navigate = useNavigate();
 
@@ -30,8 +31,10 @@ export default function App() {
           userUUID: user.attributes.sub,
           token: awsSession.getIdToken().getJwtToken(),
         });
+        setLoading(false);
       } catch (error) {
         console.log(error);
+        setLoading(false);
         navigate('/login');
       }
     };
@@ -39,7 +42,7 @@ export default function App() {
     checkAuth();
   }, [navigate]);
 
-  if (!awsContext) {
+  if (loading) {
     return(
       <div className="spinner-border" role="status">
         <span className="visually-hidden">Loading...</span>
