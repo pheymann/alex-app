@@ -19,49 +19,41 @@ type ArtPiece struct {
 }
 
 func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	if event.HTTPMethod == "POST" {
-		log.Debug().Msg("POSTed to start art conversation")
+	log.Debug().Msg("POSTed to start art conversation")
 
-		userUUID := event.Headers["User-UUID"]
+	userUUID := event.Headers["User-UUID"]
 
-		var artPiece ArtPiece
+	var artPiece ArtPiece
 
-		if err := json.Unmarshal([]byte(event.Body), &artPiece); err != nil {
-			log.Err(err).Msg("couldn't parse body")
-			return events.APIGatewayProxyResponse{
-				StatusCode: 400,
-				Body:       "Couldn't parse body",
-			}, nil
-		}
-
-		conversation, err := Handle(userUUID, artPiece.ArtistName, artPiece.ArtPiece, handlerCtx.Ctx)
-		if err != nil {
-			log.Err(err).Msg("failed to start art conversation")
-			return events.APIGatewayProxyResponse{
-				StatusCode: 400,
-				Body:       "Failed to get or start conversation",
-			}, nil
-		}
-
-		jsonPresentation, err := json.Marshal(*conversation)
-		if err != nil {
-			log.Err(err).Msg("failed to marshal conversation")
-			return events.APIGatewayProxyResponse{
-				StatusCode: 400,
-				Body:       "Failed tp marshal conversation",
-			}, nil
-		}
-
+	if err := json.Unmarshal([]byte(event.Body), &artPiece); err != nil {
+		log.Err(err).Msg("couldn't parse body")
 		return events.APIGatewayProxyResponse{
-			StatusCode: 200,
-			Headers:    map[string]string{"Content-Type": "application/json"},
-			Body:       string(jsonPresentation),
+			StatusCode: 400,
+			Body:       "Couldn't parse body",
 		}, nil
 	}
 
-	log.Error().Msg("only POST requests are allowed.")
+	conversation, err := Handle(userUUID, artPiece.ArtistName, artPiece.ArtPiece, handlerCtx.Ctx)
+	if err != nil {
+		log.Err(err).Msg("failed to start art conversation")
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "Failed to get or start conversation",
+		}, nil
+	}
+
+	jsonPresentation, err := json.Marshal(*conversation)
+	if err != nil {
+		log.Err(err).Msg("failed to marshal conversation")
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "Failed tp marshal conversation",
+		}, nil
+	}
+
 	return events.APIGatewayProxyResponse{
-		StatusCode: 400,
-		Body:       "Only POST requests are allowed.",
+		StatusCode: 200,
+		Headers:    map[string]string{"Content-Type": "application/json"},
+		Body:       string(jsonPresentation),
 	}, nil
 }

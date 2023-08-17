@@ -16,40 +16,32 @@ type HandlerCtx struct {
 }
 
 func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	if event.HTTPMethod == "GET" {
-		log.Debug().Msg("Get conversation")
+	log.Debug().Msg("Get conversation")
 
-		convUUID := event.PathParameters["uuid"]
-		userUUID := event.Headers["User-UUID"]
+	convUUID := event.PathParameters["uuid"]
+	userUUID := event.Headers["User-UUID"]
 
-		conversation, err := Handle(userUUID, convUUID, handlerCtx.UserStorage, handlerCtx.ConvStorage)
-		if err != nil {
-			log.Err(err).Msg("failed to get conversation")
-			return events.APIGatewayProxyResponse{
-				StatusCode: 400,
-				Body:       "Failed to get conversation",
-			}, nil
-		}
-
-		jsonConversations, err := json.Marshal(*conversation)
-		if err != nil {
-			log.Err(err).Msg("failed to marshal conversation")
-			return events.APIGatewayProxyResponse{
-				StatusCode: 400,
-				Body:       "Failed tp marshal conversation",
-			}, nil
-		}
-
+	conversation, err := Handle(userUUID, convUUID, handlerCtx.UserStorage, handlerCtx.ConvStorage)
+	if err != nil {
+		log.Err(err).Msg("failed to get conversation")
 		return events.APIGatewayProxyResponse{
-			StatusCode: 200,
-			Headers:    map[string]string{"Content-Type": "application/json"},
-			Body:       string(jsonConversations),
+			StatusCode: 400,
+			Body:       "Failed to get conversation",
 		}, nil
 	}
 
-	log.Error().Msg("only GET requests are allowed.")
+	jsonConversations, err := json.Marshal(*conversation)
+	if err != nil {
+		log.Err(err).Msg("failed to marshal conversation")
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "Failed tp marshal conversation",
+		}, nil
+	}
+
 	return events.APIGatewayProxyResponse{
-		StatusCode: 400,
-		Body:       "Only GET requests are allowed.",
+		StatusCode: 200,
+		Headers:    map[string]string{"Content-Type": "application/json"},
+		Body:       string(jsonConversations),
 	}, nil
 }

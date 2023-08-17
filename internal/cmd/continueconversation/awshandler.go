@@ -19,49 +19,41 @@ type conversationRequest struct {
 }
 
 func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	if event.HTTPMethod == "POST" {
-		log.Debug().Msg("POSTed conversation continuation request")
-		// TODO: add user id to log context
-		userUUID := event.Headers["User-UUID"]
+	log.Debug().Msg("POSTed conversation continuation request")
+	// TODO: add user id to log context
+	userUUID := event.Headers["User-UUID"]
 
-		var convReq conversationRequest
+	var convReq conversationRequest
 
-		if err := json.Unmarshal([]byte(event.Body), &convReq); err != nil {
-			log.Err(err).Msg("couldn't parse body")
-			return events.APIGatewayProxyResponse{
-				StatusCode: 400,
-				Body:       "Couldn't parse body",
-			}, nil
-		}
-
-		message, err := Handle(userUUID, convReq.ConversationUUID, convReq.Prompt, handlerCtx.Ctx)
-		if err != nil {
-			log.Err(err).Msg("failed to continue conversation")
-			return events.APIGatewayProxyResponse{
-				StatusCode: 400,
-				Body:       "Failed to continue conversation",
-			}, nil
-		}
-
-		jsonPresentation, err := json.Marshal(*message)
-		if err != nil {
-			log.Err(err).Msg("failed to marshal response")
-			return events.APIGatewayProxyResponse{
-				StatusCode: 400,
-				Body:       "Failed to marshal response",
-			}, nil
-		}
-
+	if err := json.Unmarshal([]byte(event.Body), &convReq); err != nil {
+		log.Err(err).Msg("couldn't parse body")
 		return events.APIGatewayProxyResponse{
-			StatusCode: 200,
-			Headers:    map[string]string{"Content-Type": "application/json"},
-			Body:       string(jsonPresentation),
+			StatusCode: 400,
+			Body:       "Couldn't parse body",
 		}, nil
 	}
 
-	log.Error().Msg("only POST requests are allowed.")
+	message, err := Handle(userUUID, convReq.ConversationUUID, convReq.Prompt, handlerCtx.Ctx)
+	if err != nil {
+		log.Err(err).Msg("failed to continue conversation")
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "Failed to continue conversation",
+		}, nil
+	}
+
+	jsonPresentation, err := json.Marshal(*message)
+	if err != nil {
+		log.Err(err).Msg("failed to marshal response")
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "Failed to marshal response",
+		}, nil
+	}
+
 	return events.APIGatewayProxyResponse{
-		StatusCode: 400,
-		Body:       "Only POST requests are allowed.",
+		StatusCode: 200,
+		Headers:    map[string]string{"Content-Type": "application/json"},
+		Body:       string(jsonPresentation),
 	}, nil
 }
