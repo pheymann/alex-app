@@ -46,9 +46,20 @@ export default function ArtConversation({ awsContext }) {
   }
 
   if (!conversation) {
-    return <NewConversation artPieceName={artPieceName} setArtPieceName={setArtPieceName} artistName={setArtistName} setConversation={setConversation} awsContext={awsContext} />;
+    return <NewConversation
+      artPieceName={artPieceName}
+      setArtPieceName={setArtPieceName}
+      artistName={artistName}
+      setArtistName={setArtistName}
+      setConversation={setConversation}
+      awsContext={awsContext} />;
   } else {
-    return <ContinueConversation artPieceName={artPieceName} artistName={artistName} conversation={conversation} setConversation={setConversation} awsContext={awsContext} />;
+    return <ContinueConversation
+      artPieceName={artPieceName}
+      artistName={artistName}
+      conversation={conversation}
+      setConversation={setConversation}
+      awsContext={awsContext} />;
   }
 }
 
