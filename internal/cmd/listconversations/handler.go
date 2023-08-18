@@ -18,6 +18,10 @@ func Handle(userUUID string, userStorage user.StorageService, convStorage conver
 		return nil, fmt.Errorf("user not found")
 	}
 
+	if len(user.ConversationUUIDs) == 0 {
+		return []conversation.ConversationRef{}, nil
+	}
+
 	conversations, err := convStorage.FindAllConversations(user.ConversationUUIDs)
 	if err != nil {
 		return nil, err
