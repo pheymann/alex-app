@@ -93,7 +93,7 @@ func (ctx *mockConversationStorageService) StoreClip(clipFile *os.File) (string,
 }
 
 func (ctx *mockConversationStorageService) GenerateClipAccess(audioClipUUID string) (string, error) {
-	return "/assets/prompt.mp3", nil
+	return "/aws/presigned/prompt.mp3", nil
 }
 
 type mockUserStorageService struct {
@@ -127,13 +127,14 @@ var (
 					Role:           openai.ChatMessageRoleAssistant,
 					Text:           "Hello",
 					SpeechClipUUID: "1",
+					SpeechClipURL:  "/aws/presigned/prompt.mp3",
 				},
 			},
 		},
 	}}
 	mockUserStorage = &mockUserStorageService{storage: map[string]*user.User{
-		"63843862-6011-7074-c467-1e88663dacf4": {
-			ID: "63843862-6011-7074-c467-1e88663dacf4",
+		"1": {
+			ID: "1",
 			ConversationUUIDs: []string{
 				"1",
 			},
@@ -143,16 +144,26 @@ var (
 	mockCtx = talktome.NewContext(mockTextGen, mockSpeechGen, mockConvStorage, mockUserStorage)
 )
 
+var (
+	testRequestContext = events.APIGatewayProxyRequestContext{
+		Authorizer: map[string]interface{}{
+			"jwt": map[string]interface{}{
+				"claims": map[string]interface{}{
+					"cognito:username": "1",
+				},
+			},
+		},
+	}
+)
+
 func handleCreateArtConversation(w http.ResponseWriter, r *http.Request) {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r.Body)
 
 	event := events.APIGatewayProxyRequest{
-		HTTPMethod: r.Method,
-		Body:       buf.String(),
-		Headers: map[string]string{
-			"User-UUID": r.Header.Get("User-UUID"),
-		},
+		HTTPMethod:     r.Method,
+		Body:           buf.String(),
+		RequestContext: testRequestContext,
 	}
 
 	response, err := startartconversation.HandlerCtx{Ctx: mockCtx}.AWSHandler(context.TODO(), event)
@@ -174,11 +185,9 @@ func handleContinueConversation(w http.ResponseWriter, r *http.Request) {
 	buf.ReadFrom(r.Body)
 
 	event := events.APIGatewayProxyRequest{
-		HTTPMethod: r.Method,
-		Body:       buf.String(),
-		Headers: map[string]string{
-			"User-UUID": r.Header.Get("User-UUID"),
-		},
+		HTTPMethod:     r.Method,
+		Body:           buf.String(),
+		RequestContext: testRequestContext,
 	}
 
 	response, err := continueconversation.HandlerCtx{Ctx: mockCtx}.AWSHandler(context.TODO(), event)
@@ -203,9 +212,7 @@ func handleGetConversation(w http.ResponseWriter, r *http.Request) {
 		PathParameters: map[string]string{
 			"uuid": vars["id"],
 		},
-		Headers: map[string]string{
-			"User-UUID": r.Header.Get("User-UUID"),
-		},
+		RequestContext: testRequestContext,
 	}
 
 	response, err := getconversation.HandlerCtx{UserStorage: mockUserStorage, ConvStorage: mockConvStorage}.AWSHandler(context.TODO(), event)
@@ -224,10 +231,8 @@ func handleGetConversation(w http.ResponseWriter, r *http.Request) {
 
 func handleListConversations(w http.ResponseWriter, r *http.Request) {
 	event := events.APIGatewayProxyRequest{
-		HTTPMethod: r.Method,
-		Headers: map[string]string{
-			"User-UUID": r.Header.Get("User-UUID"),
-		},
+		HTTPMethod:     r.Method,
+		RequestContext: testRequestContext,
 	}
 
 	response, err := listconversations.HandlerCtx{UserStorage: mockUserStorage, ConvStorage: mockConvStorage}.AWSHandler(context.TODO(), event)
@@ -258,7 +263,7 @@ func main() {
 	router.HandleFunc("/api/conversation/continue", handleContinueConversation).Methods(http.MethodPost)
 	router.HandleFunc("/api/conversation/list", handleListConversations).Methods(http.MethodGet)
 	router.HandleFunc("/api/conversation/{id}", handleGetConversation).Methods(http.MethodGet)
-	router.HandleFunc("/api/assets/speechclip/{id}", fileHandler).Methods(http.MethodGet)
+	router.HandleFunc("/aws/presigned/{id}", fileHandler).Methods(http.MethodGet)
 
 	port := ":8080"
 	log.Info().Msgf("Server running on port %s", port)
