@@ -23,12 +23,9 @@ export default function App() {
     const checkAuth = async () => {
       try {
         const awsSession = await Auth.currentSession();
-        const user = await Auth.currentAuthenticatedUser();
 
         setAwsContext({
           awsSession,
-          user,
-          userUUID: user.attributes.sub,
           token: awsSession.getIdToken().getJwtToken(),
         });
         setLoading(false);

@@ -6,6 +6,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/rs/zerolog/log"
+	"talktome.com/internal/shared"
 	"talktome.com/internal/talktome"
 )
 
@@ -19,9 +20,14 @@ type ArtPiece struct {
 }
 
 func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	log.Debug().Msg("POSTed to start art conversation")
-
-	userUUID := event.Headers["User-UUID"]
+	userUUID, error := shared.ExtractUserUUID(event)
+	if error != nil {
+		log.Err(error).Msg("failed to extract user uuid")
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "Failed to extract user uuid",
+		}, nil
+	}
 
 	var artPiece ArtPiece
 

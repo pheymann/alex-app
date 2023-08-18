@@ -21,7 +21,6 @@ export default function ArtConversation({ awsContext }) {
     fetch(`/api/conversation/${conversationId}`, {
       method: 'GET',
       headers: {
-        'User-UUID': awsContext.userUUID,
         'Authorization': `Bearer ${awsContext.token}`,
       },
     })
@@ -75,7 +74,6 @@ function NewConversation({artPieceName, setArtPieceName, artistName, setArtistNa
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'User-UUID': awsContext.userUUID,
         'Authorization': `Bearer ${awsContext.token}`,
       },
       body: JSON.stringify({
@@ -131,7 +129,6 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'User-UUID': awsContext.userUUID,
         'Authorization': `Bearer ${awsContext.token}`,
       },
       body: JSON.stringify({

@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/rs/zerolog/log"
 	"talktome.com/internal/conversation"
+	"talktome.com/internal/shared"
 	"talktome.com/internal/user"
 )
 
@@ -16,7 +17,14 @@ type HandlerCtx struct {
 }
 
 func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	userUUID := event.Headers["User-UUID"]
+	userUUID, error := shared.ExtractUserUUID(event)
+	if error != nil {
+		log.Err(error).Msg("failed to extract user uuid")
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "Failed to extract user uuid",
+		}, nil
+	}
 
 	conversations, err := Handle(userUUID, handlerCtx.UserStorage, handlerCtx.ConvStorage)
 	if err != nil {

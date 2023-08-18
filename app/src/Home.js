@@ -10,7 +10,6 @@ export default function Home({ awsContext }) {
     fetch(`/api/conversation/list`, {
       method: 'GET',
       headers: {
-        'User-UUID': awsContext.userUUID,
         'Authorization': `Bearer ${awsContext.token}`,
       },
     })
