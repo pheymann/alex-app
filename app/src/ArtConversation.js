@@ -212,7 +212,7 @@ function AssistantMessage({ index, message }) {
 
   return (
     <div>
-      <audio src={message.speechClipURL} controls />
+      <audio src={message.speechClipUrl} controls />
 
       <button className='btn btn-primary' type='button' data-bs-toggle='collapse' data-bs-target={`#${answerInTextId}`} aria-expanded='false'>
         Show Text
