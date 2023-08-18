@@ -27,6 +27,7 @@ func Handle(userUUID string, convUUID string, userStorage user.StorageService, c
 
 	for _, id := range user.ConversationUUIDs {
 		if id == convUUID {
+			conv.Messages = conv.Messages[3:]
 			return conv, nil
 		}
 	}
