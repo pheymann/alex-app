@@ -38,8 +38,10 @@ export default function ArtConversation({ awsContext }) {
 
   if (loading) {
     return(
-      <div className="spinner-border" role="status">
-        <span className="visually-hidden">Loading...</span>
+      <div className="container">
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
       </div>
     );
   }
@@ -100,14 +102,16 @@ function NewConversation({artPieceName, setArtPieceName, artistName, setArtistNa
 
   if (loading) {
     return(
-      <div className="spinner-border" role="status">
-        <span className="visually-hidden">Loading...</span>
+      <div className="container">
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
+    <div className='container'>
       Tell me something about
       <input
         type='text'
@@ -179,7 +183,7 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
   }
 
   return (
-    <div>
+    <div className='container'>
       Tell me something about {artPieceName} by {artistName}
 
       <div>
@@ -218,7 +222,7 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
 
 function UserMessage({ message }) {
   return (
-    <div className='card card-body'>
+    <div className='card'>
       <p>
         {message.text}
       </p>
@@ -237,7 +241,7 @@ function AssistantMessage({ index, message }) {
         Show Text
       </button>
       <div className='collapse' id={answerInTextId}>
-        <div className='card card-body'>
+        <div className='card'>
           <p>
             {message.text}
           </p>

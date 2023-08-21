@@ -23,7 +23,7 @@ export default function Home({ awsContext }) {
   }, [awsContext.token, awsContext.userUUID]);
 
   return (
-    <div>
+    <div className='container'>
       <h1>Let's talk about Art</h1>
 
       <button onClick={() => {
