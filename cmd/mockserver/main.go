@@ -66,8 +66,17 @@ type mockConversationStorageService struct {
 }
 
 func (ctx *mockConversationStorageService) FindConversation(uuid string) (*conversation.Conversation, error) {
-	if conversation, ok := ctx.storage[uuid]; ok {
-		return conversation, nil
+	if conv, ok := ctx.storage[uuid]; ok {
+		convCopy := conversation.Conversation{
+			ID:       conv.ID,
+			Metadata: conv.Metadata,
+			Messages: []conversation.Message{},
+		}
+
+		// deep copy
+		convCopy.Messages = append(convCopy.Messages, conv.Messages...)
+
+		return &convCopy, nil
 	}
 	return nil, nil
 }
@@ -84,7 +93,16 @@ func (ctx *mockConversationStorageService) FindAllConversations(uuids []string) 
 }
 
 func (ctx *mockConversationStorageService) StoreConversation(conv conversation.Conversation) error {
-	ctx.storage[conv.ID] = &conv
+	convCopy := conversation.Conversation{
+		ID:       conv.ID,
+		Metadata: conv.Metadata,
+		Messages: []conversation.Message{},
+	}
+
+	// deep copy
+	convCopy.Messages = append(convCopy.Messages, conv.Messages...)
+
+	ctx.storage[conv.ID] = &convCopy
 	return nil
 }
 
