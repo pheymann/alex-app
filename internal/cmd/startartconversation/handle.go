@@ -24,7 +24,7 @@ func Handle(userUUID string, artistName string, artPiece string, ctx talktome.Co
 	conv.Messages = []conversation.Message{
 		{
 			Role:        openai.ChatMessageRoleSystem,
-			Text:        fmt.Sprintf(`The art piece we are discussion is "%s" from %s`, artistName, artPiece),
+			Text:        fmt.Sprintf(`The art piece we are discussion is "%s" from %s`, artPiece, artistName),
 			CanHaveClip: false,
 		},
 		{
