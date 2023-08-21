@@ -142,11 +142,14 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
           ...conversation,
           messages: [...conversation.messages,
             {
+              role: 'user',
               text: prompt,
             },
             {
+              role: data.role,
               text: data.text,
               speechClipUuid: data.speechClipUuid,
+              speechClipUrl: data.speechClipUrl,
             }],
         };
 
