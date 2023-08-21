@@ -63,9 +63,14 @@ export default function ArtConversation({ awsContext }) {
 }
 
 function NewConversation({artPieceName, setArtPieceName, artistName, setArtistName, setConversation, awsContext}) {
+  const [loading, setLoading] = useState(false);
+
   const handleStartConversation = () => {
+    setLoading(true);
+
     if (artistName === '' || artPieceName === '') {
       // TODO: show error message
+      setLoading(false);
       console.error('missing artist name or art piece name');
       return;
     }
@@ -85,10 +90,21 @@ function NewConversation({artPieceName, setArtPieceName, artistName, setArtistNa
       .then(data => {
         setConversation(data);
       })
+      .finally(() => {
+        setLoading(false);
+      })
       .catch(error => {
         console.log(error);
       });
   };
+
+  if (loading) {
+    return(
+      <div className="spinner-border" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </div>
+    );
+  }
 
   return (
     <div>
