@@ -115,23 +115,7 @@ func (ctx *mockUserStorageService) StoreUser(user user.User) error {
 var (
 	mockTextGen     = &mockTextGeneration{}
 	mockSpeechGen   = &mockSpeechGeneration{}
-	mockConvStorage = &mockConversationStorageService{storage: map[string]*conversation.Conversation{
-		"1": {
-			ID: "1",
-			Metadata: map[string]string{
-				"artistName": "Jon Doe",
-				"artPiece":   "The Art Piece",
-			},
-			Messages: []conversation.Message{
-				{
-					Role:           openai.ChatMessageRoleAssistant,
-					Text:           "Hello",
-					SpeechClipUUID: "1",
-					SpeechClipURL:  "/aws/presigned/prompt.mp3",
-				},
-			},
-		},
-	}}
+	mockConvStorage = &mockConversationStorageService{storage: map[string]*conversation.Conversation{}}
 	mockUserStorage = &mockUserStorageService{storage: map[string]*user.User{
 		"1": {
 			ID: "1",
