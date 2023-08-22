@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import {Helmet} from "react-helmet";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
@@ -12,8 +13,12 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
+      <Helmet>
+          <meta charSet="utf-8" />
+          <title>TalkToMe</title>
+      </Helmet>
+
       <App />
     </BrowserRouter>
   </React.StrictMode>
 );
-
