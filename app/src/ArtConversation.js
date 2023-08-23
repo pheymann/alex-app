@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import './ArtConversation.css'
 
 export default function ArtConversation({ awsContext }) {
   const pathParams = useParams();
@@ -232,20 +233,25 @@ function UserMessage({ message }) {
 
 function AssistantMessage({ index, message }) {
   const answerInTextId = `answerInText_${index}`;
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   return (
     <div>
-      <audio src={message.speechClipUrl} controls />
+      <div className='assistant-response-bubble'>
+        <audio src={message.speechClipUrl} controls />
 
-      <button className='btn btn-primary' type='button' data-bs-toggle='collapse' data-bs-target={`#${answerInTextId}`} aria-expanded='false'>
-        Show Text
-      </button>
-      <div className='collapse' id={answerInTextId}>
-        <div className='card'>
-          <p>
-            {message.text}
-          </p>
-        </div>
+        <button className='btn btn-primary'
+                type='button'
+                data-bs-toggle='collapse'
+                data-bs-target={`#${answerInTextId}`}
+                aria-expanded='false'
+                onClick={_ => setIsCollapsed(!isCollapsed)}>
+          {isCollapsed ? 'Show Text' : 'Hide'}
+        </button>
+
+        <p className='collapse' id={answerInTextId}>
+          {message.text}
+        </p>
       </div>
     </div>
   );
