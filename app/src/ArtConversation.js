@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import './ArtConversation.css'
 
@@ -136,6 +136,15 @@ function NewConversation({artPieceName, setArtPieceName, artistName, setArtistNa
 function ContinueConversation({artPieceName, artistName, conversation, setConversation, awsContext}) {
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
+  const textareaRef = useRef(null);
+  const initialMessage = {
+    text: `Tell me something about ${artPieceName} by ${artistName}`,
+  };
+
+  const resizeTextArea = () => {
+    textareaRef.current.style.height = "auto";
+    textareaRef.current.style.height = textareaRef.current.scrollHeight + "px";
+  };
 
   const handlePrompt = () => {
     if (prompt === '') {
@@ -183,9 +192,11 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
       });
   }
 
+  useEffect(resizeTextArea, [prompt]);
+
   return (
     <div className='container'>
-      Tell me something about {artPieceName} by {artistName}
+      <UserMessage key={"init"} message={initialMessage} />
 
       <div>
         {
@@ -201,13 +212,17 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
         }
 
         { !loading &&
-          <div>
-            <input
-              type='text'
+          <div className='user-prompt'>
+            <textarea
+              ref={textareaRef}
               value={prompt}
+              rows={1}
+              placeholder="Something's on your mind?"
               onChange={(e) => setPrompt(e.target.value)}
             />
-            <button className='btn btn-primary' onClick={handlePrompt}>Ask</button>
+            <button onClick={handlePrompt}>
+              <span className='arrow'></span>
+            </button>
           </div>
         }
 
@@ -223,7 +238,7 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
 
 function UserMessage({ message }) {
   return (
-    <div className='card'>
+    <div className='user-message-bubble'>
       <p>
         {message.text}
       </p>
@@ -236,23 +251,21 @@ function AssistantMessage({ index, message }) {
   const [isCollapsed, setIsCollapsed] = useState(true);
 
   return (
-    <div>
-      <div className='assistant-response-bubble'>
-        <audio src={message.speechClipUrl} controls />
+    <div className='assistant-response-bubble'>
+      <audio src={message.speechClipUrl} controls />
 
-        <button className='btn btn-primary'
-                type='button'
-                data-bs-toggle='collapse'
-                data-bs-target={`#${answerInTextId}`}
-                aria-expanded='false'
-                onClick={_ => setIsCollapsed(!isCollapsed)}>
-          {isCollapsed ? 'Show Text' : 'Hide'}
-        </button>
+      <button className='btn btn-primary'
+              type='button'
+              data-bs-toggle='collapse'
+              data-bs-target={`#${answerInTextId}`}
+              aria-expanded='false'
+              onClick={_ => setIsCollapsed(!isCollapsed)}>
+        {isCollapsed ? 'Show Text' : 'Hide'}
+      </button>
 
-        <p className='collapse' id={answerInTextId}>
-          {message.text}
-        </p>
-      </div>
+      <p className='collapse' id={answerInTextId}>
+        {message.text}
+      </p>
     </div>
   );
 }

@@ -1,18 +1,88 @@
-.assistant-response-bubble {
+.user-message-bubble {
+  position: relative;
+  background-color: #fd766a;
+  border-radius: 25px;
+  padding: 15px;
+  width: 300px;
+  margin: 20px;
+  border: 1px solid black;
+  color: white;
+}
+
+.user-message-bubble::after {
+  content: "";
+  position: absolute;
+  width: 23px;
+  height: 23px;
+  background-color: #fd766a;
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 1px solid black;
+  border-right: 1px solid black;
+}
+
+.user-prompt {
   position: relative;
   background-color: #f0f0f0;
   border-radius: 25px;
   padding: 15px;
   width: 300px;
   margin: 20px;
+  border: 1px solid black;
+}
+
+.user-prompt > button {
+  display: inline-block;
+  position: relative;
+  border-radius: 50%;
+  padding: 12px;
+  background-color: #fd766a; /* Change to your preferred background color */
+  color: white;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  width: 30px;
+  height: 30px;
+}
+
+.user-prompt > button > .arrow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-66%, -50%) rotate(135deg);
+  width: 15px;
+  height: 15px;
+  background-color: white;
+  clip-path: polygon(0% 0%, 100% 0%, 0% 100%);
+}
+
+.user-prompt > textarea {
+  background-color: #fafafa;
+  resize: none;
+  height: auto;
+  overflow-y: hidden;
+  border-radius: 15px;
+  padding: 5px 11px 5px 11px;
+}
+
+.assistant-response-bubble {
+  position: relative;
+  background-color: #fafafa;
+  border-radius: 25px;
+  padding: 15px;
+  width: 300px;
+  margin: 20px;
+  border: 1px solid black;
 }
 
 .assistant-response-bubble::after {
   content: "";
   position: absolute;
-  width: 20px;
-  height: 20px;
-  background-color: #f0f0f0;
-  bottom: 0px;
-  right: 0px;
+  width: 23px;
+  height: 23px;
+  background-color: #fafafa;
+  top: -1px;
+  left: -1px;
+  border-top: 1px solid black;
+  border-left: 1px solid black;
 }
