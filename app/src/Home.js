@@ -35,9 +35,13 @@ export default function Home({ awsContext }) {
         Sign Out
       </button>
 
-      <Link to={'/conversation/new'}>
-        Start a new conversation
-      </Link>
+      <div className='row'>
+        <div className='col text-center'>
+          <Link className='new-conversation-button' to={'/conversation/new'}>
+            Start a new conversation
+          </Link>
+        </div>
+      </div>
 
         { conversations &&
           conversations.map((conversation, index) => {
