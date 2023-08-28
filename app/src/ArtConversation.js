@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import './ArtConversation.css'
 
 export default function ArtConversation({ awsContext }) {
@@ -53,7 +53,6 @@ export default function ArtConversation({ awsContext }) {
       setArtPieceName={setArtPieceName}
       artistName={artistName}
       setArtistName={setArtistName}
-      setConversation={setConversation}
       awsContext={awsContext} />;
   } else {
     return <ContinueConversation
@@ -65,8 +64,9 @@ export default function ArtConversation({ awsContext }) {
   }
 }
 
-function NewConversation({artPieceName, setArtPieceName, artistName, setArtistName, setConversation, awsContext}) {
+function NewConversation({artPieceName, setArtPieceName, artistName, setArtistName, awsContext}) {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleStartConversation = () => {
     setLoading(true);
@@ -91,7 +91,7 @@ function NewConversation({artPieceName, setArtPieceName, artistName, setArtistNa
     })
       .then(response => response.json())
       .then(data => {
-        setConversation(data);
+        navigate(`/conversation/${data.id}`);
       })
       .finally(() => {
         setLoading(false);
