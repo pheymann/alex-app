@@ -155,6 +155,17 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
 
     setLoading(true);
 
+    // add user prompt
+    const newConversation = {
+      ...conversation,
+      messages: [...conversation.messages,
+        {
+          role: 'user',
+          text: prompt,
+        }],
+    };
+    setConversation(newConversation);
+
     fetch(`/api/conversation/continue`, {
       method: 'POST',
       headers: {
@@ -168,13 +179,9 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
     })
       .then(response => response.json())
       .then(data => {
-        const newConversation = {
-          ...conversation,
-          messages: [...conversation.messages,
-            {
-              role: 'user',
-              text: prompt,
-            },
+        const responseConversation = {
+          ...newConversation,
+          messages: [...newConversation.messages,
             {
               role: data.role,
               text: data.text,
@@ -183,7 +190,7 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
             }],
         };
 
-        setConversation(newConversation);
+        setConversation(responseConversation);
         setPrompt('');
         setLoading(false);
       })
@@ -221,6 +228,7 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
                 placeholder="Something's on your mind?"
                 onChange={(e) => setPrompt(e.target.value)}
               />
+
               <button onClick={handlePrompt}>
                 <span className='arrow'></span>
               </button>
@@ -229,9 +237,13 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
         }
 
         { loading &&
-           <div className="spinner-border" role="status">
-             <span className="visually-hidden">Loading...</span>
-           </div>
+          <div className='row'>
+            <div className='col assistant-response-bubble'>
+              <div className="spinner-border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          </div>
         }
       </div>
     </div>
