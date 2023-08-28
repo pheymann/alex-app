@@ -1,6 +1,7 @@
 import { Auth } from 'aws-amplify';
 import {useState, useEffect} from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import './Home.css';
 
 export default function Home({ awsContext }) {
   const [conversations, setConversations] = useState([]);
@@ -43,13 +44,10 @@ export default function Home({ awsContext }) {
             const key = `${conversation.id}_${index}`;
 
             return (
-              <div key={key}>
-                <h2>
-                  <Link to={`/conversation/${conversation.id}`}>
-                    {conversation.metadata.artPiece}
-                  </Link>
-                </h2>
-                <p>by {conversation.metadata.artistName}</p>
+              <div className='conversation-link' key={key}>
+                <Link to={`/conversation/${conversation.id}`}>
+                  {conversation.metadata.artPiece} by {conversation.metadata.artistName}
+                </Link>
               </div>
             );
           })
