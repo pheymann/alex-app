@@ -44,11 +44,9 @@ export default function Home({ awsContext }) {
             const key = `${conversation.id}_${index}`;
 
             return (
-              <div className='conversation-link' key={key}>
-                <Link to={`/conversation/${conversation.id}`}>
-                  {conversation.metadata.artPiece} by {conversation.metadata.artistName}
-                </Link>
-              </div>
+              <Link key={key} className='conversation-link' to={`/conversation/${conversation.id}`}>
+                {conversation.metadata.artPiece} by {conversation.metadata.artistName}
+              </Link>
             );
           })
         }

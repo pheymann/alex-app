@@ -1,6 +1,19 @@
 .conversation-link {
+  display: block;
   border-radius: 15px;
   box-shadow: black 0px 0px 0px 2px inset, #f0f0f0 -5px 4px 0px -2px, black -5px 4px;
   margin-top: 10px;
   padding: 10px 10px 10px 20px;
+  margin-top: 10px;
+  text-decoration: none;
+  color: black;
+}
+
+.conversation-link:hover {
+  background-color: #fd766a;
+  color: white;
+}
+
+.conversation-link:active {
+  box-shadow: black 0px 0px 0px 2px inset, #d64d40 -5px 4px 0px -2px, black -5px 4px;
 }
