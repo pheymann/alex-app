@@ -30,39 +30,31 @@
   border: 2px solid black;
 }
 
-.user-prompt > textarea {
+.user-prompt-textarea {
   background-color: #fafafa;
   resize: none;
-  height: auto;
   overflow-y: hidden;
   border-radius: 15px;
   padding: 5px 11px 5px 11px;
-  width: 80%;
+  width: 100%;
 }
 
-.user-prompt > button {
+.user-prompt-button {
   display: inline-block;
   position: relative;
-  border-radius: 50%;
+  border-radius: 15px;
   padding: 12px;
   background-color: #fd766a; /* Change to your preferred background color */
   color: white;
   border: none;
   cursor: pointer;
   overflow: hidden;
-  width: 30px;
-  height: 30px;
+  width: 80%;
+  height: 35px;
 }
 
-.user-prompt > button > .arrow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-66%, -50%) rotate(135deg);
-  width: 15px;
-  height: 15px;
-  background-color: white;
-  clip-path: polygon(0% 0%, 100% 0%, 0% 100%);
+.user-prompt-button:hover {
+  background-color: #d64d40;
 }
 
 .assistant-response-bubble {

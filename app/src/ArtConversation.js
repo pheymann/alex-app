@@ -225,17 +225,23 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
         { !loading &&
           <div className='row'>
             <div className='col user-prompt'>
-              <textarea
-                ref={textareaRef}
-                value={prompt}
-                rows={1}
-                placeholder="Something's on your mind?"
-                onChange={(e) => setPrompt(e.target.value)}
-              />
-
-              <button onClick={handlePrompt}>
-                <span className='arrow'></span>
-              </button>
+              <div className='row'>
+                <div className='col col-10'>
+                  <textarea
+                    className='user-prompt-textarea'
+                    ref={textareaRef}
+                    value={prompt}
+                    rows={1}
+                    placeholder="Something's on your mind?"
+                    onChange={(e) => setPrompt(e.target.value)}
+                  />
+                </div>
+                <div className='col'>
+                  <button className='user-prompt-button' onClick={handlePrompt}>
+                    {"->"}
+                  </button>
+                </div>
+              </div>
 
               <div className='text-center'>
                 <NewConversationButton />
