@@ -1,17 +1,3 @@
-.new-conversation-button {
-  display: inline-block;
-  border-radius: 15px;
-  text-decoration: none;
-  color: white;
-  background-color: #fd766a;
-  padding: 5px 0 5px 0;
-  width: 50%;
-}
-
-.new-conversation-button:hover {
-  background-color: #d64d40;
-}
-
 .conversation-link {
   display: inline-block;
   border-radius: 15px;

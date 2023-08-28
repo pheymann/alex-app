@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import './ArtConversation.css'
+import NewConversationButton from './NewConversationButton';
 
 export default function ArtConversation({ awsContext }) {
   const pathParams = useParams();
@@ -236,9 +237,9 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
                 <span className='arrow'></span>
               </button>
 
-              <Link to='/conversation/new'>
-                New Conversation
-              </Link>
+              <div className='text-center'>
+                <NewConversationButton />
+              </div>
             </div>
           </div>
         }

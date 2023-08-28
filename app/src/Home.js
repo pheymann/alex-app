@@ -2,6 +2,7 @@ import { Auth } from 'aws-amplify';
 import {useState, useEffect} from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Home.css';
+import NewConversationButton from './NewConversationButton';
 
 export default function Home({ awsContext }) {
   const [conversations, setConversations] = useState([]);
@@ -37,9 +38,7 @@ export default function Home({ awsContext }) {
 
       <div className='row'>
         <div className='col text-center'>
-          <Link className='new-conversation-button' to={'/conversation/new'}>
-            Start a new conversation
-          </Link>
+          <NewConversationButton />
         </div>
       </div>
 
