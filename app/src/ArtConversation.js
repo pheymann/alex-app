@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import './ArtConversation.css'
 
 export default function ArtConversation({ awsContext }) {
@@ -16,6 +16,9 @@ export default function ArtConversation({ awsContext }) {
   useEffect(() => {
     if (!conversationId || conversationId === 'new') {
       setLoading(false);
+      setConversation(null);
+      setArtPieceName('');
+      setArtistName('');
       return;
     }
 
@@ -232,6 +235,10 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
               <button onClick={handlePrompt}>
                 <span className='arrow'></span>
               </button>
+
+              <Link to='/conversation/new'>
+                New Conversation
+              </Link>
             </div>
           </div>
         }
