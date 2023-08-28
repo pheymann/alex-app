@@ -13,13 +13,14 @@
 }
 
 .conversation-link {
-  display: block;
+  display: inline-block;
   border-radius: 15px;
   box-shadow: black 0px 0px 0px 2px inset, #f0f0f0 -5px 4px 0px -2px, black -5px 4px;
   padding: 10px 10px 10px 20px;
   margin-top: 10px;
   text-decoration: none;
   color: black;
+  width: 100%;
 }
 
 .conversation-link:hover {
