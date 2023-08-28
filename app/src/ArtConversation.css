@@ -86,3 +86,12 @@
   border-top: 2px solid black;
   border-left: 2px solid black;
 }
+
+.assistant-response-bubble > .show-text-button {
+  display: block;
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 15px;
+  padding: 3px 10px 3px 10px;
+  font-size: 0.8em;
+}

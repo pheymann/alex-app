@@ -280,7 +280,11 @@ function AssistantMessage({ index, message }) {
       <div className='col-10 assistant-response-bubble'>
         <audio src={message.speechClipUrl} controls />
 
-        <button className='btn btn-primary'
+        <p className='collapse' id={answerInTextId}>
+          {message.text}
+        </p>
+
+        <button className='show-text-button'
                 type='button'
                 data-bs-toggle='collapse'
                 data-bs-target={`#${answerInTextId}`}
@@ -288,10 +292,6 @@ function AssistantMessage({ index, message }) {
                 onClick={_ => setIsCollapsed(!isCollapsed)}>
           {isCollapsed ? 'Show Text' : 'Hide'}
         </button>
-
-        <p className='collapse' id={answerInTextId}>
-          {message.text}
-        </p>
       </div>
     </div>
   );
