@@ -212,17 +212,19 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
         }
 
         { !loading &&
-          <div className='user-prompt'>
-            <textarea
-              ref={textareaRef}
-              value={prompt}
-              rows={1}
-              placeholder="Something's on your mind?"
-              onChange={(e) => setPrompt(e.target.value)}
-            />
-            <button onClick={handlePrompt}>
-              <span className='arrow'></span>
-            </button>
+          <div className='row'>
+            <div className='col user-prompt'>
+              <textarea
+                ref={textareaRef}
+                value={prompt}
+                rows={1}
+                placeholder="Something's on your mind?"
+                onChange={(e) => setPrompt(e.target.value)}
+              />
+              <button onClick={handlePrompt}>
+                <span className='arrow'></span>
+              </button>
+            </div>
           </div>
         }
 
@@ -238,10 +240,13 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
 
 function UserMessage({ message }) {
   return (
-    <div className='user-message-bubble'>
-      <p>
-        {message.text}
-      </p>
+    <div className='row'>
+      <div className='col'/>
+      <div className='col-10 user-message-bubble'>
+        <p>
+          {message.text}
+        </p>
+      </div>
     </div>
   );
 }
@@ -251,21 +256,23 @@ function AssistantMessage({ index, message }) {
   const [isCollapsed, setIsCollapsed] = useState(true);
 
   return (
-    <div className='assistant-response-bubble'>
-      <audio src={message.speechClipUrl} controls />
+    <div className='row'>
+      <div className='col-10 assistant-response-bubble'>
+        <audio src={message.speechClipUrl} controls />
 
-      <button className='btn btn-primary'
-              type='button'
-              data-bs-toggle='collapse'
-              data-bs-target={`#${answerInTextId}`}
-              aria-expanded='false'
-              onClick={_ => setIsCollapsed(!isCollapsed)}>
-        {isCollapsed ? 'Show Text' : 'Hide'}
-      </button>
+        <button className='btn btn-primary'
+                type='button'
+                data-bs-toggle='collapse'
+                data-bs-target={`#${answerInTextId}`}
+                aria-expanded='false'
+                onClick={_ => setIsCollapsed(!isCollapsed)}>
+          {isCollapsed ? 'Show Text' : 'Hide'}
+        </button>
 
-      <p className='collapse' id={answerInTextId}>
-        {message.text}
-      </p>
+        <p className='collapse' id={answerInTextId}>
+          {message.text}
+        </p>
+      </div>
     </div>
   );
 }
