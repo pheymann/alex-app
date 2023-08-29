@@ -1,12 +1,12 @@
 import { Auth } from 'aws-amplify';
 import {useState, useEffect} from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './Home.css';
 import NewConversationButton from './NewConversationButton';
+import BasicPage from './BasicPage';
 
 export default function Home({ awsContext }) {
   const [conversations, setConversations] = useState([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`/api/conversation/list`, {
@@ -25,38 +25,30 @@ export default function Home({ awsContext }) {
   }, [awsContext.token, awsContext.userUUID]);
 
   return (
-    <div className='container'>
-      <h1>Let's talk about Art</h1>
-
-      <button onClick={() => {
-        Auth.signOut()
-          .then(_ => navigate('/login'))
-          .catch(err => console.log(err));
-      }}>
-        Sign Out
-      </button>
-
-      <div className='row'>
-        <div className='col text-center'>
-          <NewConversationButton />
+    <BasicPage signOut={() => {return Auth.signOut()}}>
+      <div className='container container-limited-width'>
+        <div className='row'>
+          <div className='col text-center'>
+            <NewConversationButton />
+          </div>
         </div>
-      </div>
 
-        { conversations &&
-          conversations.map((conversation, index) => {
-            const key = `${conversation.id}_${index}`;
+          { conversations &&
+            conversations.map((conversation, index) => {
+              const key = `${conversation.id}_${index}`;
 
-            return (
-              <div key={key} className='row'>
-                <div className='col'>
-                  <Link className='conversation-link' to={`/conversation/${conversation.id}`}>
-                    {conversation.metadata.artPiece} by {conversation.metadata.artistName}
-                  </Link>
+              return (
+                <div key={key} className='row'>
+                  <div className='col'>
+                    <Link className='conversation-link' to={`/conversation/${conversation.id}`}>
+                      {conversation.metadata.artPiece} by {conversation.metadata.artistName}
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            );
-          })
-        }
-    </div>
+              );
+            })
+          }
+      </div>
+    </BasicPage>
   );
 }
