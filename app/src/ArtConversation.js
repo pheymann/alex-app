@@ -43,7 +43,7 @@ export default function ArtConversation({ awsContext }) {
 
   if (loading) {
     return(
-      <div className="container">
+      <div className="container container-limited-width">
         <div className="spinner-border" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -107,7 +107,7 @@ function NewConversation({artPieceName, setArtPieceName, artistName, setArtistNa
 
   if (loading) {
     return(
-      <div className="container">
+      <div className='container container-limited-width'>
         <div className="spinner-border" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -116,7 +116,7 @@ function NewConversation({artPieceName, setArtPieceName, artistName, setArtistNa
   }
 
   return (
-    <div className='container'>
+    <div className='container container-limited-width'>
       Tell me something about
       <input
         type='text'
@@ -206,7 +206,7 @@ function ContinueConversation({artPieceName, artistName, conversation, setConver
   useEffect(resizeTextArea, [prompt]);
 
   return (
-    <div className='container'>
+    <div className='container container-limited-width'>
       <UserMessage key={"init"} message={initialMessage} />
 
       <div>

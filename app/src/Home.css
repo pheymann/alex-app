@@ -17,3 +17,11 @@
 .conversation-link:active {
   box-shadow: black 0px 0px 0px 2px inset, #d64d40 -5px 4px 0px -2px, black -5px 4px;
 }
+
+/* media queries */
+
+@media (min-width: 1200px) {
+  .container-limited-width {
+      max-width: 700px;
+  }
+}
