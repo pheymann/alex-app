@@ -47,9 +47,9 @@ export default function Home({ awsContext }) {
             const key = `${conversation.id}_${index}`;
 
             return (
-              <div className='row'>
+              <div key={key} className='row'>
                 <div className='col'>
-                  <Link key={key} className='conversation-link' to={`/conversation/${conversation.id}`}>
+                  <Link className='conversation-link' to={`/conversation/${conversation.id}`}>
                     {conversation.metadata.artPiece} by {conversation.metadata.artistName}
                   </Link>
                 </div>
