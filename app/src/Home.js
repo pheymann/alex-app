@@ -28,7 +28,7 @@ export default function Home({ awsContext }) {
       <div className='container container-limited-width'>
         <div className='row'>
           <div className='col text-center'>
-            <NewConversationButton />
+            <NewConversationButton className='home-new-conversation-button' />
           </div>
         </div>
 

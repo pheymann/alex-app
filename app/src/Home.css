@@ -18,6 +18,10 @@
   box-shadow: black 0px 0px 0px 2px inset, #d64d40 -5px 4px 0px -2px, black -5px 4px;
 }
 
+.home-new-conversation-button {
+  margin: 30px 0 20px 0;
+}
+
 /* media queries */
 
 @media (min-width: 1200px) {
