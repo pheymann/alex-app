@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import './ArtConversation.css'
 import NewConversationButton from './NewConversationButton';
+import BasicPage from './BasicPage';
 
 export default function ArtConversation({ awsContext }) {
   const pathParams = useParams();
@@ -43,28 +44,38 @@ export default function ArtConversation({ awsContext }) {
 
   if (loading) {
     return(
-      <div className="container container-limited-width">
-        <div className="spinner-border" role="status">
-          <span className="visually-hidden">Loading...</span>
+      <BasicPage awsContext={awsContext}>
+        <div className="container container-limited-width">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
         </div>
-      </div>
+      </BasicPage>
     );
   }
 
   if (!conversation) {
-    return <NewConversation
-      artPieceName={artPieceName}
-      setArtPieceName={setArtPieceName}
-      artistName={artistName}
-      setArtistName={setArtistName}
-      awsContext={awsContext} />;
+    return (
+      <BasicPage awsContext={awsContext}>
+        <NewConversation
+          artPieceName={artPieceName}
+          setArtPieceName={setArtPieceName}
+          artistName={artistName}
+          setArtistName={setArtistName}
+          awsContext={awsContext} />
+      </BasicPage>
+    );
   } else {
-    return <ContinueConversation
-      artPieceName={artPieceName}
-      artistName={artistName}
-      conversation={conversation}
-      setConversation={setConversation}
-      awsContext={awsContext} />;
+    return (
+      <BasicPage awsContext={awsContext}>
+        <ContinueConversation
+          artPieceName={artPieceName}
+          artistName={artistName}
+          conversation={conversation}
+          setConversation={setConversation}
+          awsContext={awsContext} />
+      </BasicPage>
+    );
   }
 }
 
