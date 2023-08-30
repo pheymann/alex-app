@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
 
-export default function Header({ signOut }) {
+export default function Header({ awsContext }) {
   const navigate = useNavigate();
 
   return (
@@ -13,9 +13,9 @@ export default function Header({ signOut }) {
           </div>
           <div className="col-6 text-end">
             <button onClick={() => {
-                signOut()
-                  .then(() => navigate('/login'))
-                  .catch(err => console.log(err));
+              awsContext.signOut()
+                .then(() => navigate('/login'))
+                .catch(err => console.log(err));
               }}
             >
               Logout

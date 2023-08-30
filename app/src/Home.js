@@ -1,4 +1,3 @@
-import { Auth } from 'aws-amplify';
 import {useState, useEffect} from 'react';
 import { Link } from 'react-router-dom';
 import './Home.css';
@@ -25,7 +24,7 @@ export default function Home({ awsContext }) {
   }, [awsContext.token, awsContext.userUUID]);
 
   return (
-    <BasicPage signOut={() => {return Auth.signOut()}}>
+    <BasicPage awsContext={awsContext}>
       <div className='container container-limited-width'>
         <div className='row'>
           <div className='col text-center'>

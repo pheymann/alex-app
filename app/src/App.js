@@ -27,6 +27,7 @@ export default function App() {
         setAwsContext({
           awsSession,
           token: awsSession.getIdToken().getJwtToken(),
+          signOut: () => Auth.signOut(),
         });
         setLoading(false);
       } catch (error) {
