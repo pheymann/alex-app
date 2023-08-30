@@ -1,7 +1,9 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
 
 export default function Header({ signOut }) {
+  const navigate = useNavigate();
+
   return (
     <header className="App-header">
       <div className="container">
@@ -10,13 +12,14 @@ export default function Header({ signOut }) {
             <Link to="/">Home</Link>
           </div>
           <div className="col-6 text-end">
-            <Link to="/login"
-                  onClick={() => {
-                    signOut()
-                      .catch(err => console.log(err));
-                  }}>
+            <button onClick={() => {
+                signOut()
+                  .then(() => navigate('/login'))
+                  .catch(err => console.log(err));
+              }}
+            >
               Logout
-            </Link>
+            </button>
           </div>
         </div>
       </div>
