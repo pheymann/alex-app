@@ -5,14 +5,15 @@ export default function Header({ awsContext }) {
   const navigate = useNavigate();
 
   return (
-    <header className="App-header">
-      <div className="container">
+    <header>
+      <div className="container header-container-limited-width">
         <div className="row">
           <div className="col-6">
-            <Link to="/">Home</Link>
+            <Link className="btn" to="/">Home</Link>
           </div>
           <div className="col-6 text-end">
-            <button onClick={() => {
+            <button className='btn app-header-logout-button'
+                    onClick={() => {
               awsContext.signOut()
                 .then(() => navigate('/login'))
                 .catch(err => console.log(err));

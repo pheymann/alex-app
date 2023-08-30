@@ -2,14 +2,25 @@ header {
   width: 100%;
   height: 40px;
   box-shadow: 0 0 5px black;
+}
 
-  .app-header {
-      width: 80%;
-      margin: auto;
+.app-header-logout-button {
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 15px;
+  font-size: 0.8em;
+  margin-top: 6px;
+}
 
-      a {
-          line-height: 40px;
-          margin-right: 2%;
-      }
+.app-header-logout-button:hover {
+  background-color: #fd766a;
+  color: white;
+}
+
+/* media queries */
+
+@media (min-width: 1200px) {
+  .header-container-limited-width {
+      max-width: 800px;
   }
 }
