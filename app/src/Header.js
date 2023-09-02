@@ -12,7 +12,7 @@ export default function Header({ awsContext }) {
             <Link className="btn" to="/">Home</Link>
           </div>
           <div className="col-6 text-end">
-            <button className='btn app-header-logout-button'
+            <button className='app-header-logout-button'
                     onClick={() => {
               awsContext.signOut()
                 .then(() => navigate('/login'))

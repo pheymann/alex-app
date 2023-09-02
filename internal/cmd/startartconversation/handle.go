@@ -9,22 +9,21 @@ import (
 	"talktome.com/internal/talktome"
 )
 
-func Handle(userUUID string, artistName string, artPiece string, ctx talktome.Context) (*conversation.Conversation, error) {
-	log.Info().Str("user_uuid", userUUID).Msgf("start art conversation for %s's %s", artistName, artPiece)
+func Handle(userUUID string, artContext string, ctx talktome.Context) (*conversation.Conversation, error) {
+	log.Info().Str("user_uuid", userUUID).Msgf("start art conversation for '%s'", artContext)
 
-	if artistName == "" && artPiece == "" {
-		return nil, fmt.Errorf("artist name and art piece cannot be empty")
+	if artContext == "" {
+		return nil, fmt.Errorf("artist context cannot be empty")
 	}
 
 	metadata := map[string]string{
-		"artistName": artistName,
-		"artPiece":   artPiece,
+		"artContext": artContext,
 	}
 	conv := conversation.NewConversation(metadata)
 	conv.Messages = []conversation.Message{
 		{
 			Role:        openai.ChatMessageRoleSystem,
-			Text:        fmt.Sprintf(`The art piece we are discussion is "%s" from %s`, artPiece, artistName),
+			Text:        fmt.Sprintf(`The art piece we are discussion is "%s"`, artContext),
 			CanHaveClip: false,
 		},
 		{

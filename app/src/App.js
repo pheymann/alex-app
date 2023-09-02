@@ -2,8 +2,8 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import { Amplify, Auth } from 'aws-amplify';
 import awsExports from './aws-exports';
 import Home from './Home';
-import ArtConversation from './ArtConversation';
 import Login from './Login';
+import Conversation from './converation/Conversation';
 import { useEffect, useState } from 'react';
 
 Amplify.configure({
@@ -54,7 +54,7 @@ export default function App() {
     <Routes>
       <Route path='/login' element={<Login />} />
       <Route exact path='/' element={<Home awsContext={ awsContext } />} />
-      <Route path='/conversation/:id' element={<ArtConversation awsContext={ awsContext } />} />
+      <Route path='/conversation/:id' element={<Conversation awsContext={ awsContext } />} />
     </Routes>
   );
 }

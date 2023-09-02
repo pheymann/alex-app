@@ -197,11 +197,16 @@ func handleCreateArtConversation(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleContinueConversation(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r.Body)
 
 	event := events.APIGatewayProxyRequest{
-		HTTPMethod:     r.Method,
+		HTTPMethod: r.Method,
+		PathParameters: map[string]string{
+			"uuid": vars["id"],
+		},
 		Body:           buf.String(),
 		RequestContext: testRequestContext,
 	}
@@ -276,8 +281,8 @@ func main() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/api/conversation/create/art", handleCreateArtConversation).Methods(http.MethodPost)
-	router.HandleFunc("/api/conversation/continue", handleContinueConversation).Methods(http.MethodPost)
 	router.HandleFunc("/api/conversation/list", handleListConversations).Methods(http.MethodGet)
+	router.HandleFunc("/api/conversation/{id}/continue", handleContinueConversation).Methods(http.MethodPost)
 	router.HandleFunc("/api/conversation/{id}", handleGetConversation).Methods(http.MethodGet)
 	router.HandleFunc("/aws/presigned/{id}", fileHandler).Methods(http.MethodGet)
 

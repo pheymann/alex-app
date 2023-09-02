@@ -1,0 +1,30 @@
+.assistant-response-field {
+  position: relative;
+  background-color: #fafafa;
+  border-radius: 25px;
+  padding: 15px;
+  margin: 20px;
+  border: 2px solid black;
+  word-break: break-all;
+}
+
+.assistant-response-field::after {
+  content: "";
+  position: absolute;
+  width: 23px;
+  height: 23px;
+  background-color: #fafafa;
+  top: -2px;
+  left: -2px;
+  border-top: 2px solid black;
+  border-left: 2px solid black;
+}
+
+.assistant-response-field > .show-text-button {
+  display: block;
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 15px;
+  padding: 3px 10px 3px 10px;
+  font-size: 0.8em;
+}

@@ -14,9 +14,8 @@ type HandlerCtx struct {
 	Ctx talktome.Context
 }
 
-type ArtPiece struct {
-	ArtistName string `json:"artistName"`
-	ArtPiece   string `json:"artPiece"`
+type ArtContext struct {
+	Context string `json:"artContext"`
 }
 
 func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -29,9 +28,9 @@ func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGat
 		}, nil
 	}
 
-	var artPiece ArtPiece
+	var artContext ArtContext
 
-	if err := json.Unmarshal([]byte(event.Body), &artPiece); err != nil {
+	if err := json.Unmarshal([]byte(event.Body), &artContext); err != nil {
 		log.Err(err).Msg("couldn't parse body")
 		return events.APIGatewayProxyResponse{
 			StatusCode: 400,
@@ -39,7 +38,7 @@ func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGat
 		}, nil
 	}
 
-	conversation, err := Handle(userUUID, artPiece.ArtistName, artPiece.ArtPiece, handlerCtx.Ctx)
+	conversation, err := Handle(userUUID, artContext.Context, handlerCtx.Ctx)
 	if err != nil {
 		log.Err(err).Msg("failed to start art conversation")
 		return events.APIGatewayProxyResponse{

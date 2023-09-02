@@ -1,0 +1,35 @@
+.prompt-field {
+  position: relative;
+  background-color: #f0f0f0;
+  border-radius: 25px;
+  padding: 15px;
+  margin: 20px;
+  border: 2px solid black;
+}
+
+.prompt-field-textarea {
+  background-color: #fafafa;
+  resize: none;
+  overflow-y: hidden;
+  border-radius: 15px;
+  padding: 5px 11px 5px 11px;
+  width: 100%;
+}
+
+.prompt-field-button {
+  display: inline-block;
+  position: relative;
+  border-radius: 15px;
+  padding: 12px;
+  background-color: #fd766a; /* Change to your preferred background color */
+  color: white;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  width: 80%;
+  height: 35px;
+}
+
+.prompt-field-button:hover {
+  background-color: #d64d40;
+}

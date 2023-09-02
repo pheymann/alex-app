@@ -15,11 +15,12 @@ type HandlerCtx struct {
 }
 
 type conversationRequest struct {
-	ConversationUUID string `json:"conversationUuid"`
-	Prompt           string `json:"prompt"`
+	Question string `json:"question"`
 }
 
 func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	convUUID := event.PathParameters["uuid"]
+
 	userUUID, error := shared.ExtractUserUUID(event)
 	if error != nil {
 		log.Err(error).Msg("failed to extract user uuid")
@@ -39,7 +40,7 @@ func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGat
 		}, nil
 	}
 
-	message, err := Handle(userUUID, convReq.ConversationUUID, convReq.Prompt, handlerCtx.Ctx)
+	message, err := Handle(userUUID, convUUID, convReq.Question, handlerCtx.Ctx)
 	if err != nil {
 		log.Err(err).Msg("failed to continue conversation")
 		return events.APIGatewayProxyResponse{

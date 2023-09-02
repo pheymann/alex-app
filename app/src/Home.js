@@ -40,7 +40,7 @@ export default function Home({ awsContext }) {
                 <div key={key} className='row'>
                   <div className='col'>
                     <Link className='conversation-link' to={`/conversation/${conversation.id}`}>
-                      {conversation.metadata.artPiece} by {conversation.metadata.artistName}
+                      {conversation.metadata.artContext}
                     </Link>
                   </div>
                 </div>

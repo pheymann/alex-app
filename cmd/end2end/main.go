@@ -60,11 +60,9 @@ func main() {
 	}
 }
 
-func createArtConversation(userUUID string, artistName, artPiece *string) {
-	if *artistName == "" {
-		panic("missing artist name")
-	} else if *artPiece == "" {
-		panic("missing art piece name")
+func createArtConversation(userUUID string, artContext, artPiece *string) {
+	if *artContext == "" {
+		panic("missing artist context")
 	}
 
 	// ENV VAR init
@@ -94,7 +92,7 @@ func createArtConversation(userUUID string, artistName, artPiece *string) {
 	ctx := talktome.NewContext(textGen, speechGen, convStorage, userStorage)
 
 	log.Info().Msg("creating new art conversation")
-	conv, err := startartconversation.Handle(userUUID, *artistName, *artPiece, ctx)
+	conv, err := startartconversation.Handle(userUUID, *artContext, ctx)
 	if err != nil {
 		panic(err)
 	}
