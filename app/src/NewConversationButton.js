@@ -6,7 +6,7 @@ export default function NewConversationButton(props) {
 
   return (
     <Link className={compositeClasses} to={'/conversation/new'}>
-      New conversation
+      Explore Art
     </Link>
   );
 }
