@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import "./PromptField.css";
 
-export default function PromptField(props) {
+export function PromptField(props) {
   const textareaRef = useRef(null);
 
   const resizeTextArea = () => {
@@ -35,5 +35,17 @@ export default function PromptField(props) {
           </div>
         </div>
       </div>
+  );
+}
+
+export function LoadingPromptField() {
+  return (
+    <div className='row'>
+      <div className='col d-flex prompt-field justify-content-center'>
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    </div>
   );
 }

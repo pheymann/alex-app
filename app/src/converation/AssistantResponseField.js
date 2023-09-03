@@ -1,19 +1,7 @@
 import { useState } from "react";
 import './AssistantResponseField.css';
 
-export function LoadingAssistantResponseField() {
-  return (
-    <div className='row'>
-      <div className='col assistant-response-field'>
-        <div className="spinner-border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export function AssistantResponseField({ index, message }) {
+export default function AssistantResponseField({ index, message }) {
   const answerInTextId = `answerInText_${index}`;
   const [isCollapsed, setIsCollapsed] = useState(true);
 
@@ -34,6 +22,8 @@ export function AssistantResponseField({ index, message }) {
                 onClick={_ => setIsCollapsed(!isCollapsed)}>
           {isCollapsed ? 'Show Text' : 'Hide'}
         </button>
+      </div>
+      <div className='col'>
       </div>
     </div>
   );

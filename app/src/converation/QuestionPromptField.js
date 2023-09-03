@@ -1,5 +1,5 @@
 import { useState } from "react";
-import PromptField from "./PromptField";
+import { PromptField } from "./PromptField";
 
 export default function QuestionPromptField({
   conversation,

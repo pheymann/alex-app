@@ -3,9 +3,10 @@ import { useParams } from "react-router-dom";
 import BasicPage from "../BasicPage";
 import ArtContextPromptField from "./ArtContextPrompField";
 import UserMessageField from "./UserMessageField";
-import { AssistantResponseField, LoadingAssistantResponseField } from "./AssistantResponseField";
 import QuestionPromptField from "./QuestionPromptField";
 import './Conversation.css';
+import { LoadingPromptField } from "./PromptField";
+import AssistantResponseField from "./AssistantResponseField";
 
 export default function Conversation({ awsContext }) {
   const pathParams = useParams();
@@ -98,7 +99,7 @@ export default function Conversation({ awsContext }) {
                                               awsContext={ awsContext } />
 
                 case 'loading':
-                  return <LoadingAssistantResponseField key={ key } />
+                  return <LoadingPromptField key={ key } />
 
                 default:
                   console.error(`unknown message role: ${message.role}`);
