@@ -62,7 +62,7 @@ export default function Conversation({ awsContext }) {
   if (loading) {
     return(
       <BasicPage awsContext={awsContext}>
-        <div className="container container-limited-width">
+        <div className="container container-limited-width d-flex justify-content-center">
           <div className="spinner-border" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
