@@ -20,8 +20,23 @@ header {
 
 /* media queries */
 
+@media (max-width: 768px) {
+  header {
+      height: 60px;
+  }
+
+  .header-container-limited-width {
+    max-width: 100%;
+  }
+
+  .app-header-logout-button {
+    margin-top: 15px;
+    padding: 5px 10px 5px 10px;
+  }
+}
+
 @media (min-width: 1200px) {
   .header-container-limited-width {
-      max-width: 800px;
+      max-width: 700px;
   }
 }

@@ -71,44 +71,49 @@ export default function Conversation({ awsContext }) {
     );
   }
 
+  const showsArtContextPrompt = conversation.messages.some(message => message.role === 'prompt-art-context');
+  const showsUserQuestionPrompt = conversation.messages.some(message => message.role === 'prompt-user-question');
+
   return (
     <BasicPage awsContext={ awsContext }>
       <div className='container container-limited-width'>
         <div>
           {
-            conversation.messages.map((message, index) => {
-              const key = `${message.speechClipUuid}_${index}`;
+            conversation.messages
+              .filter(message => message.role !== 'prompt-art-context' && message.role !== 'prompt-user-question')
+              .map((message, index) => {
+                const key = `${message.speechClipUuid}_${index}`;
 
-              switch (message.role) {
-                case 'user':
-                  return <UserMessageField key={ key } message={ message } />
+                switch (message.role) {
+                  case 'user':
+                    return <UserMessageField key={ key } message={ message } />
 
-                case 'assistant':
-                  return <AssistantResponseField key={ key } index={ index } message={ message } />
+                  case 'assistant':
+                    return <AssistantResponseField key={ key } index={ index } message={ message } />
 
-                case 'prompt-art-context':
-                  return <ArtContextPromptField key={ key }
-                                                conversation={ conversation }
-                                                setConversation={ setConversation }
-                                                awsContext={ awsContext } />
+                  case 'loading':
+                    return <LoadingPromptField key={ key } />
 
-                case 'prompt-user-question':
-                  return <QuestionPromptField key={ key }
-                                              conversation={ conversation }
-                                              setConversation={ setConversation }
-                                              awsContext={ awsContext } />
-
-                case 'loading':
-                  return <LoadingPromptField key={ key } />
-
-                default:
-                  console.error(`unknown message role: ${message.role}`);
-                  return <div key={ key }></div>
-              }
-            })
+                  default:
+                    console.error(`unknown message role: ${message.role}`);
+                    return <div key={ key }></div>
+                }
+              })
           }
         </div>
       </div>
+
+      { showsArtContextPrompt &&
+        <ArtContextPromptField  conversation={ conversation }
+                                setConversation={ setConversation }
+                                awsContext={ awsContext } />
+      }
+
+      { showsUserQuestionPrompt &&
+        <QuestionPromptField  conversation={ conversation }
+                              setConversation={ setConversation }
+                              awsContext={ awsContext } />
+      }
     </BasicPage>
   );
 }

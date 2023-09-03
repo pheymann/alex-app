@@ -1,7 +1,7 @@
 .prompt-field {
   position: fixed;
   bottom: 0;
-  width: 700px;
+  width: 80%;
   background-color: white;
   border-radius: 25px;
   padding: 25px 15px 30px 15px;
@@ -36,4 +36,24 @@
 
 .prompt-field-button:hover {
   background-color: #d64d40;
+}
+
+/* media queries */
+
+@media (max-width: 768px) {
+  .prompt-field {
+      width: 96%;
+  }
+}
+
+@media (min-width: 992px) {
+  .prompt-field {
+      max-width: 70%;
+  }
+}
+
+@media (min-width: 1200px) {
+  .prompt-field {
+      max-width: 700px;
+  }
 }

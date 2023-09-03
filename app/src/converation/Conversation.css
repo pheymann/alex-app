@@ -5,6 +5,30 @@
 
 /* media queries */
 
+@media (max-width: 576px) {
+  .container-limited-width {
+      max-width: 95%;
+  }
+}
+
+@media (max-width: 768px) {
+  .container-limited-width {
+      max-width: 90%;
+  }
+}
+
+@media (min-width: 768px) {
+  .container-limited-width {
+      max-width: 700px;
+  }
+}
+
+@media (min-width: 992px) {
+  .container-limited-width {
+      max-width: 700px;
+  }
+}
+
 @media (min-width: 1200px) {
   .container-limited-width {
       max-width: 700px;
