@@ -5,6 +5,7 @@ import Home from './Home';
 import Login from './Login';
 import Conversation from './converation/Conversation';
 import { useEffect, useState } from 'react';
+import './App.css';
 
 Amplify.configure({
   Auth: {

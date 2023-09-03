@@ -1,6 +1,7 @@
 .new-conversation-button {
   display: inline-block;
   border-radius: 15px;
+  border: 1px solid black;
   text-decoration: none;
   text-align: center;
   color: white;
