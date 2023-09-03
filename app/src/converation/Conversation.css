@@ -1,4 +1,8 @@
 
+.container-limited-width {
+  margin-bottom: 100px;
+}
+
 /* media queries */
 
 @media (min-width: 1200px) {

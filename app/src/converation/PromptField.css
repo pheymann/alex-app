@@ -1,14 +1,17 @@
 .prompt-field {
-  position: relative;
+  position: fixed;
+  bottom: 0;
+  width: 700px;
   background-color: white;
   border-radius: 25px;
-  padding: 15px;
-  margin: 20px;
-  border: 1px solid black;
+  padding: 25px 15px 30px 15px;
+  margin-bottom: 10px;
+  box-shadow: black 0px 0px 0px 1px inset, #f0f0f0 -5px 4px 0px -1px, black -5px 4px;
 }
 
 .prompt-field-textarea {
   background-color: #f1efef;
+  border: none;
   resize: none;
   overflow-y: hidden;
   border-radius: 15px;
@@ -28,6 +31,7 @@
   overflow: hidden;
   width: 80%;
   height: 35px;
+  border: 1px solid black;
 }
 
 .prompt-field-button:hover {
