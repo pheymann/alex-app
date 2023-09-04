@@ -2,6 +2,7 @@ package conversation
 
 import (
 	"os"
+	"time"
 
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -12,7 +13,7 @@ type StorageService interface {
 	FindAllConversations(uuids []string) ([]Conversation, error)
 	StoreConversation(conversation Conversation) error
 	StoreClip(clip *os.File) (string, error)
-	GenerateClipAccess(uuid string) (string, error)
+	GenerateClipAccess(uuid string) (string, *time.Time, error)
 }
 
 type AWSStorageCtx struct {

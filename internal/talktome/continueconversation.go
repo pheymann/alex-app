@@ -50,12 +50,14 @@ func (ctx Context) ContinueConversation(userUUID string, convUUID string, messag
 
 	conv.Messages[lastMessageIndex].SpeechClipUUID = clipFileName
 
-	preSignedURL, err := ctx.conversationStorage.GenerateClipAccess(clipFileName)
+	preSignedURL, expirationDate, err := ctx.conversationStorage.GenerateClipAccess(clipFileName)
 	if err != nil {
 		return nil, err
 	}
 
 	conv.Messages[lastMessageIndex].SpeechClipURL = preSignedURL
+	conv.Messages[lastMessageIndex].SpeechClipExpirationDate = expirationDate
+	conv.Messages[lastMessageIndex].SpeechClipIsExpired = false
 
 	if err := ctx.conversationStorage.StoreConversation(conv); err != nil {
 		return nil, err

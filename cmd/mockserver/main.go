@@ -124,8 +124,16 @@ func (ctx *mockConversationStorageService) StoreClip(clipFile *os.File) (string,
 	return "prompt.mp3", nil
 }
 
-func (ctx *mockConversationStorageService) GenerateClipAccess(audioClipUUID string) (string, error) {
-	return "/aws/presigned/prompt.mp3", nil
+func (ctx *mockConversationStorageService) GenerateClipAccess(audioClipUUID string) (string, *time.Time, error) {
+	location, err := time.LoadLocation("UTC")
+	if err != nil {
+		return "", nil, err
+	}
+
+	urlValidFor := 1 * time.Minute
+	expirationDate := time.Now().In(location).Add(urlValidFor)
+
+	return "/aws/presigned/prompt.mp3", &expirationDate, nil
 }
 
 type mockUserStorageService struct {

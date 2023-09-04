@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-func (ctx *AWSStorageCtx) GenerateClipAccess(audioClipUUID string) (string, error) {
+func (ctx *AWSStorageCtx) GenerateClipAccess(audioClipUUID string) (string, *time.Time, error) {
 	input := &s3.GetObjectInput{
 		Bucket: aws.String(ctx.bucketName),
 		Key:    aws.String(audioClipUUID),
@@ -17,10 +17,17 @@ func (ctx *AWSStorageCtx) GenerateClipAccess(audioClipUUID string) (string, erro
 	audioClipRequest, _ := ctx.s3Client.GetObjectRequest(input)
 
 	// TODO: configure expiration time
-	url, err := audioClipRequest.Presign(3 * time.Hour)
+	location, err := time.LoadLocation("UTC")
 	if err != nil {
-		return "", fmt.Errorf("failed to generate access url for audio clip %s: %w", audioClipUUID, err)
+		return "", nil, fmt.Errorf("failed to load UTC location: %w", err)
 	}
 
-	return url, nil
+	urlValidFor := 3 * 24 * time.Hour
+	expirationDate := time.Now().In(location).Add(urlValidFor - 1*time.Hour)
+	url, err := audioClipRequest.Presign(urlValidFor)
+	if err != nil {
+		return "", nil, fmt.Errorf("failed to generate access url for audio clip %s: %w", audioClipUUID, err)
+	}
+
+	return url, &expirationDate, nil
 }

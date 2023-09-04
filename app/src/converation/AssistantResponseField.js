@@ -5,6 +5,20 @@ export default function AssistantResponseField({ index, message }) {
   const answerInTextId = `answerInText_${index}`;
   const [isCollapsed, setIsCollapsed] = useState(true);
 
+  if (message.speechClipIsExpired) {
+    return (
+      <div className='row'>
+        <div className='col-10 assistant-response-field'>
+          <p>
+            {message.text}
+          </p>
+        </div>
+        <div className='col'>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className='row'>
       <div className='col-10 assistant-response-field'>
