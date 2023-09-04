@@ -5,15 +5,9 @@
 
 /* media queries */
 
-@media (max-width: 576px) {
-  .container-limited-width {
-      max-width: 95%;
-  }
-}
-
 @media (max-width: 768px) {
   .container-limited-width {
-      max-width: 90%;
+      max-width: 100%;
   }
 }
 
