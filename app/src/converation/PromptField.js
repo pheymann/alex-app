@@ -42,8 +42,8 @@ export function PromptField(props) {
 
 export function LoadingPromptField() {
   return (
-    <div className='row'>
-      <div className='col d-flex prompt-field justify-content-center'>
+    <div className='d-flex justify-content-center'>
+      <div className="prompt-field d-flex justify-content-center">
         <div className="spinner-border" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
