@@ -32,8 +32,7 @@ func main() {
 	convUUID := flag.String("conv-uuid", "", "--conv-uuid <uuid>")
 	message := flag.String("message", "", "--message <message>")
 
-	artistName := flag.String("artist", "", "--artist <full name>")
-	artPiece := flag.String("art-piece", "", "--art-piece <full name>")
+	artContext := flag.String("art-context", "", "--art-context <full name>")
 
 	flag.Parse()
 
@@ -43,7 +42,7 @@ func main() {
 
 	switch *operation {
 	case "create-art":
-		createArtConversation(*userUUID, artistName, artPiece)
+		createArtConversation(*userUUID, artContext)
 		return
 	case "continue":
 		continueConversation(*userUUID, convUUID, message)
@@ -60,7 +59,7 @@ func main() {
 	}
 }
 
-func createArtConversation(userUUID string, artContext, artPiece *string) {
+func createArtConversation(userUUID string, artContext *string) {
 	if *artContext == "" {
 		panic("missing artist context")
 	}
