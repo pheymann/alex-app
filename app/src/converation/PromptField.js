@@ -18,7 +18,7 @@ export function PromptField(props) {
 
         <div className='container'>
           <div className='row'>
-            <div className='col col-10'>
+            <div className='col col-9'>
               <textarea
                 className='prompt-field-textarea'
                 ref={ textareaRef }
@@ -28,9 +28,9 @@ export function PromptField(props) {
                 onChange={(e) => props.onChangeValue(e.target.value)}
               />
             </div>
-            <div className='col'>
-              <button className='prompt-field-button' onClick={ props.onSubmit }>
-                { "->" }
+            <div className='col-3'>
+              <button className='prompt-field-button d-flex justify-content-center' onClick={ props.onSubmit }>
+                Send
               </button>
             </div>
           </div>

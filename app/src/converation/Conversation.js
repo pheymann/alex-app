@@ -6,7 +6,7 @@ import UserMessageField from "./UserMessageField";
 import QuestionPromptField from "./QuestionPromptField";
 import './Conversation.css';
 import { LoadingPromptField } from "./PromptField";
-import AssistantResponseField from "./AssistantResponseField";
+import AssistantResponseField from "./AssistantResponseField"
 
 export default function Conversation({ awsContext }) {
   const pathParams = useParams();
