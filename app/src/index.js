@@ -15,7 +15,7 @@ root.render(
     <BrowserRouter>
       <Helmet>
           <meta charSet="utf-8" />
-          <title>TalkToMe</title>
+          <title>Art Explained</title>
       </Helmet>
 
       <App />
