@@ -25,8 +25,11 @@ export function PromptField(props) {
                 rows={ 1 }
                 value={ props.value }
                 placeholder={ props.placeholder }
+                maxLength={ props.maxLength ? props.maxLength : 500 }
+                autoFocus={ true }
                 onChange={(e) => props.onChangeValue(e.target.value)}
               />
+              <p className="prompt-field-remaining-characters text-end">{ props.value.length } / { props.maxLength }</p>
             </div>
             <div className='col-3'>
               <button className='prompt-field-button d-flex justify-content-center' onClick={ props.onSubmit }>

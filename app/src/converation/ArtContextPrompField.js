@@ -70,7 +70,8 @@ export default function ArtContextPromptField({
     <PromptField  value={ artContext }
                   onChangeValue={ setArtContext }
                   onSubmit={ () => handleStartConversation() }
-                  placeholder='The Mona Lisa by Leonardo da Vinci'>
+                  placeholder='The Mona Lisa by Leonardo da Vinci'
+                  maxLength={ 150 }>
       <div className="row">
         <div className='col'>
           <p>

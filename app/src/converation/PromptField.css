@@ -19,6 +19,10 @@
   width: 100%;
 }
 
+.prompt-field-remaining-characters {
+  font-size: 0.8em;
+}
+
 .prompt-field-button {
   display: inline-block;
   position: relative;
