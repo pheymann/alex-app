@@ -76,7 +76,7 @@ export default function QuestionPromptField({
     <PromptField  value={ question }
                   onChangeValue={ setQuestion }
                   onSubmit={ () => handleQuestion() }
-                  placeholder='Do you have any question?'
+                  placeholder='Do you have any questions?'
                   maxLength={ 500 } >
     </PromptField>
   );
