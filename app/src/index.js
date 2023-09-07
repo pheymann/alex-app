@@ -12,11 +12,6 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      {/* <Helmet>
-          <meta charSet="utf-8" />
-          <title>Art Explained</title>
-      </Helmet> */}
-
       <App />
     </BrowserRouter>
   </React.StrictMode>
