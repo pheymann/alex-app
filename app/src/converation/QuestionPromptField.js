@@ -69,6 +69,7 @@ export default function QuestionPromptField({
       })
       .catch(error => {
         console.log(error);
+        alert('Error continuing conversation:\n' + error);
       });
   };
 

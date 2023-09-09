@@ -63,6 +63,7 @@ export default function ArtContextPromptField({
           }],
         });
         console.log(error);
+        alert('Error starting conversation:\n' + error);
       });
   };
 

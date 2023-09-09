@@ -20,6 +20,7 @@ export default function Home({ awsContext }) {
       })
       .catch(error => {
         console.log(error);
+        alert('Error getting conversations:\n' + error);
       });
   }, [awsContext.token, awsContext.userUUID]);
 

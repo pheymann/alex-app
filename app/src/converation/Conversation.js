@@ -50,6 +50,7 @@ export default function Conversation({ awsContext }) {
         })
         .catch(error => {
           console.log(error);
+          alert('Error getting conversation:\n' + error);
         })
         .finally(() => {
           setLoading(false);
@@ -92,6 +93,7 @@ export default function Conversation({ awsContext }) {
 
                   default:
                     console.error(`unknown message role: ${message.role}`);
+                    alert(`unknown message role: ${message.role}`);
                     return <div key={ key }></div>
                 }
               })
@@ -125,6 +127,7 @@ export default function Conversation({ awsContext }) {
 
                 default:
                   console.error(`unknown message role: ${message.role}`);
+                  alert(`unknown message role: ${message.role}`);
                   return <div key={ key }></div>
               }
             })
