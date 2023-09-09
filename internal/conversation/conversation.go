@@ -2,6 +2,8 @@ package conversation
 
 import (
 	"encoding/base64"
+	"fmt"
+	"math/rand"
 	"time"
 
 	"github.com/sashabaranov/go-openai"
@@ -40,7 +42,7 @@ func NewConversation(metadata map[string]string) Conversation {
 }
 
 func GenerateStableID(metadata map[string]string) string {
-	idSeed := ""
+	idSeed := fmt.Sprint(rand.Intn(1000))
 	for _, value := range metadata {
 		idSeed += "::" + value
 	}
