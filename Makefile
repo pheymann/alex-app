@@ -7,6 +7,7 @@ build-backends:
 	GOOS=linux go build -o build/talktome-continueconversation cmd/continueconversation/main.go
 	GOOS=linux go build -o build/talktome-getconversation cmd/getconversation/main.go
 	GOOS=linux go build -o build/talktome-listconversations cmd/listconversations/main.go
+	GOOS=linux go build -o build/talktome-applogs cmd/applogs/main.go
 
 .PHONY: zip-backends
 zip-backends:
@@ -14,6 +15,7 @@ zip-backends:
 	zip -j build/zip/talktome-continueconversation.zip build/talktome-continueconversation
 	zip -j build/zip/talktome-getconversation.zip build/talktome-getconversation
 	zip -j build/zip/talktome-listconversations.zip build/talktome-listconversations
+	zip -j build/zip/talktome-applogs.zip build/talktome-applogs
 
 .PHONY: deploy-backends
 deploy-backends:

@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { PromptField } from "./PromptField";
+import { logError, pushLogMessage } from "../logger";
 
 export default function QuestionPromptField({
   conversation,
@@ -8,12 +9,16 @@ export default function QuestionPromptField({
 }) {
   const [question, setQuestion] = useState('');
 
+  const logEntriesRef = useRef([]);
+
   const handleQuestion = () => {
     if (question === '') {
       // TODO: show error message
       console.error('missing user question');
       return;
     }
+
+    pushLogMessage(logEntriesRef, { level: 'debug', message: `question: ${question}` });
 
     // remove user prompt field
     conversation.messages.pop();
@@ -43,8 +48,12 @@ export default function QuestionPromptField({
         question: question,
       }),
     })
-      .then(response => response.json())
-      .then(data => {
+      .then(response => response.text())
+      .then(rawData => {
+        pushLogMessage(logEntriesRef, { level: 'debug', message: rawData });
+
+        const json = JSON.parse(rawData);
+
         // removing loading message
         continuedConversation.messages.pop();
 
@@ -53,10 +62,10 @@ export default function QuestionPromptField({
           messages: [
             ...continuedConversation.messages,
             {
-              role: data.role,
-              text: data.text,
-              speechClipUuid: data.speechClipUuid,
-              speechClipUrl: data.speechClipUrl,
+              role: json.role,
+              text: json.text,
+              speechClipUuid: json.speechClipUuid,
+              speechClipUrl: json.speechClipUrl,
             },
             {
               role: 'prompt-user-question',
@@ -68,7 +77,7 @@ export default function QuestionPromptField({
         setQuestion('');
       })
       .catch(error => {
-        console.log(error);
+        logError({ awsContext, error, logEntriesRef: logEntriesRef});
         alert('Error continuing conversation:\n' + error);
       });
   };

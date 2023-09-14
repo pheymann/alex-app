@@ -14,6 +14,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/sashabaranov/go-openai"
+	"talktome.com/internal/cmd/applogs"
 	"talktome.com/internal/cmd/continueconversation"
 	"talktome.com/internal/cmd/getconversation"
 	"talktome.com/internal/cmd/listconversations"
@@ -278,6 +279,25 @@ func handleListConversations(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func handleAppLogs(w http.ResponseWriter, r *http.Request) {
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(r.Body)
+
+	event := events.APIGatewayProxyRequest{
+		HTTPMethod:     r.Method,
+		Body:           buf.String(),
+		RequestContext: testRequestContext,
+	}
+
+	response, err := applogs.AWSHandler(context.Background(), event)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(response.StatusCode)
+}
+
 func fileHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		http.ServeFile(w, r, "assets/prompt.mp3")
@@ -292,6 +312,7 @@ func main() {
 	router.HandleFunc("/api/conversation/list", handleListConversations).Methods(http.MethodGet)
 	router.HandleFunc("/api/conversation/{id}/continue", handleContinueConversation).Methods(http.MethodPost)
 	router.HandleFunc("/api/conversation/{id}", handleGetConversation).Methods(http.MethodGet)
+	router.HandleFunc("/api/app/logs", handleAppLogs).Methods(http.MethodPost)
 	router.HandleFunc("/aws/presigned/{id}", fileHandler).Methods(http.MethodGet)
 
 	port := ":8080"

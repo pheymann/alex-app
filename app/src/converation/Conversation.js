@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import BasicPage from "../BasicPage";
 import ArtContextPromptField from "./ArtContextPrompField";
@@ -7,6 +7,7 @@ import QuestionPromptField from "./QuestionPromptField";
 import './Conversation.css';
 import { LoadingPromptField } from "./PromptField";
 import AssistantResponseField from "./AssistantResponseField"
+import { logError, pushLogMessage } from "../logger";
 
 export default function Conversation({ awsContext }) {
   const pathParams = useParams();
@@ -16,7 +17,11 @@ export default function Conversation({ awsContext }) {
   const [conversation, setConversation] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const logEntriesRef = useRef([]);
+
   useEffect(() => {
+    const token = awsContext.token;
+
     if (isNewConversation) {
       setConversation({
         messages: [{
@@ -29,19 +34,23 @@ export default function Conversation({ awsContext }) {
       fetch(`/api/conversation/${conversationId}`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${awsContext.token}`,
+          'Authorization': `Bearer ${token}`,
         },
       })
-        .then(response => response.json())
-        .then(data => {
+        .then(response => response.text())
+        .then(rawData => {
+          pushLogMessage(logEntriesRef, { level: 'debug', message: rawData });
+
+          const json = JSON.parse(rawData);
+
           setConversation({
-            ...data,
+            ...json,
             messages: [
               {
                 role: 'user',
-                text: `Tell me something about ${data.metadata.artContext}`,
+                text: `Tell me something about ${json.metadata.artContext}`,
               },
-              ...data.messages,
+              ...json.messages,
               {
                 role: 'prompt-user-question',
               },
@@ -49,7 +58,7 @@ export default function Conversation({ awsContext }) {
           });
         })
         .catch(error => {
-          console.log(error);
+          logError({ token, error, logEntriesRef: logEntriesRef});
           alert('Error getting conversation:\n' + error);
         })
         .finally(() => {
@@ -126,8 +135,7 @@ export default function Conversation({ awsContext }) {
                   return <LoadingPromptField key={ key } />
 
                 default:
-                  console.error(`unknown message role: ${message.role}`);
-                  alert(`unknown message role: ${message.role}`);
+                  logError({ awsContext, error: `unknown message role: ${message.role}`, logEntriesRef: logEntriesRef});
                   return <div key={ key }></div>
               }
             })

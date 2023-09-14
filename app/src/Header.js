@@ -1,8 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
+import { logError } from "./logger";
+import { useRef } from "react";
 
 export default function Header({ awsContext }) {
   const navigate = useNavigate();
+  const logEntriesRef = useRef([]);
 
   return (
     <header>
@@ -16,7 +19,10 @@ export default function Header({ awsContext }) {
                     onClick={() => {
               awsContext.signOut()
                 .then(() => navigate('/login'))
-                .catch(err => console.log(err));
+                .catch(err => {
+                  logError({ awsContext, error: err, logEntriesRef: logEntriesRef });
+                  alert('Error signing out:\n' + err);
+                });
               }}
             >
               Logout

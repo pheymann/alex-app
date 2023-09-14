@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { PromptField } from "./PromptField";
+import { logError, pushLogMessage } from "../logger";
 
 export default function ArtContextPromptField({
   setConversation,
   awsContext,
 }) {
   const [artContext, setArtContext] = useState('');
+
+  const logEntriesRef = useRef([]);
 
   const handleStartConversation = () => {
     if (artContext === '') {
@@ -42,13 +45,16 @@ export default function ArtContextPromptField({
         artContext: artContext,
       }),
     })
-      .then(response => response.json())
-      .then(data => {
+      .then(response => response.text())
+      .then(rawData => {
+        pushLogMessage(logEntriesRef, { level: 'debug', message: rawData });
+
+        const json = JSON.parse(rawData);
         const responseConversation = {
-          ...data,
+          ...json,
           messages: [
             conversation.messages[0],
-            ...data.messages,
+            ...json.messages,
             {
               role: 'prompt-user-question',
             },
@@ -57,12 +63,7 @@ export default function ArtContextPromptField({
         setConversation(responseConversation);
       })
       .catch(error => {
-        setConversation({
-          messages: [{
-            role: 'prompt-art-context',
-          }],
-        });
-        console.log(error);
+        logError({ awsContext, error, logEntriesRef: logEntriesRef});
         alert('Error starting conversation:\n' + error);
       });
   };

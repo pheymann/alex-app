@@ -1,25 +1,33 @@
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import { Link } from 'react-router-dom';
 import './Home.css';
 import NewConversationButton from './NewConversationButton';
 import BasicPage from './BasicPage';
+import { logError, pushLogMessage } from './logger';
 
 export default function Home({ awsContext }) {
   const [conversations, setConversations] = useState([]);
 
+  const logEntriesRef = useRef([]);
+
   useEffect(() => {
+    const token = awsContext.token;
+
     fetch(`/api/conversation/list`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${awsContext.token}`,
+        'Authorization': `Bearer ${token}`,
       },
     })
-      .then(response => response.json())
-      .then(data => {
-        setConversations(data);
+      .then(response => response.text())
+      .then(rawData => {
+        pushLogMessage(logEntriesRef, { level: 'debug', message: rawData });
+
+        const json = JSON.parse(rawData);
+        setConversations(json);
       })
       .catch(error => {
-        console.log(error);
+        logError({ token, error, logEntriesRef: logEntriesRef});
         alert('Error getting conversations:\n' + error);
       });
   }, [awsContext.token, awsContext.userUUID]);
