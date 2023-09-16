@@ -1,8 +1,6 @@
 package shared
 
 import (
-	"errors"
-
 	"github.com/aws/aws-lambda-go/events"
 )
 
@@ -12,9 +10,9 @@ func ExtractUserUUID(event events.APIGatewayProxyRequest) (string, error) {
 			if userUUID, ok := claims["cognito:username"].(string); ok {
 				return userUUID, nil
 			}
-			return "", errors.New("failed to extract user uuid from claims")
+			return "", &AuthorizationError{nil, "failed to extract user uuid from claims"}
 		}
-		return "", errors.New("failed to extract claims from jwt")
+		return "", &AuthorizationError{nil, "failed to extract claims from jwt"}
 	}
-	return "", errors.New("failed to extract jwt from request context")
+	return "", &AuthorizationError{nil, "failed to extract jwt from request context"}
 }

@@ -5,14 +5,20 @@ import (
 	"io"
 	"os"
 
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
+	"talktome.com/internal/shared"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/polly"
 )
 
-func (generator *AWSPollySpeechGenerator) GenerateSpeechClip(title string, text string) (*os.File, error) {
-	log.Debug().Msg("synthesize clip")
+func (generator *AWSPollySpeechGenerator) GenerateSpeechClip(
+	title string,
+	text string,
+	logCtx zerolog.Context,
+) (*os.File, error) {
+	shared.GetLogger(logCtx).Debug().Msg("generate speech clip")
+
 	resp, err := generator.client.SynthesizeSpeech(&polly.SynthesizeSpeechInput{
 		Engine:       &generator.engine,
 		OutputFormat: &generator.outputFormat,

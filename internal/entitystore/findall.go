@@ -1,16 +1,14 @@
-package conversation
+package entitystore
 
 import (
-	"fmt"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
+	"talktome.com/internal/shared"
 )
 
-func (ctx *AWSStorageCtx) FindAllConversations(uuids []string) ([]Conversation, error) {
+func (ctx *AWSDynamoDBCtx[E]) FindAll(uuids []string, logCtx zerolog.Context) ([]E, error) {
 	logUUIDArray := zerolog.Arr()
 	keys := make([]map[string]*dynamodb.AttributeValue, len(uuids))
 
@@ -23,8 +21,8 @@ func (ctx *AWSStorageCtx) FindAllConversations(uuids []string) ([]Conversation, 
 			},
 		}
 	}
-
-	log.Debug().Array("conversation_uuids", logUUIDArray).Msg("find all conversation")
+	logCtx.Array("uuids", logUUIDArray)
+	shared.GetLogger(logCtx).Debug().Msg("find all entities")
 
 	input := &dynamodb.BatchGetItemInput{
 		RequestItems: map[string]*dynamodb.KeysAndAttributes{
@@ -36,15 +34,17 @@ func (ctx *AWSStorageCtx) FindAllConversations(uuids []string) ([]Conversation, 
 
 	result, err := ctx.dynamoDBClient.BatchGetItem(input)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load conversations :%w", err)
+		return nil, NewEntityStoreError("failed to load enitity", err)
 	}
 
 	// TODO: how to handle unprocessed keys?
-	conversations := make([]Conversation, len(result.Responses[ctx.table]))
-	err = dynamodbattribute.UnmarshalListOfMaps(result.Responses[ctx.table], &conversations)
+	entities := make([]E, len(result.Responses[ctx.table]))
+	err = dynamodbattribute.UnmarshalListOfMaps(result.Responses[ctx.table], &entities)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal conversations :%w", err)
+		return nil, NewEntityStoreError("failed to unmarshal entity", err)
 	}
 
-	return conversations, nil
+	shared.GetLogger(logCtx).Debug().Msgf("found %d entities", len(entities))
+
+	return entities, nil
 }

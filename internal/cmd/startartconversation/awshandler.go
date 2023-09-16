@@ -5,13 +5,27 @@ import (
 	"encoding/json"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/polly"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/rs/zerolog/log"
+	"talktome.com/internal/assetstore"
+	"talktome.com/internal/cmd/awsutil"
+	"talktome.com/internal/conversation"
+	"talktome.com/internal/entitystore"
 	"talktome.com/internal/shared"
-	"talktome.com/internal/talktome"
+	"talktome.com/internal/speechgeneration"
+	"talktome.com/internal/textgeneration"
+	"talktome.com/internal/user"
 )
 
 type HandlerCtx struct {
-	Ctx talktome.Context
+	ConversationStore entitystore.EntityStore[conversation.Conversation]
+	UserStore         entitystore.EntityStore[user.User]
+	AudioClipStore    assetstore.AssetStore
+	TextGen           textgeneration.TextGenerationService
+	SpeechGen         speechgeneration.SpeechGenerator
 }
 
 type ArtContext struct {
@@ -21,44 +35,57 @@ type ArtContext struct {
 func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	userUUID, error := shared.ExtractUserUUID(event)
 	if error != nil {
-		log.Err(error).Msg("failed to extract user uuid")
-		return events.APIGatewayProxyResponse{
-			StatusCode: 400,
-			Body:       "Failed to extract user uuid",
-		}, nil
+		return awsutil.ReturnError(error, "failed to extract user uuid", log.With())
 	}
+	logCtx := log.With().Str("user_uuid", userUUID)
 
 	var artContext ArtContext
 
 	if err := json.Unmarshal([]byte(event.Body), &artContext); err != nil {
-		log.Err(err).Msg("couldn't parse body")
-		return events.APIGatewayProxyResponse{
-			StatusCode: 400,
-			Body:       "Couldn't parse body",
-		}, nil
+		return awsutil.ReturnError(err, "couldn't parse body", logCtx)
 	}
 
-	conversation, err := Handle(userUUID, artContext.Context, handlerCtx.Ctx)
+	convCtx := conversation.Context{
+		UserUUID:          userUUID,
+		LogCtx:            logCtx,
+		ConversationStore: handlerCtx.ConversationStore,
+		UserStore:         handlerCtx.UserStore,
+		AudioClipStore:    handlerCtx.AudioClipStore,
+		TextGen:           handlerCtx.TextGen,
+		SpeechGen:         handlerCtx.SpeechGen,
+	}
+
+	conversation, err := Handle(convCtx, artContext.Context)
 	if err != nil {
-		log.Err(err).Msg("failed to start art conversation")
-		return events.APIGatewayProxyResponse{
-			StatusCode: 400,
-			Body:       "Failed to get or start conversation",
-		}, nil
+		return awsutil.ReturnError(err, "failed to start art conversation", logCtx)
 	}
 
-	jsonPresentation, err := json.Marshal(*conversation)
-	if err != nil {
-		log.Err(err).Msg("failed to marshal conversation")
-		return events.APIGatewayProxyResponse{
-			StatusCode: 400,
-			Body:       "Failed tp marshal conversation",
-		}, nil
-	}
+	return awsutil.ReturnSuccessJson(conversation, logCtx)
+}
 
-	return events.APIGatewayProxyResponse{
-		StatusCode: 200,
-		Headers:    map[string]string{"Content-Type": "application/json"},
-		Body:       string(jsonPresentation),
-	}, nil
+func UnsafeNewHandlerCtx(
+	sess *session.Session,
+	conversationDynamoDBTable string,
+	userTable string,
+	openAIToken string,
+	conversationClipBucket string,
+) HandlerCtx {
+	dynamoDBClient := dynamodb.New(sess)
+	s3 := s3.New(sess)
+	pollyClient := polly.New(sess)
+
+	// internal init
+	textGen := textgeneration.NewOpenAIGenerator(openAIToken)
+	speechGen := speechgeneration.NewAWSPollySpeechGenerator(pollyClient)
+	convStorage := entitystore.NewAWSDynamoDBCtx[conversation.Conversation](dynamoDBClient, conversationDynamoDBTable)
+	userStorage := entitystore.NewAWSDynamoDBCtx[user.User](dynamoDBClient, userTable)
+	audioClipStore := assetstore.NewAWSS3Context(s3, conversationClipBucket)
+
+	return HandlerCtx{
+		ConversationStore: convStorage,
+		UserStore:         userStorage,
+		AudioClipStore:    audioClipStore,
+		TextGen:           textGen,
+		SpeechGen:         speechGen,
+	}
 }

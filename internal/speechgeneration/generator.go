@@ -4,10 +4,11 @@ import (
 	"os"
 
 	"github.com/aws/aws-sdk-go/service/polly"
+	"github.com/rs/zerolog"
 )
 
 type SpeechGenerator interface {
-	GenerateSpeechClip(title string, text string) (*os.File, error)
+	GenerateSpeechClip(title string, text string, logCtx zerolog.Context) (*os.File, error)
 }
 
 type AWSPollySpeechGenerator struct {

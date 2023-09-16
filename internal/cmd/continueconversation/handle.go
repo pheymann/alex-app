@@ -2,11 +2,10 @@ package continueconversation
 
 import (
 	"talktome.com/internal/conversation"
-	"talktome.com/internal/talktome"
 )
 
-func Handle(userUUID string, convUUID string, message string, ctx talktome.Context) (*conversation.Message, error) {
-	conv, err := ctx.ContinueConversation(userUUID, convUUID, message)
+func Handle(ctx conversation.Context, message string) (*conversation.Message, error) {
+	conv, err := ctx.ContinueConversation(message)
 	if err != nil {
 		return nil, err
 	}

@@ -1,38 +1,36 @@
 package getconversation
 
 import (
-	"fmt"
 	"time"
 
-	"github.com/rs/zerolog/log"
 	"talktome.com/internal/conversation"
-	"talktome.com/internal/user"
+	"talktome.com/internal/shared"
 )
 
-func Handle(userUUID string, convUUID string, userStorage user.StorageService, convStorage conversation.StorageService) (*conversation.Conversation, error) {
-	log.Info().Str("user_uuid", userUUID).Str("conv_uuid", convUUID).Msg("get conversation")
+func Handle(ctx conversation.Context) (*conversation.Conversation, error) {
+	shared.GetLogger(ctx.LogCtx).Debug().Msg("getting conversation")
 
 	location, err := time.LoadLocation("UTC")
 	if err != nil {
-		return nil, fmt.Errorf("failed to load UTC location: %w", err)
+		return nil, &shared.InternalError{Cause: err, Message: "failed to load UTC location"}
 	}
 
-	user, err := userStorage.FindUser(userUUID)
+	user, err := ctx.UserStore.Find(ctx.UserUUID, ctx.LogCtx)
 	if err != nil {
 		return nil, err
 	} else if user == nil {
-		return nil, fmt.Errorf("user not found")
+		return nil, &shared.NotFoundError{Message: "user not found"}
 	}
 
-	conv, err := convStorage.FindConversation(convUUID)
+	conv, err := ctx.ConversationStore.Find(ctx.ConversationUUID, ctx.LogCtx)
 	if err != nil {
 		return nil, err
 	} else if conv == nil {
-		return nil, fmt.Errorf("conversation not found")
+		return nil, &shared.NotFoundError{Message: "conversation not found"}
 	}
 
 	for _, id := range user.ConversationUUIDs {
-		if id == convUUID {
+		if id == ctx.ConversationUUID {
 			conv.Messages = conv.Messages[3:]
 
 			for index, message := range conv.Messages {
@@ -46,5 +44,5 @@ func Handle(userUUID string, convUUID string, userStorage user.StorageService, c
 		}
 	}
 
-	return nil, fmt.Errorf("user does not have this conversation")
+	return nil, &shared.NotFoundError{Message: "user does not have this conversation"}
 }

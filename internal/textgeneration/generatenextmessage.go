@@ -1,16 +1,23 @@
-package conversation
+package textgeneration
 
 import (
 	"context"
 	"fmt"
 
+	"github.com/rs/zerolog"
 	openai "github.com/sashabaranov/go-openai"
+	"talktome.com/internal/shared"
 )
 
-func (generator *OpenAITextGenerationService) GenerateNextMessage(conversation *Conversation) error {
+func (generator *OpenAITextGenerationService) GenerateNextMessage(
+	messageHistory []BasicMessage,
+	logCtx zerolog.Context,
+) (*BasicMessage, error) {
+	shared.GetLogger(logCtx).Debug().Msgf("generate next message for history of %d messages", len(messageHistory))
+
 	openAIConversation := []openai.ChatCompletionMessage{}
 
-	for _, message := range conversation.Messages {
+	for _, message := range messageHistory {
 		role := ""
 
 		switch message.Role {
@@ -21,7 +28,7 @@ func (generator *OpenAITextGenerationService) GenerateNextMessage(conversation *
 		case RoleSystem:
 			role = openai.ChatMessageRoleAssistant
 		default:
-			return fmt.Errorf("unknown role: %s", message.Role)
+			return nil, fmt.Errorf("unknown role: %s", message.Role)
 		}
 
 		openAIConversation = append(openAIConversation, openai.ChatCompletionMessage{
@@ -39,14 +46,11 @@ func (generator *OpenAITextGenerationService) GenerateNextMessage(conversation *
 	)
 
 	if err != nil {
-		return fmt.Errorf("failed to generate text: %w", err)
+		return nil, fmt.Errorf("failed to generate text: %w", err)
 	}
 
-	conversation.Messages = append(conversation.Messages, Message{
-		Role:        RoleAssistent,
-		Text:        resp.Choices[0].Message.Content,
-		CanHaveClip: true,
-	})
-
-	return nil
+	return &BasicMessage{
+		Role: RoleAssistent,
+		Text: resp.Choices[0].Message.Content,
+	}, nil
 }

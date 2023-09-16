@@ -2,53 +2,65 @@ package getconversation
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/rs/zerolog/log"
+	"talktome.com/internal/cmd/awsutil"
 	"talktome.com/internal/conversation"
+	"talktome.com/internal/entitystore"
 	"talktome.com/internal/shared"
 	"talktome.com/internal/user"
 )
 
 type HandlerCtx struct {
-	UserStorage user.StorageService
-	ConvStorage conversation.StorageService
+	ConversationStore entitystore.EntityStore[conversation.Conversation]
+	UserStore         entitystore.EntityStore[user.User]
 }
 
 func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	convUUID := event.PathParameters["uuid"]
+	if convUUID == "" {
+		return awsutil.ReturnError(nil, "conversation uuid is empty", log.With())
+	}
+	logCtx := log.With().Str("conversation_uuid", convUUID)
 
 	userUUID, error := shared.ExtractUserUUID(event)
 	if error != nil {
-		log.Err(error).Msg("failed to extract user uuid")
-		return events.APIGatewayProxyResponse{
-			StatusCode: 400,
-			Body:       "Failed to extract user uuid",
-		}, nil
+		return awsutil.ReturnError(error, "failed to extract user uuid", logCtx)
+	}
+	logCtx.Str("user_uuid", userUUID)
+
+	convCtx := conversation.Context{
+		ConversationUUID:  convUUID,
+		UserUUID:          userUUID,
+		LogCtx:            logCtx,
+		ConversationStore: handlerCtx.ConversationStore,
+		UserStore:         handlerCtx.UserStore,
 	}
 
-	conversation, err := Handle(userUUID, convUUID, handlerCtx.UserStorage, handlerCtx.ConvStorage)
+	conversation, err := Handle(convCtx)
 	if err != nil {
-		log.Err(err).Msg("failed to get conversation")
-		return events.APIGatewayProxyResponse{
-			StatusCode: 400,
-			Body:       "Failed to get conversation",
-		}, nil
+		return awsutil.ReturnError(err, "failed to get conversation", logCtx)
 	}
 
-	jsonConversations, err := json.Marshal(*conversation)
-	if err != nil {
-		log.Err(err).Msg("failed to marshal conversation")
-		return events.APIGatewayProxyResponse{
-			StatusCode: 400,
-			Body:       "Failed tp marshal conversation",
-		}, nil
-	}
+	return awsutil.ReturnSuccessJson(conversation, logCtx)
+}
 
-	return events.APIGatewayProxyResponse{
-		StatusCode: 200,
-		Headers:    map[string]string{"Content-Type": "application/json"},
-		Body:       string(jsonConversations),
-	}, nil
+func UnsafeNewHandlerCtx(
+	sess *session.Session,
+	conversationDynamoDBTable string,
+	userTable string,
+) HandlerCtx {
+	dynamoDBClient := dynamodb.New(sess)
+
+	// internal init
+	convStorage := entitystore.NewAWSDynamoDBCtx[conversation.Conversation](dynamoDBClient, conversationDynamoDBTable)
+	userStorage := entitystore.NewAWSDynamoDBCtx[user.User](dynamoDBClient, userTable)
+
+	return HandlerCtx{
+		ConversationStore: convStorage,
+		UserStore:         userStorage,
+	}
 }

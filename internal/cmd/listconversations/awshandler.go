@@ -2,52 +2,58 @@ package listconversations
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/rs/zerolog/log"
+	"talktome.com/internal/cmd/awsutil"
 	"talktome.com/internal/conversation"
+	"talktome.com/internal/entitystore"
 	"talktome.com/internal/shared"
 	"talktome.com/internal/user"
 )
 
 type HandlerCtx struct {
-	UserStorage user.StorageService
-	ConvStorage conversation.StorageService
+	ConversationStore entitystore.EntityStore[conversation.Conversation]
+	UserStore         entitystore.EntityStore[user.User]
 }
 
 func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	userUUID, error := shared.ExtractUserUUID(event)
-	if error != nil {
-		log.Err(error).Msg("failed to extract user uuid")
-		return events.APIGatewayProxyResponse{
-			StatusCode: 400,
-			Body:       "Failed to extract user uuid",
-		}, nil
-	}
-
-	conversations, err := Handle(userUUID, handlerCtx.UserStorage, handlerCtx.ConvStorage)
+	userUUID, err := shared.ExtractUserUUID(event)
 	if err != nil {
-		log.Err(err).Msg("failed to list conversations")
-		return events.APIGatewayProxyResponse{
-			StatusCode: 400,
-			Body:       "Failed to list conversations",
-		}, nil
+		return awsutil.ReturnError(err, "failed to extract user uuid", log.With())
 	}
-	log.Debug().Msgf("found %d conversations", len(conversations))
+	logCtx := log.With().Str("user_uuid", userUUID)
 
-	jsonConversations, err := json.Marshal(conversations)
+	convCtx := conversation.Context{
+		UserUUID:          userUUID,
+		LogCtx:            logCtx,
+		ConversationStore: handlerCtx.ConversationStore,
+		UserStore:         handlerCtx.UserStore,
+	}
+
+	conversations, err := Handle(convCtx)
 	if err != nil {
-		log.Err(err).Msg("failed to marshal conversations")
-		return events.APIGatewayProxyResponse{
-			StatusCode: 400,
-			Body:       "Failed tp marshal conversations",
-		}, nil
+		return awsutil.ReturnError(err, "failed to list all conversation", logCtx)
 	}
 
-	return events.APIGatewayProxyResponse{
-		StatusCode: 200,
-		Headers:    map[string]string{"Content-Type": "application/json"},
-		Body:       string(jsonConversations),
-	}, nil
+	return awsutil.ReturnSuccessJson(conversations, logCtx)
+}
+
+func UnsafeNewHandlerCtx(
+	sess *session.Session,
+	conversationDynamoDBTable string,
+	userTable string,
+) HandlerCtx {
+	dynamoDBClient := dynamodb.New(sess)
+
+	// internal init
+	convStorage := entitystore.NewAWSDynamoDBCtx[conversation.Conversation](dynamoDBClient, conversationDynamoDBTable)
+	userStorage := entitystore.NewAWSDynamoDBCtx[user.User](dynamoDBClient, userTable)
+
+	return HandlerCtx{
+		ConversationStore: convStorage,
+		UserStore:         userStorage,
+	}
 }

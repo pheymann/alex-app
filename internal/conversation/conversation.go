@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/sashabaranov/go-openai"
+	"talktome.com/internal/textgeneration"
 )
 
 type Conversation struct {
@@ -16,8 +16,8 @@ type Conversation struct {
 }
 
 type Message struct {
-	Role                     Role       `json:"role" dynamodbav:"role"`
 	Text                     string     `json:"text" dynamodbav:"text"`
+	Role                     string     `json:"role" dynamodbav:"role"`
 	CanHaveClip              bool       `json:"canHaveClip" dynamodbav:"can_have_clip"`
 	SpeechClipUUID           string     `json:"speechClipUuid" dynamodbav:"speech_clip_uuid"`
 	SpeechClipURL            string     `json:"speechClipUrl" dynamodbav:"speech_clip_url"`
@@ -52,8 +52,29 @@ func GenerateStableID(metadata map[string]string) string {
 
 func (conversation *Conversation) AddMessage(text string) {
 	conversation.Messages = append(conversation.Messages, Message{
-		Role:        openai.ChatMessageRoleUser,
+		Role:        textgeneration.RoleUser,
 		Text:        text,
 		CanHaveClip: false,
 	})
+}
+
+func (conversation *Conversation) AddBasicMessage(message textgeneration.BasicMessage) {
+	conversation.Messages = append(conversation.Messages, Message{
+		Role:        message.Role,
+		Text:        message.Text,
+		CanHaveClip: message.Role == textgeneration.RoleAssistent,
+	})
+}
+
+func (conversation Conversation) ToBasicMessageHistory() []textgeneration.BasicMessage {
+	basicMessages := []textgeneration.BasicMessage{}
+
+	for _, message := range conversation.Messages {
+		basicMessages = append(basicMessages, textgeneration.BasicMessage{
+			Role: message.Role,
+			Text: message.Text,
+		})
+	}
+
+	return basicMessages
 }

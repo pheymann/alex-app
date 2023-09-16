@@ -1,28 +1,25 @@
 package listconversations
 
 import (
-	"fmt"
-
-	"github.com/rs/zerolog/log"
 	"talktome.com/internal/conversation"
-	"talktome.com/internal/user"
+	"talktome.com/internal/shared"
 )
 
-func Handle(userUUID string, userStorage user.StorageService, convStorage conversation.StorageService) ([]conversation.ConversationRef, error) {
-	log.Info().Str("user_uuid", userUUID).Msg("fetch all conversations")
+func Handle(ctx conversation.Context) ([]conversation.ConversationRef, error) {
+	shared.GetLogger(ctx.LogCtx).Debug().Msg("fetch all conversations")
 
-	user, err := userStorage.FindUser(userUUID)
+	user, err := ctx.UserStore.Find(ctx.UserUUID, ctx.LogCtx)
 	if err != nil {
 		return nil, err
 	} else if user == nil {
-		return nil, fmt.Errorf("user not found")
+		return nil, &shared.NotFoundError{Message: "user not found"}
 	}
 
 	if len(user.ConversationUUIDs) == 0 {
 		return []conversation.ConversationRef{}, nil
 	}
 
-	conversations, err := convStorage.FindAllConversations(user.ConversationUUIDs)
+	conversations, err := ctx.ConversationStore.FindAll(user.ConversationUUIDs, ctx.LogCtx)
 	if err != nil {
 		return nil, err
 	}

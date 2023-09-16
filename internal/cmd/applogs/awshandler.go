@@ -31,12 +31,14 @@ func AWSHandler(ctx context.Context, event events.APIGatewayProxyRequest) (event
 		return staticSuccessResponse, nil
 	}
 
-	logCtx := log.With().Str("user_uuid", userUUID)
+	logCtx := log.With().Str("user_uuid", userUUID).Str("system", "app")
 
 	for _, logEntry := range logs.LogEntries {
 		logger := logCtx.Str("app_timestamp", logEntry.Timestamp).Logger()
 
 		switch logEntry.Level {
+		case "debug":
+			logger.Debug().Msg(logEntry.Message)
 		case "info":
 			logger.Info().Msg(logEntry.Message)
 		case "warn":
