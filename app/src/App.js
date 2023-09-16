@@ -7,15 +7,15 @@ import Conversation from './converation/Conversation';
 import { useEffect, useState } from 'react';
 import './App.css';
 
-Amplify.configure({
-  Auth: {
-      region: awsExports.REGION,
-      userPoolId: awsExports.USER_POOL_ID,
-      userPoolWebClientId: awsExports.USER_POOL_APP_CLIENT_ID
-  }
-})
-
 export default function App() {
+  Amplify.configure({
+    Auth: {
+        region: awsExports.REGION,
+        userPoolId: awsExports.USER_POOL_ID,
+        userPoolWebClientId: awsExports.USER_POOL_APP_CLIENT_ID
+    }
+  });
+
   const [loading, setLoading] = useState(true);
   const [awsContext, setAwsContext] = useState(null);
   const navigate = useNavigate();
