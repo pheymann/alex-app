@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import BasicPage from "../BasicPage";
 import ArtContextPromptField from "./ArtContextPrompField";
 import UserMessageField from "./UserMessageField";
@@ -18,6 +18,7 @@ export default function Conversation({ awsContext }) {
   const [loading, setLoading] = useState(true);
 
   const logEntriesRef = useRef([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = awsContext.token;
@@ -59,14 +60,14 @@ export default function Conversation({ awsContext }) {
         })
         .catch(error => {
           logError({ token, error, logEntriesRef: logEntriesRef});
-          alert('Error getting conversation:\n' + error);
+          navigate('/');
         })
         .finally(() => {
           setLoading(false);
         });
       }
     },
-    [isNewConversation, conversationId, awsContext.token]
+    [isNewConversation, conversationId, awsContext.token, navigate]
   );
 
   if (loading) {
