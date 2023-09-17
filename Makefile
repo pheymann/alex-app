@@ -32,7 +32,11 @@ release-backends: clean build-backends zip-backends deploy-backends
 
 .PHONY: start-mock-server
 start-mock-server:
-	go run cmd/mockserver/main.go
+	go run cmd/testserver/main.go --mode="mock"
+
+.PHONY: start-prod-server
+start-prod-server:
+	go run cmd/testserver/main.go --mode="prod"
 
 # App
 
