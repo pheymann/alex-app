@@ -38,6 +38,10 @@ start-mock-server:
 start-prod-server:
 	go run cmd/testserver/main.go --mode="prod"
 
+.PHONY: run-contract-tests
+run-contract-tests:
+	go test ./internal/intergrationtest/cdc/...
+
 # App
 
 .PHONY: start-app

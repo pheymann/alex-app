@@ -10,17 +10,17 @@ import (
 )
 
 type Conversation struct {
-	ID       string            `json:"id" dynamodbav:"id"`
-	Metadata map[string]string `json:"metadata" dynamodbav:"metadata"`
-	Messages []Message         `json:"messages" dynamodbav:"messages"`
+	ID       string            `json:"id" yaml:"id" dynamodbav:"id"`
+	Metadata map[string]string `json:"metadata" yaml:"metadata" dynamodbav:"metadata"`
+	Messages []Message         `json:"messages" yaml:"messages" dynamodbav:"messages"`
 }
 
 type Message struct {
-	Text                     string     `json:"text" dynamodbav:"text"`
-	Role                     string     `json:"role" dynamodbav:"role"`
+	Text                     string     `json:"text" yaml:"text" dynamodbav:"text"`
+	Role                     string     `json:"role" yaml:"role" dynamodbav:"role"`
 	CanHaveClip              bool       `json:"canHaveClip" dynamodbav:"can_have_clip"`
-	SpeechClipUUID           string     `json:"speechClipUuid" dynamodbav:"speech_clip_uuid"`
-	SpeechClipURL            string     `json:"speechClipUrl" dynamodbav:"speech_clip_url"`
+	SpeechClipUUID           string     `json:"speechClipUuid" yaml:"speechClipUuid" dynamodbav:"speech_clip_uuid"`
+	SpeechClipURL            string     `json:"speechClipUrl" yaml:"speechClipUrl" dynamodbav:"speech_clip_url"`
 	SpeechClipExpirationDate *time.Time `json:"speechClipExpirationDate" dynamodbav:"speech_clip_expiration_date"`
 	SpeechClipIsExpired      bool       `json:"speechClipIsExpired" dynamodbav:"speech_clip_is_expired"`
 }

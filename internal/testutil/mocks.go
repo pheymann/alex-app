@@ -6,7 +6,9 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+	"talktome.com/internal/conversation"
 	"talktome.com/internal/textgeneration"
+	"talktome.com/internal/user"
 )
 
 type MockTextGeneration struct {
@@ -54,6 +56,47 @@ func (mock *MockSpeechGeneration) GenerateSpeechClip(
 	time.Sleep(3 * time.Second)
 
 	return copyFile, nil
+}
+
+func MockConversationStore(initData map[string]*conversation.Conversation) *MockEntityStore[conversation.Conversation] {
+	return &MockEntityStore[conversation.Conversation]{
+		LocalStore: initData,
+		MakeDeepCopy: func(conv *conversation.Conversation) *conversation.Conversation {
+			convCopy := conversation.Conversation{
+				ID:       conv.ID,
+				Metadata: conv.Metadata,
+				Messages: []conversation.Message{},
+			}
+
+			// deep copy
+			convCopy.Messages = append(convCopy.Messages, conv.Messages...)
+
+			return &convCopy
+		},
+		GetID: func(conv conversation.Conversation) string {
+			return conv.ID
+		},
+	}
+}
+
+func MockUserStore(initData map[string]*user.User) *MockEntityStore[user.User] {
+	return &MockEntityStore[user.User]{
+		LocalStore: initData,
+		MakeDeepCopy: func(usr *user.User) *user.User {
+			userCopy := user.User{
+				ID:                usr.ID,
+				ConversationUUIDs: []string{},
+			}
+
+			// deep copy
+			userCopy.ConversationUUIDs = append(userCopy.ConversationUUIDs, usr.ConversationUUIDs...)
+
+			return &userCopy
+		},
+		GetID: func(usr user.User) string {
+			return usr.ID
+		},
+	}
 }
 
 type MockEntityStore[E any] struct {

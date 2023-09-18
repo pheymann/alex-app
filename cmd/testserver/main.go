@@ -46,49 +46,16 @@ var (
 		TestFile: "assets/prompt.mp3",
 	}
 
-	mockConversationStore = &testutil.MockEntityStore[conversation.Conversation]{
-		LocalStore: map[string]*conversation.Conversation{},
-		MakeDeepCopy: func(conv *conversation.Conversation) *conversation.Conversation {
-			convCopy := conversation.Conversation{
-				ID:       conv.ID,
-				Metadata: conv.Metadata,
-				Messages: []conversation.Message{},
-			}
-
-			// deep copy
-			convCopy.Messages = append(convCopy.Messages, conv.Messages...)
-
-			return &convCopy
-		},
-		GetID: func(conv conversation.Conversation) string {
-			return conv.ID
-		},
-	}
+	mockConversationStore = testutil.MockConversationStore(map[string]*conversation.Conversation{})
 
 	testUserRequestCtx = shared.NewAwsTestRequestContext("1")
 
-	mockUserStorage = &testutil.MockEntityStore[user.User]{
-		LocalStore: map[string]*user.User{
-			"1": {
-				ID:                "1",
-				ConversationUUIDs: []string{},
-			},
+	mockUserStorage = testutil.MockUserStore(map[string]*user.User{
+		"1": {
+			ID:                "1",
+			ConversationUUIDs: []string{},
 		},
-		MakeDeepCopy: func(usr *user.User) *user.User {
-			userCopy := user.User{
-				ID:                usr.ID,
-				ConversationUUIDs: []string{},
-			}
-
-			// deep copy
-			userCopy.ConversationUUIDs = append(userCopy.ConversationUUIDs, usr.ConversationUUIDs...)
-
-			return &userCopy
-		},
-		GetID: func(usr user.User) string {
-			return usr.ID
-		},
-	}
+	})
 
 	mockAudioClipStore = &testutil.MockAssetStore{}
 )
