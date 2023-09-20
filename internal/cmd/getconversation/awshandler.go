@@ -24,13 +24,13 @@ func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGat
 	if convUUID == "" {
 		return awsutil.ReturnError(nil, "conversation uuid is empty", log.With())
 	}
-	logCtx := log.With().Str("conversation_uuid", convUUID)
+	var logCtx = log.With().Str("conversation_uuid", convUUID)
 
 	userUUID, error := shared.ExtractUserUUID(event)
 	if error != nil {
 		return awsutil.ReturnError(error, "failed to extract user uuid", logCtx)
 	}
-	logCtx.Str("user_uuid", userUUID)
+	logCtx = logCtx.Str("user_uuid", userUUID)
 
 	convCtx := conversation.Context{
 		ConversationUUID:  convUUID,
