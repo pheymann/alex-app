@@ -15,30 +15,29 @@ Amplify.configure({
   }
 })
 
-export default function App() {
+export function App({ loadAwsCtx , buildAwsFetch }) {
   const [loading, setLoading] = useState(true);
   const [awsContext, setAwsContext] = useState(null);
+  const [awsFetch, setAwsFetch] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const awsSession = await Auth.currentSession();
+        const awsContext = await loadAwsCtx();
 
-        setAwsContext({
-          awsSession,
-          token: awsSession.getIdToken().getJwtToken(),
-          signOut: () => Auth.signOut(),
-        });
+        setAwsContext(awsContext);
+        setAwsFetch(buildAwsFetch(awsContext));
         setLoading(false);
       } catch (error) {
+        console.log(error);
         setLoading(false);
         navigate('/login');
       }
     };
 
     checkAuth();
-  }, [navigate]);
+  }, [navigate, loadAwsCtx, buildAwsFetch]);
 
   if (loading) {
     return(
@@ -53,8 +52,18 @@ export default function App() {
   return (
     <Routes>
       <Route path='/login' element={<Login />} />
-      <Route exact path='/' element={<Home awsContext={ awsContext } />} />
-      <Route path='/conversation/:id' element={<Conversation awsContext={ awsContext } />} />
+      <Route exact path='/' element={<Home awsFetch={ awsFetch } signOut={ () => awsContext.signOut() } />} />
+      <Route path='/conversation/:id' element={<Conversation awsFetch={ awsFetch } signOut={ () => awsContext.signOut() } />} />
     </Routes>
   );
+}
+
+export async function defaultLoadAwsCtx() {
+  const awsSession = await Auth.currentSession();
+
+  return {
+    awsSession,
+    token: awsSession.getIdToken().getJwtToken(),
+    signOut: () => Auth.signOut(),
+  };
 }

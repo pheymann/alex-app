@@ -13,6 +13,7 @@ import (
 
 type MockTextGeneration struct {
 	GeneratedMessage string
+	Timeout          time.Duration
 }
 
 func (mock *MockTextGeneration) GenerateNextMessage(
@@ -20,7 +21,7 @@ func (mock *MockTextGeneration) GenerateNextMessage(
 	logCtx zerolog.Context,
 ) (*textgeneration.BasicMessage, error) {
 	// simulate OpenAI generation time
-	time.Sleep(5 * time.Second)
+	time.Sleep(mock.Timeout)
 
 	return &textgeneration.BasicMessage{
 		Role: textgeneration.RoleAssistent,
@@ -30,6 +31,7 @@ func (mock *MockTextGeneration) GenerateNextMessage(
 
 type MockSpeechGeneration struct {
 	TestFile string
+	Timeout  time.Duration
 }
 
 func (mock *MockSpeechGeneration) GenerateSpeechClip(
@@ -53,7 +55,7 @@ func (mock *MockSpeechGeneration) GenerateSpeechClip(
 	}
 
 	// simulate Polly generation time
-	time.Sleep(3 * time.Second)
+	time.Sleep(mock.Timeout)
 
 	return copyFile, nil
 }
@@ -128,10 +130,13 @@ func (mock *MockEntityStore[E]) Save(entity E, logCtx zerolog.Context) error {
 	return nil
 }
 
-type MockAssetStore struct{}
+type MockAssetStore struct {
+	ClipKey      string
+	PresignedUrl string
+}
 
 func (mock *MockAssetStore) Save(file *os.File, logCtx zerolog.Context) (string, error) {
-	return "prompt.mp3", nil
+	return mock.ClipKey, nil
 }
 
 func (mock *MockAssetStore) GenerateTemporaryAccessURL(audioClipUUID string, logCtx zerolog.Context) (string, *time.Time, error) {
@@ -143,5 +148,5 @@ func (mock *MockAssetStore) GenerateTemporaryAccessURL(audioClipUUID string, log
 	urlValidFor := 1 * time.Minute
 	expirationDate := time.Now().In(location).Add(urlValidFor)
 
-	return "/aws/presigned/prompt.mp3", &expirationDate, nil
+	return mock.PresignedUrl, &expirationDate, nil
 }

@@ -1,0 +1,37 @@
+name: multiple conversations found for this user
+view: /
+authorizationToken: ignore
+app:
+  textShouldExist:
+    - some context
+    - some other context
+database:
+  users:
+    - id: 0
+      conversationUuids:
+        - abc
+        - "123"
+  conversations:
+    - id: abc
+      metadata:
+        artContext: some context
+    - id: "123"
+      metadata:
+        artContext: some other context
+callChain:
+  - request:
+      uri: /api/conversation/list
+      method: GET
+      headers:
+        - name: Authorization
+          value: Bearer ignore
+    response:
+      type: success
+      status: 200
+      body:
+        - id: abc
+          metadata:
+            artContext: some context
+        - id: "123"
+          metadata:
+            artContext: some other context

@@ -5,6 +5,7 @@ import (
 	"context"
 	"flag"
 	"net/http"
+	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws"
@@ -40,10 +41,12 @@ const (
 var (
 	mockTextGen = &testutil.MockTextGeneration{
 		GeneratedMessage: longText,
+		Timeout:          5 * time.Second,
 	}
 
 	mockSpeechGen = &testutil.MockSpeechGeneration{
 		TestFile: "assets/prompt.mp3",
+		Timeout:  3 * time.Second,
 	}
 
 	mockConversationStore = testutil.MockConversationStore(map[string]*conversation.Conversation{})
@@ -57,7 +60,10 @@ var (
 		},
 	})
 
-	mockAudioClipStore = &testutil.MockAssetStore{}
+	mockAudioClipStore = &testutil.MockAssetStore{
+		ClipKey:      "prompt.mp3",
+		PresignedUrl: "/aws/presigned/prompt.mp3",
+	}
 )
 
 func handleStartArtConversation(ctx startartconversation.HandlerCtx) func(w http.ResponseWriter, r *http.Request) {

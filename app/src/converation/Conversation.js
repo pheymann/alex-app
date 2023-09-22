@@ -9,7 +9,7 @@ import { LoadingPromptField } from "./PromptField";
 import AssistantResponseField from "./AssistantResponseField"
 import { logError, pushLogMessage } from "../logger";
 
-export default function Conversation({ awsContext }) {
+export default function Conversation({ awsFetch, signOut }) {
   const pathParams = useParams();
   const conversationId = pathParams.id;
   const isNewConversation = !conversationId || conversationId === 'new';
@@ -21,8 +21,6 @@ export default function Conversation({ awsContext }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = awsContext.token;
-
     if (isNewConversation) {
       setConversation({
         messages: [{
@@ -32,34 +30,36 @@ export default function Conversation({ awsContext }) {
       setLoading(false);
     }
     else {
-      fetch(`/api/conversation/${conversationId}`, {
+      awsFetch.call(`/api/conversation/${conversationId}`, {
         method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
       })
-        .then(response => response.text())
-        .then(rawData => {
-          pushLogMessage(logEntriesRef, { level: 'debug', message: rawData });
+        .then(
+          rawData => {
+            pushLogMessage(logEntriesRef, { level: 'debug', message: rawData });
 
-          const json = JSON.parse(rawData);
+            const json = JSON.parse(rawData);
 
-          setConversation({
-            ...json,
-            messages: [
-              {
-                role: 'user',
-                text: `Tell me something about ${json.metadata.artContext}`,
-              },
-              ...json.messages,
-              {
-                role: 'prompt-user-question',
-              },
-            ],
-          });
-        })
-        .catch(error => {
-          logError({ token, error, logEntriesRef: logEntriesRef});
+            setConversation({
+              ...json,
+              messages: [
+                {
+                  role: 'user',
+                  text: `Tell me something about ${json.metadata.artContext}`,
+                },
+                ...json.messages,
+                {
+                  role: 'prompt-user-question',
+                },
+              ],
+            });
+          },
+          error =>  {
+            // make sure logging has minimal side effect
+            logError({ awsFetch, error, logEntriesRef: logEntriesRef});
+            return Promise.reject(error);
+          },
+        )
+        .catch(_ => {
           navigate('/');
         })
         .finally(() => {
@@ -67,12 +67,12 @@ export default function Conversation({ awsContext }) {
         });
       }
     },
-    [isNewConversation, conversationId, awsContext.token, navigate]
+    [isNewConversation, conversationId, awsFetch, navigate]
   );
 
   if (loading) {
     return(
-      <BasicPage awsContext={awsContext}>
+      <BasicPage awsFetch={ awsFetch } signOut={ signOut } >
         <div className="container container-limited-width d-flex justify-content-center">
           <div className="spinner-border" role="status">
             <span className="visually-hidden">Loading...</span>
@@ -85,7 +85,7 @@ export default function Conversation({ awsContext }) {
   const containerizedFields = ['user', 'assistant']
 
   return (
-    <BasicPage awsContext={ awsContext }>
+    <BasicPage awsFetch={ awsFetch } signOut={ signOut }>
       <div className='container container-limited-width'>
         <div>
           {
@@ -124,19 +124,19 @@ export default function Conversation({ awsContext }) {
                   return <ArtContextPromptField key={ key }
                                                 conversation={ conversation }
                                                 setConversation={ setConversation }
-                                                awsContext={ awsContext } />
+                                                awsFetch={ awsFetch } />
 
                 case 'prompt-user-question':
                   return <QuestionPromptField key={ key }
                                               conversation={ conversation }
                                               setConversation={ setConversation }
-                                              awsContext={ awsContext } />
+                                              awsFetch={ awsFetch } />
 
                 case 'loading':
                   return <LoadingPromptField key={ key } />
 
                 default:
-                  logError({ awsContext, error: `unknown message role: ${message.role}`, logEntriesRef: logEntriesRef});
+                  logError({ awsFetch, error: `unknown message role: ${message.role}`, logEntriesRef: logEntriesRef});
                   return <div key={ key }></div>
               }
             })

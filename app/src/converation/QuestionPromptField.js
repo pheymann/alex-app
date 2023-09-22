@@ -5,7 +5,7 @@ import { logError, pushLogMessage } from "../logger";
 export default function QuestionPromptField({
   conversation,
   setConversation,
-  awsContext,
+  awsFetch,
 }) {
   const [question, setQuestion] = useState('');
 
@@ -38,17 +38,15 @@ export default function QuestionPromptField({
     };
     setConversation(continuedConversation);
 
-    fetch(`/api/conversation/${conversation.id}/continue`, {
+    awsFetch.call(`/api/conversation/${conversation.id}/continue`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${awsContext.token}`,
       },
       body: JSON.stringify({
         question: question,
       }),
     })
-      .then(response => response.text())
       .then(rawData => {
         pushLogMessage(logEntriesRef, { level: 'debug', message: rawData });
 
@@ -77,7 +75,7 @@ export default function QuestionPromptField({
         setQuestion('');
       })
       .catch(error => {
-        logError({ awsContext, error, logEntriesRef: logEntriesRef});
+        logError({ awsFetch, error, logEntriesRef: logEntriesRef});
         alert('Error continuing conversation:\n' + error);
       });
   };

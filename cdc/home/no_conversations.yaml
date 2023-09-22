@@ -1,0 +1,19 @@
+name: no conversations found for this user
+view: /
+authorizationToken: ignore
+database:
+  users:
+    - id: 0
+      conversationUuids: []
+  conversations: []
+callChain:
+  - request:
+      uri: /api/conversation/list
+      method: GET
+      headers:
+        - name: Authorization
+          value: Bearer ignore
+    response:
+      type: success
+      status: 200
+      body: []

@@ -1,5 +1,4 @@
 import { Authenticator } from '@aws-amplify/ui-react';
-import '@aws-amplify/ui-react/styles.css';
 import { Link } from 'react-router-dom';
 
 export default function Login() {

@@ -5,14 +5,16 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 
 import './index.css';
-import App from './App';
+import { App, defaultLoadAwsCtx } from './App';
 import { BrowserRouter } from 'react-router-dom';
+import { AwsFetch } from './awsfetch';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <App  loadAwsCtx={ () => defaultLoadAwsCtx() }
+            buildAwsFetch={ (awsContext) => new AwsFetch(awsContext) } />
     </BrowserRouter>
   </React.StrictMode>
 );

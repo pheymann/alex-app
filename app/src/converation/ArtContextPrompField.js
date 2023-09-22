@@ -4,7 +4,7 @@ import { logError, pushLogMessage } from "../logger";
 
 export default function ArtContextPromptField({
   setConversation,
-  awsContext,
+  awsFetch,
 }) {
   const [artContext, setArtContext] = useState('');
 
@@ -35,17 +35,15 @@ export default function ArtContextPromptField({
     };
     setConversation(conversation);
 
-    fetch(`/api/conversation/create/art`, {
+    awsFetch.call(`/api/conversation/create/art`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${awsContext.token}`,
       },
       body: JSON.stringify({
         artContext: artContext,
       }),
     })
-      .then(response => response.text())
       .then(rawData => {
         pushLogMessage(logEntriesRef, { level: 'debug', message: rawData });
 
@@ -63,7 +61,7 @@ export default function ArtContextPromptField({
         setConversation(responseConversation);
       })
       .catch(error => {
-        logError({ awsContext, error, logEntriesRef: logEntriesRef});
+        logError({ awsFetch, error, logEntriesRef: logEntriesRef});
         alert('Error starting conversation:\n' + error);
       });
   };

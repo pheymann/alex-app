@@ -1,14 +1,16 @@
 
-export function logError({ token, error, logEntriesRef }) {
-  pushLogMessage(logEntriesRef, { level: 'error', message: error.message });
+export function logError({ awsFetch, error, logEntriesRef }) {
+  pushLogMessage(logEntriesRef, { level: 'error', message: {
+    message: error.message,
+    stack: error.stack,
+    name: error.name,
+    cause: error.cause,
+  }});
 
   const logEntries = logEntriesRef.current;
 
-  fetch(`/api/app/logs`, {
+  awsFetch.call(`/api/app/logs`, {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
     body: JSON.stringify({
       logEntries,
     }),

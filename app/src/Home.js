@@ -5,21 +5,15 @@ import NewConversationButton from './NewConversationButton';
 import BasicPage from './BasicPage';
 import { logError, pushLogMessage } from './logger';
 
-export default function Home({ awsContext }) {
+export default function Home({ awsFetch, signOut }) {
   const [conversations, setConversations] = useState([]);
 
   const logEntriesRef = useRef([]);
 
   useEffect(() => {
-    const token = awsContext.token;
-
-    fetch(`/api/conversation/list`, {
+    awsFetch.call(`/api/conversation/list`, {
       method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
     })
-      .then(response => response.text())
       .then(rawData => {
         pushLogMessage(logEntriesRef, { level: 'debug', message: rawData });
 
@@ -27,13 +21,14 @@ export default function Home({ awsContext }) {
         setConversations(json);
       })
       .catch(error => {
-        logError({ token, error, logEntriesRef: logEntriesRef});
-        alert('Error getting conversations:\n' + error);
+        logError({ awsFetch, error, logEntriesRef: logEntriesRef});
+        // TODO - show error to user
+        // alert('Error getting conversations:\n' + error);
       });
-  }, [awsContext.token, awsContext.userUUID]);
+  }, [awsFetch]);
 
   return (
-    <BasicPage awsContext={awsContext}>
+    <BasicPage awsFetch={ awsFetch } signOut={ signOut } >
       <div className='container container-limited-width'>
         <div className='row'>
           <div className='col text-center'>

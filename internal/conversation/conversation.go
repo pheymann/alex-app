@@ -18,7 +18,6 @@ type Conversation struct {
 type Message struct {
 	Text                     string     `json:"text" yaml:"text" dynamodbav:"text"`
 	Role                     string     `json:"role" yaml:"role" dynamodbav:"role"`
-	CanHaveClip              bool       `json:"canHaveClip" dynamodbav:"can_have_clip"`
 	SpeechClipUUID           string     `json:"speechClipUuid" yaml:"speechClipUuid" dynamodbav:"speech_clip_uuid"`
 	SpeechClipURL            string     `json:"speechClipUrl" yaml:"speechClipUrl" dynamodbav:"speech_clip_url"`
 	SpeechClipExpirationDate *time.Time `json:"speechClipExpirationDate" dynamodbav:"speech_clip_expiration_date"`
@@ -52,17 +51,15 @@ func GenerateStableID(metadata map[string]string) string {
 
 func (conversation *Conversation) AddMessage(text string) {
 	conversation.Messages = append(conversation.Messages, Message{
-		Role:        textgeneration.RoleUser,
-		Text:        text,
-		CanHaveClip: false,
+		Role: textgeneration.RoleUser,
+		Text: text,
 	})
 }
 
 func (conversation *Conversation) AddBasicMessage(message textgeneration.BasicMessage) {
 	conversation.Messages = append(conversation.Messages, Message{
-		Role:        message.Role,
-		Text:        message.Text,
-		CanHaveClip: message.Role == textgeneration.RoleAssistent,
+		Role: message.Role,
+		Text: message.Text,
 	})
 }
 

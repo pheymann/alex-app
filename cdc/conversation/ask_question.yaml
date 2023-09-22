@@ -1,0 +1,80 @@
+name: ask a question
+view: /conversation/abc
+authorizationToken: ignore
+app:
+  textShouldExist:
+    - Tell me something about some context
+    - some question
+    - some answer
+    - another question
+    - another answer
+database:
+  users:
+    - id: 0
+      conversationUuids:
+        - abc
+  conversations:
+    - id: abc
+      metadata:
+        artContext: some context
+      messages:
+        - role: system
+          text: initial system message 1
+        - text: initial system message 2
+          role: system
+        - text: initial system message 1
+          role: user
+        - role: user
+          text: some question
+        - role: assistant
+          text: some answer
+          speechClipUuid: clip0
+          speeachClipUrl: https://some.url/clip0
+callChain:
+  - request:
+      uri: /api/conversation/abc
+      pathParameters:
+        - name: uuid
+          value: abc
+      method: GET
+      headers:
+        - name: Authorization
+          value: Bearer ignore
+    response:
+      type: success
+      status: 200
+      body:
+        id: abc
+        metadata:
+          artContext: some context
+        messages:
+          - text: some question
+            role: user
+            speechClipIsExpired: false
+          - text: some answer
+            role: assistant
+            speechClipUuid: clip0
+            speeachClipUrl: https://some.url/clip0
+            speechClipIsExpired: false
+  - request:
+      uri: /api/conversation/abc/continue
+      pathParameters:
+        - name: uuid
+          value: abc
+      method: POST
+      headers:
+        - name: Authorization
+          value: Bearer ignore
+        - name: Content-Type
+          value: application/json
+      body:
+        question: another question
+    response:
+      type: success
+      status: 200
+      body:
+        text: another answer
+        role: assistant
+        speechClipUuid: clip1
+        speeachClipUrl: https://some.url/clip1
+        speechClipIsExpired: false

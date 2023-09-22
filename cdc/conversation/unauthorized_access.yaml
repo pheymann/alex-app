@@ -1,0 +1,63 @@
+name: conversation not found
+view: /conversation/abc
+authorizationToken: ignore
+database:
+  users:
+    - id: 0
+      conversationUuids: []
+  conversations:
+    - id: abc
+      metadata:
+        artContext: some context
+      messages:
+        - text: initial system message 1
+          role: system
+        - text: initial system message 2
+          role: system
+        - text: initial system message 1
+          role: user
+        - text: some question
+          role: user
+        - text: some answer
+          role: assistant
+          speechClipUuid: clip0
+          speeachClipUrl: https://some.url/clip0
+callChain:
+  - request:
+      uri: /api/conversation/abc
+      pathParameters:
+        - name: uuid
+          value: abc
+      method: GET
+      headers:
+        - name: Authorization
+          value: Bearer ignore
+    response:
+      type: error
+      status: 404
+      errorBody: failed to get conversation
+
+  - request:
+      uri: /api/app/logs
+      method: POST
+      headers:
+        - name: Authorization
+          value: Bearer ignore
+    response:
+      type: success
+      status: 201
+      body:
+        logEntries:
+          - level: error
+            message: failed to get conversation
+
+  - request:
+      uri: /api/conversation/list
+      method: GET
+      headers:
+        - name: Authorization
+          value: Bearer ignore
+    response:
+      type: success
+      status: 200
+      body: []

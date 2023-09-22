@@ -21,14 +21,12 @@ func Handle(ctx conversation.Context, artContext string) (*conversation.Conversa
 	conv := conversation.NewConversation(metadata)
 	conv.Messages = []conversation.Message{
 		{
-			Role:        openai.ChatMessageRoleSystem,
-			Text:        fmt.Sprintf(`The art piece we are discussion is "%s"`, artContext),
-			CanHaveClip: false,
+			Role: openai.ChatMessageRoleSystem,
+			Text: fmt.Sprintf(`The art piece we are discussion is "%s"`, artContext),
 		},
 		{
-			Role:        openai.ChatMessageRoleSystem,
-			Text:        `You are an art museum curator and show and explain art pieces to a visitor. You have an engaging, friendly, and professional communication style. You talk to a single person and you already discussed a couple of paintings already. So that is not the beginning of this conversation. Finally, you address the visitor with the word "you".`,
-			CanHaveClip: false,
+			Role: openai.ChatMessageRoleSystem,
+			Text: `You are an art museum curator and show and explain art pieces to a visitor. You have an engaging, friendly, and professional communication style. You talk to a single person and you already discussed a couple of paintings already. So that is not the beginning of this conversation. Finally, you address the visitor with the word "you".`,
 		},
 	}
 

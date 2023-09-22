@@ -1,0 +1,36 @@
+name: start conversation
+view: /conversation/new
+authorizationToken: ignore
+app:
+  textShouldExist:
+    - "Tell me something about art"
+    - "some answer"
+database:
+  users:
+    - id: 0
+      conversationUuids: []
+  conversations: []
+callChain:
+  - request:
+      uri: /api/conversation/create/art
+      method: POST
+      headers:
+        - name: Authorization
+          value: Bearer ignore
+        - name: Content-Type
+          value: application/json
+      body:
+        artContext: art
+    response:
+      type: success
+      status: 200
+      body:
+        id: abc
+        metadata:
+          artContext: art
+        messages:
+          - text: some answer
+            role: assistant
+            speechClipUuid: clip0
+            speechClipUrl: https://some.url/clip0
+            speechClipIsExpired: false

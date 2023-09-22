@@ -3,7 +3,7 @@ import "./Header.css";
 import { logError } from "./logger";
 import { useRef } from "react";
 
-export default function Header({ awsContext }) {
+export default function Header({ awsFetch, signOut }) {
   const navigate = useNavigate();
   const logEntriesRef = useRef([]);
 
@@ -17,10 +17,10 @@ export default function Header({ awsContext }) {
           <div className="col-6 text-end">
             <button className='app-header-logout-button'
                     onClick={() => {
-              awsContext.signOut()
+              signOut()
                 .then(() => navigate('/login'))
                 .catch(err => {
-                  logError({ awsContext, error: err, logEntriesRef: logEntriesRef });
+                  logError({ awsFetch, error: err, logEntriesRef: logEntriesRef });
                   alert('Error signing out:\n' + err);
                 });
               }}
