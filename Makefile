@@ -24,6 +24,11 @@ zip-backends:
 .PHONY: deploy-backends
 deploy-backends:
 	aws s3 sync build/zip/ s3://talktome-backends/
+	aws lambda update-function-code --function-name talktome-startartconversation --s3-bucket talktome-backends --s3-key talktome-startartconversation.zip
+	aws lambda update-function-code --function-name talktome-continueconversation --s3-bucket talktome-backends --s3-key talktome-continueconversation.zip
+	aws lambda update-function-code --function-name talktome-getconversation --s3-bucket talktome-backends --s3-key talktome-getconversation.zip
+	aws lambda update-function-code --function-name talktome-listconversations --s3-bucket talktome-backends --s3-key talktome-listconversations.zip
+	aws lambda update-function-code --function-name talktome-applogs --s3-bucket talktome-backends --s3-key talktome-applogs.zip
 
 .PHONY: clean
 clean:
