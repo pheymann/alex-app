@@ -1,3 +1,7 @@
+# All
+.PHONY: run-contract-tests
+run-contract-tests: run-backend-contract-tests run-app-contract-tests
+
 
 # Backends
 
@@ -38,8 +42,8 @@ start-mock-server:
 start-prod-server:
 	go run cmd/testserver/main.go --mode="prod"
 
-.PHONY: run-contract-tests
-run-contract-tests:
+.PHONY: run-backend-contract-tests
+run-backend-contract-tests:
 	go test ./internal/intergrationtest/cdc/...
 
 # App
@@ -58,3 +62,7 @@ deploy-app:
 
 .PHONY: release-app
 release-app: build-app deploy-app
+
+.PHONY: run-app-contract-tests
+run-app-contract-tests:
+	cd app && CI=true npm run test

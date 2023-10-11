@@ -42,6 +42,14 @@ func Test_CDC_ConversationStartConversation(t *testing.T) {
 	)
 }
 
+func Test_CDC_ConversationAskQuestion(t *testing.T) {
+	RunContracts[conversation.Conversation](
+		t,
+		"/conversation/ask_question.yaml",
+		runConversationContracts,
+	)
+}
+
 func runConversationContracts(
 	t *testing.T,
 	event events.APIGatewayProxyRequest,
@@ -72,6 +80,9 @@ func runConversationContracts(
 
 		return response, err
 	} else if strings.Contains(event.Path, "/api/conversation/") {
+		if strings.Contains(event.Path, "continue") {
+			return MockContinueConversation(event, users, conversations, "another answer")
+		}
 		return MockGetConversation(event, users, conversations)
 	} else if strings.Contains(event.Path, "/api/app/logs") {
 		return MockAppLogs(event)
