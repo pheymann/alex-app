@@ -1,7 +1,7 @@
 
 export class AwsFetch {
 
-  constructor(awsContext, fetchFn = fetch) {
+  constructor(awsContext, fetchFn = new FetchWrapper()) {
     this.token = awsContext.token;
     this.fetchFn = fetchFn;
   }
@@ -25,4 +25,10 @@ export class AwsFetch {
       }
     });
   };
+}
+
+class FetchWrapper {
+  apply(uri, props) {
+    return fetch(uri, props);
+  }
 }
