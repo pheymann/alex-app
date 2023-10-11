@@ -16,10 +16,18 @@ func (ctx AWSDynamoDBCtx[E]) Save(entity E, logCtx zerolog.Context) error {
 		return NewEntityStoreError("failed to marshal entity", err)
 	}
 
-	_, err = ctx.dynamoDBClient.PutItem(&dynamodb.PutItemInput{
-		TableName: aws.String(ctx.table),
-		Item:      item,
-	})
+	_, err = ctx.dynamoDBClient.TransactWriteItems(
+		&dynamodb.TransactWriteItemsInput{
+			TransactItems: []*dynamodb.TransactWriteItem{
+				{
+					Put: &dynamodb.Put{
+						TableName: aws.String(ctx.table),
+						Item:      item,
+					},
+				},
+			},
+		},
+	)
 	if err != nil {
 		return NewEntityStoreError("failed to store conversation", err)
 	}
