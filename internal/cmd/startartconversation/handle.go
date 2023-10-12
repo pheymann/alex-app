@@ -19,6 +19,8 @@ func Handle(ctx conversation.Context, artContext string) (*conversation.Conversa
 		"artContext": artContext,
 	}
 	conv := conversation.NewConversation(metadata)
+	ctx.LogCtx = ctx.LogCtx.Str("conversation_uuid", conv.ID)
+
 	conv.Messages = []conversation.Message{
 		{
 			Role: openai.ChatMessageRoleSystem,
