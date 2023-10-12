@@ -41,12 +41,12 @@ func NewConversation(metadata map[string]string) Conversation {
 }
 
 func GenerateStableID(metadata map[string]string) string {
-	idSeed := fmt.Sprint(rand.Intn(1000))
+	metadataStr := fmt.Sprint(rand.Intn(999_999_999))
 	for _, value := range metadata {
-		idSeed += "::" + value
+		metadataStr += "::" + value
 	}
 
-	return base64.StdEncoding.EncodeToString([]byte(idSeed))
+	return base64.StdEncoding.EncodeToString([]byte(metadataStr))
 }
 
 func (conversation *Conversation) AddMessage(text string) {
