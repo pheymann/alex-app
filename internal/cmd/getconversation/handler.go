@@ -5,6 +5,7 @@ import (
 
 	"talktome.com/internal/conversation"
 	"talktome.com/internal/shared"
+	"talktome.com/internal/textgeneration"
 )
 
 func Handle(ctx conversation.Context) (*conversation.Conversation, error) {
@@ -31,7 +32,16 @@ func Handle(ctx conversation.Context) (*conversation.Conversation, error) {
 
 	for _, id := range user.ConversationUUIDs {
 		if id == ctx.ConversationUUID {
-			conv.Messages = conv.Messages[3:]
+			// don't show system messages (assumption: only at the beginning)
+			for index, message := range conv.Messages {
+				if message.Role != textgeneration.RoleSystem {
+					conv.Messages = conv.Messages[index:]
+					break
+				}
+			}
+
+			// also ignore first question because that is generated
+			conv.Messages = conv.Messages[1:]
 
 			for index, message := range conv.Messages {
 				if message.SpeechClipExpirationDate != nil {

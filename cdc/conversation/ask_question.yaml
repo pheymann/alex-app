@@ -20,8 +20,6 @@ database:
       messages:
         - role: system
           text: initial system message 1
-        - text: initial system message 2
-          role: system
         - text: initial system message 1
           role: user
         - role: user

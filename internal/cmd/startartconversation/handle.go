@@ -3,9 +3,9 @@ package startartconversation
 import (
 	"fmt"
 
-	"github.com/sashabaranov/go-openai"
 	"talktome.com/internal/conversation"
 	"talktome.com/internal/shared"
+	"talktome.com/internal/textgeneration"
 )
 
 func Handle(ctx conversation.Context, artContext string) (*conversation.Conversation, error) {
@@ -23,12 +23,14 @@ func Handle(ctx conversation.Context, artContext string) (*conversation.Conversa
 
 	conv.Messages = []conversation.Message{
 		{
-			Role: openai.ChatMessageRoleSystem,
-			Text: fmt.Sprintf(`The art piece we are discussion is "%s"`, artContext),
-		},
-		{
-			Role: openai.ChatMessageRoleSystem,
-			Text: `You are an art museum curator and show and explain art pieces to a visitor. You have an engaging, friendly, and professional communication style. You talk to a single person and you already discussed a couple of paintings already. So that is not the beginning of this conversation. Finally, you address the visitor with the word "you".`,
+			Role: textgeneration.RoleSystem,
+			Text: `You are an art museum curator and show and explain art pieces to a visitor.
+							You have an engaging, friendly, and professional communication style. You talk to a single person and
+							you already discussed a couple of paintings. So that is not the beginning of this conversation.
+							Finally, you address the visitor with the word "you". Start your first response with one of the following
+							phrases: "Here, we stand in front of", "This is", "We are looking at", "This is a painting by".
+							Don't use more than 200 words in all your responses. If you don't know the answer say so. If I ask for
+							something not related to art or this art piece say "I don't know" or "I don't understand".`,
 		},
 	}
 
@@ -36,6 +38,8 @@ func Handle(ctx conversation.Context, artContext string) (*conversation.Conversa
 
 	return ctx.StartConversation(
 		conv,
-		`We are standing in front of the art piece. Introduce it to me, give some basic information like the creation date, and continue to explain its meaning, what style it is, and how it fits into its time. Don't use more than 200 words.`,
+		fmt.Sprintf(`The art piece we are discussion is "%s".`, artContext)+
+			`Introduce it to me, give some basic information like the creation date, and continue to explain
+			its meaning, what style it is, and how it fits into its time.`,
 	)
 }

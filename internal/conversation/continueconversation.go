@@ -37,6 +37,10 @@ func (ctx Context) ContinueConversation(message string) (*Conversation, error) {
 
 	conv.AddBasicMessage(*nextMessage)
 
+	if err := ctx.ConversationStore.Save(conv, ctx.LogCtx); err != nil {
+		return nil, err
+	}
+
 	lastMessageIndex := len(conv.Messages) - 1
 
 	clipFile, err := ctx.SpeechGen.GenerateSpeechClip(conv.ID, conv.Messages[lastMessageIndex].Text, ctx.LogCtx)

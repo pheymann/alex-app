@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"talktome.com/internal/shared"
+	"talktome.com/internal/textgeneration"
 )
 
 func (ctx Context) StartConversation(conv Conversation, message string) (*Conversation, error) {
@@ -30,6 +31,15 @@ func (ctx Context) StartConversation(conv Conversation, message string) (*Conver
 		return nil, err
 	}
 
-	continuedConv.Messages = continuedConv.Messages[3:]
+	// don't show system messages (assumption: only at the beginning)
+	for index, message := range continuedConv.Messages {
+		if message.Role != textgeneration.RoleSystem {
+			continuedConv.Messages = continuedConv.Messages[index:]
+			break
+		}
+	}
+
+	// also ignore first question because that is generated
+	continuedConv.Messages = continuedConv.Messages[1:]
 	return continuedConv, nil
 }
