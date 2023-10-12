@@ -1,11 +1,13 @@
 
 export function logError({ awsFetch, error, logEntriesRef }) {
-  pushLogMessage(logEntriesRef, { level: 'error', message: {
+  const message = {
     message: error.message,
     stack: error.stack,
     name: error.name,
     cause: error.cause,
-  }});
+  };
+
+  pushLogMessage(logEntriesRef, { level: 'error', message: JSON.stringify(message)});
 
   const logEntries = logEntriesRef.current;
 
