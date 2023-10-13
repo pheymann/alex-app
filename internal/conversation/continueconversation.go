@@ -9,10 +9,6 @@ import (
 func (ctx Context) ContinueConversation(message string) (*Conversation, error) {
 	shared.GetLogger(ctx.LogCtx).Debug().Msgf("continue conversation with message: %s", message)
 
-	if message == "" {
-		return nil, &shared.UserInputError{Message: "message cannot be empty"}
-	}
-
 	user, err := ctx.UserStore.Find(ctx.UserUUID, ctx.LogCtx)
 	if err != nil {
 		return nil, err

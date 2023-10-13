@@ -8,12 +8,19 @@ import (
 	"talktome.com/internal/textgeneration"
 )
 
-func Handle(ctx conversation.Context, artContext string) (*conversation.Conversation, error) {
-	shared.GetLogger(ctx.LogCtx).Debug().Msgf("start art conversation for '%s'", artContext)
+const (
+	MaxArtContextLength = 150
+)
 
+func Handle(ctx conversation.Context, artContext string) (*conversation.Conversation, error) {
 	if artContext == "" {
 		return nil, &shared.UserInputError{Message: "artist context cannot be empty"}
+	} else if len(artContext) > MaxArtContextLength {
+		shared.GetLogger(ctx.LogCtx).Warn().Msgf("artist context too long: %d", len(artContext))
+		return nil, &shared.UserInputError{Message: "artist context too long"}
 	}
+
+	shared.GetLogger(ctx.LogCtx).Debug().Msgf("start art conversation for '%s'", artContext)
 
 	metadata := map[string]string{
 		"artContext": artContext,
