@@ -1,0 +1,8 @@
+.error-field {
+  position: relative;
+  border-radius: 25px;
+  padding: 15px;
+  margin: 20px;
+  border: 1px solid black;
+  word-break: break-all;
+}

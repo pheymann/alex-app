@@ -1,12 +1,15 @@
 import { useRef, useState } from "react";
 import { PromptField } from "./PromptField";
 import { logError, pushLogMessage } from "../logger";
+import { useNavigate } from "react-router-dom";
+import { Errors, errorToCode } from "../ErrorAlert";
 
 export default function ArtContextPromptField({
   setConversation,
   awsFetch,
 }) {
   const [artContext, setArtContext] = useState('');
+  const navigate = useNavigate();
 
   const logEntriesRef = useRef([]);
 
@@ -62,7 +65,7 @@ export default function ArtContextPromptField({
       })
       .catch(error => {
         logError({ awsFetch, error, logEntriesRef: logEntriesRef});
-        alert('Error starting conversation:\n' + error);
+        navigate('/?errorCode=' + errorToCode(Errors.StartingConversationError));
       });
   };
 

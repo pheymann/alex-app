@@ -8,6 +8,7 @@ import './Conversation.css';
 import { LoadingPromptField } from "./PromptField";
 import AssistantResponseField from "./AssistantResponseField"
 import { logError, pushLogMessage } from "../logger";
+import ErrorField from "./ErrorField";
 
 export default function Conversation({ awsFetch, signOut }) {
   const pathParams = useParams();
@@ -82,7 +83,7 @@ export default function Conversation({ awsFetch, signOut }) {
     );
   }
 
-  const containerizedFields = ['user', 'assistant']
+  const containerizedFields = ['user', 'assistant', 'error']
 
   return (
     <BasicPage awsFetch={ awsFetch } signOut={ signOut }>
@@ -101,9 +102,12 @@ export default function Conversation({ awsFetch, signOut }) {
                   case 'assistant':
                     return <AssistantResponseField key={ key } index={ index } message={ message } />
 
+                  case 'error':
+                    return <ErrorField key={ key } errorCode={ message.errorCode } />
+
                   default:
-                    console.error(`unknown message role: ${message.role}`);
-                    alert(`unknown message role: ${message.role}`);
+                    pushLogMessage(logEntriesRef, { level: 'error', message: `unknown message role: ${message.role}` });
+                    navigate('/?errorCode=0');
                     return <div key={ key }></div>
                 }
               })

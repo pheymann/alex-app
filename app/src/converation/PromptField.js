@@ -14,9 +14,9 @@ export function PromptField(props) {
   return (
     <div className='d-flex justify-content-center'>
       <div className='prompt-field'>
-        { props.children }
-
         <div className='container'>
+          { props.children }
+
           <div className='row'>
             <div className='col col-9'>
               <textarea

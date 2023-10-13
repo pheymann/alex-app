@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { PromptField } from "./PromptField";
 import { logError, pushLogMessage } from "../logger";
+import { Errors } from "../ErrorAlert";
 
 export default function QuestionPromptField({
   conversation,
@@ -76,7 +77,26 @@ export default function QuestionPromptField({
       })
       .catch(error => {
         logError({ awsFetch, error, logEntriesRef: logEntriesRef});
-        alert('Error continuing conversation:\n' + error);
+
+        // removing loading message
+        continuedConversation.messages.pop();
+
+        const responseConversation = {
+          ...continuedConversation,
+          messages: [
+            ...continuedConversation.messages,
+            {
+              role: 'error',
+              errorCode: Errors.QuestionError,
+            },
+            {
+              role: 'prompt-user-question',
+            }
+          ],
+        };
+
+        setConversation(responseConversation);
+        setQuestion('');
       });
   };
 

@@ -4,9 +4,11 @@ import './Home.css';
 import NewConversationButton from './NewConversationButton';
 import BasicPage from './BasicPage';
 import { logError, pushLogMessage } from './logger';
+import { Errors, codeToError, errorAlertMessage } from './ErrorAlert';
 
 export default function Home({ awsFetch, signOut }) {
   const [conversations, setConversations] = useState([]);
+  const [error, setError] = useState(null);
 
   const logEntriesRef = useRef([]);
 
@@ -22,10 +24,17 @@ export default function Home({ awsFetch, signOut }) {
       })
       .catch(error => {
         logError({ awsFetch, error, logEntriesRef: logEntriesRef});
-        // TODO - show error to user
-        // alert('Error getting conversations:\n' + error);
+        setError(Errors.ConversationListingError);
       });
+
+      // handle errors triggered by other views
+      const urlSearchParams = new URLSearchParams(window.location.search);
+      const params = Object.fromEntries(urlSearchParams.entries());
+
+      params.errorCode && setError(codeToError(params.errorCode));
   }, [awsFetch]);
+
+  const errorMessage = errorAlertMessage(error);
 
   return (
     <BasicPage awsFetch={ awsFetch } signOut={ signOut } >
@@ -35,6 +44,14 @@ export default function Home({ awsFetch, signOut }) {
             <NewConversationButton className='home-new-conversation-button' />
           </div>
         </div>
+
+          { error &&
+            <div className='row'>
+              <div className='col text-center alert alert-warning'>
+                { errorMessage }
+              </div>
+            </div>
+          }
 
           { conversations &&
             conversations.map((conversation, index) => {
