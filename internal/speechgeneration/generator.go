@@ -5,10 +5,11 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/polly"
 	"github.com/rs/zerolog"
+	"talktome.com/internal/shared"
 )
 
 type SpeechGenerator interface {
-	GenerateSpeechClip(title string, text string, logCtx zerolog.Context) (*os.File, error)
+	GenerateSpeechClip(title string, text string, language shared.Language, logCtx zerolog.Context) (*os.File, error)
 }
 
 type AWSPollySpeechGenerator struct {

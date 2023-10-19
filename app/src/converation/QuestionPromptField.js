@@ -6,6 +6,7 @@ import { Errors } from "../ErrorAlert";
 export default function QuestionPromptField({
   conversation,
   setConversation,
+  i18n,
   awsFetch,
 }) {
   const [question, setQuestion] = useState('');
@@ -104,8 +105,10 @@ export default function QuestionPromptField({
     <PromptField  value={ question }
                   onChangeValue={ setQuestion }
                   onSubmit={ () => handleQuestion() }
-                  placeholder='Do you have any questions?'
-                  maxLength={ 500 } >
+                  placeholder={ i18n.conversation.questionPrompt.placeholder }
+                  maxLength={ 500 }
+                  i18n={ i18n }
+    >
     </PromptField>
   );
 }

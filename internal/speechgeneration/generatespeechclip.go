@@ -15,16 +15,26 @@ import (
 func (generator *AWSPollySpeechGenerator) GenerateSpeechClip(
 	title string,
 	text string,
+	language shared.Language,
 	logCtx zerolog.Context,
 ) (*os.File, error) {
 	shared.GetLogger(logCtx).Debug().Msg("generate speech clip")
+
+	var voiceId string
+	switch language {
+	case shared.LanguageGerman:
+		voiceId = generator.germanVoice.male
+	case shared.LanguageEnglish:
+		voiceId = generator.englishVoice.male
+	default:
+		return nil, fmt.Errorf("unknown language: %s", language)
+	}
 
 	resp, err := generator.client.SynthesizeSpeech(&polly.SynthesizeSpeechInput{
 		Engine:       &generator.engine,
 		OutputFormat: &generator.outputFormat,
 		Text:         aws.String(text),
-		// TODO: make this a selection
-		VoiceId: &generator.englishVoice.male,
+		VoiceId:      &voiceId,
 	})
 
 	if err != nil {

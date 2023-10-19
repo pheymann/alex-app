@@ -32,6 +32,8 @@ callChain:
       headers:
         - name: Authorization
           value: Bearer ignore
+        - name: "Accept-Language"
+          value: "English"
     response:
       type: error
       status: 404
@@ -43,6 +45,8 @@ callChain:
       headers:
         - name: Authorization
           value: Bearer ignore
+        - name: "Accept-Language"
+          value: "English"
     response:
       type: success
       status: 201
@@ -57,6 +61,8 @@ callChain:
       headers:
         - name: Authorization
           value: Bearer ignore
+        - name: "Accept-Language"
+          value: "English"
     response:
       type: success
       status: 200

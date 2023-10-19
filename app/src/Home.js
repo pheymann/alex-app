@@ -5,12 +5,15 @@ import NewConversationButton from './NewConversationButton';
 import BasicPage from './BasicPage';
 import { logError, pushLogMessage } from './logger';
 import { Errors, codeToError, errorAlertMessage } from './ErrorAlert';
+import { Translation } from './i18n';
 
-export default function Home({ awsFetch, signOut }) {
+export default function Home({ awsFetch, language, setLanguage, signOut }) {
   const [conversations, setConversations] = useState([]);
   const [error, setError] = useState(null);
 
   const logEntriesRef = useRef([]);
+
+  const i18n = Translation.get(language);
 
   useEffect(() => {
     awsFetch.call(`/api/conversation/list`, {
@@ -34,14 +37,20 @@ export default function Home({ awsFetch, signOut }) {
       params.errorCode && setError(codeToError(params.errorCode));
   }, [awsFetch]);
 
-  const errorMessage = errorAlertMessage(error);
+  const errorMessage = errorAlertMessage(error, i18n);
 
   return (
-    <BasicPage awsFetch={ awsFetch } signOut={ signOut } >
+    <BasicPage  awsFetch={ awsFetch }
+                language={ language }
+                setLanguage={ setLanguage }
+                signOut={ signOut }
+    >
       <div className='container container-limited-width'>
         <div className='row'>
           <div className='col text-center'>
-            <NewConversationButton className='home-new-conversation-button' />
+            <NewConversationButton  className='home-new-conversation-button'
+                                    i18n={ i18n }
+            />
           </div>
         </div>
 
@@ -61,7 +70,7 @@ export default function Home({ awsFetch, signOut }) {
                 <div key={key} className='row'>
                   <div className='col'>
                     <Link className='conversation-link' to={`/conversation/${conversation.id}`}>
-                      {conversation.metadata.artContext}
+                      { conversation.metadata.artContext }
                     </Link>
                   </div>
                 </div>

@@ -5,15 +5,16 @@ import yaml from 'js-yaml';
 import fs from 'fs';
 import { AwsFetch } from '../../awsfetch';
 import { fail } from 'assert';
+import { Language } from '../../language';
 
 export function runContract(contractPath, assertFn, userInteractionFn = () => {}) {
   const contract = loadContract(contractPath);
-  const mock = new AwsFetch({ token: contract.authorizationToken }, new MockFetchFn(contract.callChain))
+  const mock = new AwsFetch({ token: contract.authorizationToken }, Language.English, new MockFetchFn(contract.callChain))
 
   test("Case: " + contract.name, async () => {
     render(
       <MemoryRouter initialEntries={[contract.view]}>
-        <App loadAwsCtx={ () => mockLoadAwsCtx(true) } buildAwsFetch={ (_) => mock } />,
+        <App loadAwsCtx={ () => mockLoadAwsCtx(true) } buildAwsFetch={ (_) => mock } defaultLanguage={ Language.English } />,
       </MemoryRouter>,
     );
 

@@ -7,6 +7,7 @@ import (
 
 	"github.com/rs/zerolog"
 	"talktome.com/internal/conversation"
+	"talktome.com/internal/shared"
 	"talktome.com/internal/textgeneration"
 	"talktome.com/internal/user"
 )
@@ -37,6 +38,7 @@ type MockSpeechGeneration struct {
 func (mock *MockSpeechGeneration) GenerateSpeechClip(
 	title string,
 	text string,
+	language shared.Language,
 	logCtx zerolog.Context,
 ) (*os.File, error) {
 	file, err := os.Open(mock.TestFile)

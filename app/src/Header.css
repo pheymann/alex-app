@@ -5,7 +5,7 @@ header {
   box-shadow: 0 0 5px black;
 }
 
-.app-header-logout-button {
+.app-header-button {
   background-color: white;
   border: 1px solid black;
   border-radius: 15px;
@@ -13,7 +13,7 @@ header {
   margin-top: 6px;
 }
 
-.app-header-logout-button:hover {
+.app-header-button:hover {
   background-color: #fd766a;
   color: white;
 }
@@ -29,7 +29,7 @@ header {
     max-width: 100%;
   }
 
-  .app-header-logout-button {
+  .app-header-button {
     margin-top: 15px;
     padding: 5px 10px 5px 10px;
   }

@@ -6,7 +6,7 @@ export default function NewConversationButton(props) {
 
   return (
     <Link className={compositeClasses} to={'/conversation/new'}>
-      Explore Art
+      { props.i18n.home.exploreArtButton }
     </Link>
   );
 }

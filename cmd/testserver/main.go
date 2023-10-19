@@ -71,9 +71,15 @@ func handleStartArtConversation(ctx startartconversation.HandlerCtx) func(w http
 		buf := new(bytes.Buffer)
 		buf.ReadFrom(r.Body)
 
+		headers := make(map[string]string)
+		for k, v := range r.Header {
+			headers[k] = v[0]
+		}
+
 		event := events.APIGatewayProxyRequest{
 			HTTPMethod:     r.Method,
 			Body:           buf.String(),
+			Headers:        headers,
 			RequestContext: testUserRequestCtx,
 		}
 
@@ -99,12 +105,18 @@ func handleContinueConversation(ctx continueconversation.HandlerCtx) func(w http
 		buf := new(bytes.Buffer)
 		buf.ReadFrom(r.Body)
 
+		headers := make(map[string]string)
+		for k, v := range r.Header {
+			headers[k] = v[0]
+		}
+
 		event := events.APIGatewayProxyRequest{
 			HTTPMethod: r.Method,
 			PathParameters: map[string]string{
 				"uuid": vars["id"],
 			},
 			Body:           buf.String(),
+			Headers:        headers,
 			RequestContext: testUserRequestCtx,
 		}
 

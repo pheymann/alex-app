@@ -43,3 +43,14 @@ runContract("conversation/ask_question.yaml",
     userEvent.click(screen.getByText(/Send/i));
   },
 );
+
+runContract("conversation/change_language.yaml",
+  (app, _) => {
+    app.textShouldExist.forEach((text, _) => {
+      expect(screen.getByText(text)).toBeInTheDocument()
+    });
+  },
+  () => {
+    userEvent.click(screen.getByText(/Deutsch/i));
+  },
+)

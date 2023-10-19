@@ -33,7 +33,7 @@ export function PromptField(props) {
             </div>
             <div className='col-3'>
               <button className='prompt-field-button d-flex justify-content-center' onClick={ props.onSubmit }>
-                Send
+                { props.i18n.prompt.send }
               </button>
             </div>
           </div>

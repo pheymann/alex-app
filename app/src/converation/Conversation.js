@@ -9,8 +9,9 @@ import { LoadingPromptField } from "./PromptField";
 import AssistantResponseField from "./AssistantResponseField"
 import { logError, pushLogMessage } from "../logger";
 import ErrorField from "./ErrorField";
+import { Translation } from "../i18n";
 
-export default function Conversation({ awsFetch, signOut }) {
+export default function Conversation({ awsFetch, language, setLanguage, signOut }) {
   const pathParams = useParams();
   const conversationId = pathParams.id;
   const isNewConversation = !conversationId || conversationId === 'new';
@@ -20,6 +21,8 @@ export default function Conversation({ awsFetch, signOut }) {
 
   const logEntriesRef = useRef([]);
   const navigate = useNavigate();
+
+  const i18n = Translation.get(language);
 
   useEffect(() => {
     if (isNewConversation) {
@@ -45,7 +48,7 @@ export default function Conversation({ awsFetch, signOut }) {
               messages: [
                 {
                   role: 'user',
-                  text: `Tell me something about ${json.metadata.artContext}`,
+                  text: `${i18n.conversation.initialField} ${json.metadata.artContext}`,
                 },
                 ...json.messages,
                 {
@@ -68,12 +71,16 @@ export default function Conversation({ awsFetch, signOut }) {
         });
       }
     },
-    [isNewConversation, conversationId, awsFetch, navigate]
+    [isNewConversation, conversationId, awsFetch, navigate, i18n]
   );
 
   if (loading) {
     return(
-      <BasicPage awsFetch={ awsFetch } signOut={ signOut } >
+      <BasicPage  awsFetch={ awsFetch }
+                  language={ language }
+                  setLanguage={ setLanguage }
+                  signOut={ signOut }
+      >
         <div className="container container-limited-width d-flex justify-content-center">
           <div className="spinner-border" role="status">
             <span className="visually-hidden">Loading...</span>
@@ -86,7 +93,11 @@ export default function Conversation({ awsFetch, signOut }) {
   const containerizedFields = ['user', 'assistant', 'error']
 
   return (
-    <BasicPage awsFetch={ awsFetch } signOut={ signOut }>
+    <BasicPage  awsFetch={ awsFetch }
+                language={ language }
+                setLanguage={ setLanguage }
+                signOut={ signOut }
+    >
       <div className='container container-limited-width'>
         <div>
           {
@@ -103,7 +114,7 @@ export default function Conversation({ awsFetch, signOut }) {
                     return <AssistantResponseField key={ key } index={ index } message={ message } />
 
                   case 'error':
-                    return <ErrorField key={ key } errorCode={ message.errorCode } />
+                    return <ErrorField key={ key } errorCode={ message.errorCode } i18n={ i18n }/>
 
                   default:
                     pushLogMessage(logEntriesRef, { level: 'error', message: `unknown message role: ${message.role}` });
@@ -128,12 +139,14 @@ export default function Conversation({ awsFetch, signOut }) {
                   return <ArtContextPromptField key={ key }
                                                 conversation={ conversation }
                                                 setConversation={ setConversation }
+                                                i18n= { i18n }
                                                 awsFetch={ awsFetch } />
 
                 case 'prompt-user-question':
                   return <QuestionPromptField key={ key }
                                               conversation={ conversation }
                                               setConversation={ setConversation }
+                                              i18n= { i18n }
                                               awsFetch={ awsFetch } />
 
                 case 'loading':

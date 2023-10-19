@@ -45,7 +45,14 @@ func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGat
 	}
 	logCtx = logCtx.Str("user_uuid", userUUID)
 
-	shared.GetLogger(logCtx).Info().Msg("starting conversation")
+	var language = shared.LanguageGerman
+	if languageStr, ok := event.Headers["Accept-Language"]; ok {
+		shared.GetLogger(logCtx).Debug().Msgf("found language header: %s", languageStr)
+		language = shared.DecodeLanguage(languageStr)
+	}
+	logCtx = logCtx.Str("language", string(language))
+
+	shared.GetLogger(logCtx).Info().Msg("continuing conversation")
 
 	var convReq conversationRequest
 
@@ -56,6 +63,7 @@ func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGat
 	convCtx := conversation.Context{
 		ConversationUUID:  convUUID,
 		UserUUID:          userUUID,
+		Language:          language,
 		LogCtx:            logCtx,
 		ConversationStore: handlerCtx.ConversationStore,
 		UserStore:         handlerCtx.UserStore,

@@ -38,6 +38,8 @@ callChain:
       headers:
         - name: Authorization
           value: Bearer ignore
+        - name: "Accept-Language"
+          value: "English"
     response:
       type: success
       status: 200
@@ -65,6 +67,8 @@ callChain:
           value: Bearer ignore
         - name: Content-Type
           value: application/json
+        - name: "Accept-Language"
+          value: "English"
       body:
         question: another question
     response:

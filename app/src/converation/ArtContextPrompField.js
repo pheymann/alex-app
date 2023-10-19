@@ -6,6 +6,7 @@ import { Errors, errorToCode } from "../ErrorAlert";
 
 export default function ArtContextPromptField({
   setConversation,
+  i18n,
   awsFetch,
 }) {
   const [artContext, setArtContext] = useState('');
@@ -29,7 +30,7 @@ export default function ArtContextPromptField({
       messages: [
         {
           role: 'user',
-          text: `Tell me something about ${artContext}`,
+          text: `${i18n.conversation.artContextPrompt.field} ${artContext}`,
         },
         {
           role: 'loading',
@@ -73,12 +74,14 @@ export default function ArtContextPromptField({
     <PromptField  value={ artContext }
                   onChangeValue={ setArtContext }
                   onSubmit={ () => handleStartConversation() }
-                  placeholder='The Mona Lisa by Leonardo da Vinci'
-                  maxLength={ 150 }>
+                  placeholder={ i18n.conversation.artContextPrompt.placeholder }
+                  maxLength={ 150 }
+                  i18n={ i18n }
+    >
       <div className="row">
         <div className='col'>
           <p>
-            Tell me something about:
+            { i18n.conversation.artContextPrompt.title }
           </p>
         </div>
       </div>

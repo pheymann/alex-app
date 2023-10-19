@@ -25,6 +25,8 @@ callChain:
       headers:
         - name: Authorization
           value: Bearer ignore
+        - name: "Accept-Language"
+          value: "English"
     response:
       type: success
       status: 200

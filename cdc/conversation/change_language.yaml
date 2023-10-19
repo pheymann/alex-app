@@ -3,8 +3,8 @@ view: /conversation/new
 authorizationToken: ignore
 app:
   textShouldExist:
-    - "Tell me something about art"
-    - "some answer"
+    - "Erzähl mir etwas über:"
+    # - "eine Antwort"
 database:
   users:
     - id: 0
@@ -20,7 +20,7 @@ callChain:
         - name: Content-Type
           value: application/json
         - name: "Accept-Language"
-          value: "English"
+          value: "German"
       body:
         artContext: art
     response:
@@ -31,7 +31,7 @@ callChain:
         metadata:
           artContext: art
         messages:
-          - text: some answer
+          - text: eine Antwort
             role: assistant
             speechClipUuid: clip0
             speechClipUrl: https://some.url/clip0

@@ -43,10 +43,30 @@ func Handle(ctx conversation.Context, artContext string) (*conversation.Conversa
 
 	ctx.ConversationUUID = conv.ID
 
+	var userCommand string
+	switch ctx.Language {
+	case shared.LanguageEnglish:
+		userCommand = englishUserCommand(artContext)
+	case shared.LanguageGerman:
+		userCommand = germanUserCommand(artContext)
+	default:
+		return nil, &shared.UserInputError{Message: "unsupported language"}
+	}
+
 	return ctx.StartConversation(
 		conv,
-		fmt.Sprintf(`The art piece we are discussion is "%s".`, artContext)+
-			`Introduce it to me, give some basic information like the creation date, and continue to explain
-			its meaning, what style it is, and how it fits into its time.`,
+		userCommand,
 	)
+}
+
+func englishUserCommand(artContext string) string {
+	return fmt.Sprintf(`The art piece we are discussion is "%s".`, artContext) +
+		`Introduce it to me, give some basic information like the creation date, and continue to explain
+	its meaning, what style it is, and how it fits into its time.`
+}
+
+func germanUserCommand(artContext string) string {
+	return fmt.Sprintf(`Das Kunstwerk, über das wir sprechen, ist "%s".`, artContext) +
+		`Stelle es mir vor, gib einige grundlegende Informationen wie das Erstellungsdatum an, und fahre fort, indem du mir
+		die Bedeutung erklärst, welcher Stil es ist und wie es in seine Zeit passt.`
 }

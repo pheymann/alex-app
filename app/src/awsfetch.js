@@ -1,8 +1,10 @@
+import { encodeLanguage } from "./language";
 
 export class AwsFetch {
 
-  constructor(awsContext, fetchFn = new FetchWrapper()) {
+  constructor(awsContext, language, fetchFn = new FetchWrapper()) {
     this.token = awsContext.token;
+    this.language = language;
     this.fetchFn = fetchFn;
   }
 
@@ -11,6 +13,7 @@ export class AwsFetch {
       headers = {};
     }
     headers['Authorization'] = `Bearer ${this.token}`;
+    headers['Accept-Language'] = encodeLanguage(this.language);
 
     return this.fetchFn.apply(uri, {
       method: method,

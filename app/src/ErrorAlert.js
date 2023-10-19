@@ -41,18 +41,18 @@ export function codeToError(errorCode) {
   }
 }
 
-export function errorAlertMessage(error) {
-  let message = "Ooops! Something went wrong.";
+export function errorAlertMessage(error, i18n) {
+  let message = i18n.error.unknown;
 
   switch (error) {
     case Errors.ConversationListingError:
-      return message = "Something went wrong while we tried to show you your conversations.";
+      return message = i18n.error.conversationListing;
 
     case Errors.StartingConversationError:
-      return message = "Something went wrong while we tried to start a new conversation.";
+      return message = i18n.error.startingConversation;
 
     case Errors.QuestionError:
-      return message = "Something went wrong while we tried to answer your question.";
+      return message = i18n.error.question;
 
     default:
   }

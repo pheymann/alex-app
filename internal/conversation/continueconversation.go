@@ -39,7 +39,7 @@ func (ctx Context) ContinueConversation(message string) (*Conversation, error) {
 
 	lastMessageIndex := len(conv.Messages) - 1
 
-	clipFile, err := ctx.SpeechGen.GenerateSpeechClip(conv.ID, conv.Messages[lastMessageIndex].Text, ctx.LogCtx)
+	clipFile, err := ctx.SpeechGen.GenerateSpeechClip(conv.ID, conv.Messages[lastMessageIndex].Text, ctx.Language, ctx.LogCtx)
 	if err != nil {
 		return nil, err
 	}

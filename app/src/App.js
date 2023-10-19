@@ -6,6 +6,7 @@ import Login from './Login';
 import Conversation from './converation/Conversation';
 import { useEffect, useState } from 'react';
 import './App.css';
+import { LanguageLocalStorageKey, decodeLanguage } from './language';
 
 Amplify.configure({
   Auth: {
@@ -15,10 +16,11 @@ Amplify.configure({
   }
 })
 
-export function App({ loadAwsCtx , buildAwsFetch }) {
+export function App({ loadAwsCtx , buildAwsFetch, defaultLanguage }) {
   const [loading, setLoading] = useState(true);
   const [awsContext, setAwsContext] = useState(null);
   const [awsFetch, setAwsFetch] = useState(null);
+  const [language, setLanguage] = useState(defaultLanguage);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,7 +29,7 @@ export function App({ loadAwsCtx , buildAwsFetch }) {
         const awsContext = await loadAwsCtx();
 
         setAwsContext(awsContext);
-        setAwsFetch(buildAwsFetch(awsContext));
+        setAwsFetch(buildAwsFetch(awsContext, language));
         setLoading(false);
       } catch (error) {
         console.log(error);
@@ -37,7 +39,12 @@ export function App({ loadAwsCtx , buildAwsFetch }) {
     };
 
     checkAuth();
-  }, [navigate, loadAwsCtx, buildAwsFetch]);
+
+    const localLanguage = localStorage.getItem(LanguageLocalStorageKey);
+    if (localLanguage !== null) {
+      setLanguage(decodeLanguage(localLanguage));
+    }
+  }, [navigate, loadAwsCtx, buildAwsFetch, language]);
 
   if (loading) {
     return(
@@ -52,8 +59,18 @@ export function App({ loadAwsCtx , buildAwsFetch }) {
   return (
     <Routes>
       <Route path='/login' element={<Login />} />
-      <Route exact path='/' element={<Home awsFetch={ awsFetch } signOut={ () => awsContext.signOut() } />} />
-      <Route path='/conversation/:id' element={<Conversation awsFetch={ awsFetch } signOut={ () => awsContext.signOut() } />} />
+      <Route exact path='/' element={
+        <Home awsFetch={ awsFetch }
+              language={ language }
+              setLanguage={ setLanguage }
+              signOut={ () => awsContext.signOut() } />
+      } />
+      <Route path='/conversation/:id' element={
+        <Conversation awsFetch={ awsFetch }
+                      language={ language }
+                      setLanguage={ setLanguage }
+                      signOut={ () => awsContext.signOut() } />
+      } />
     </Routes>
   );
 }
