@@ -1,6 +1,8 @@
 package listconversations
 
 import (
+	"sort"
+
 	"talktome.com/internal/conversation"
 	"talktome.com/internal/shared"
 )
@@ -27,10 +29,15 @@ func Handle(ctx conversation.Context) ([]conversation.ConversationRef, error) {
 	conversationRef := make([]conversation.ConversationRef, len(conversations))
 	for index, conv := range conversations {
 		conversationRef[index] = conversation.ConversationRef{
-			ID:       conv.ID,
-			Metadata: conv.Metadata,
+			ID:        conv.ID,
+			Metadata:  conv.Metadata,
+			CreatedAt: conv.CreatedAt,
 		}
 	}
+
+	sort.Slice(conversationRef, func(i, j int) bool {
+		return conversationRef[i].CreatedAt.After(conversationRef[j].CreatedAt)
+	})
 
 	return conversationRef, nil
 }

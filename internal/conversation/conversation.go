@@ -10,9 +10,10 @@ import (
 )
 
 type Conversation struct {
-	ID       string            `json:"id" yaml:"id" dynamodbav:"id"`
-	Metadata map[string]string `json:"metadata" yaml:"metadata" dynamodbav:"metadata"`
-	Messages []Message         `json:"messages" yaml:"messages" dynamodbav:"messages"`
+	ID        string            `json:"id" yaml:"id" dynamodbav:"id"`
+	Metadata  map[string]string `json:"metadata" yaml:"metadata" dynamodbav:"metadata"`
+	Messages  []Message         `json:"messages" yaml:"messages" dynamodbav:"messages"`
+	CreatedAt time.Time         `json:"createdAt" yaml:"createdAt" dynamodbav:"createdAt"`
 }
 
 type Message struct {
@@ -34,9 +35,10 @@ const (
 
 func NewConversation(metadata map[string]string) Conversation {
 	return Conversation{
-		ID:       GenerateStableID(metadata),
-		Metadata: metadata,
-		Messages: []Message{},
+		ID:        GenerateStableID(metadata),
+		Metadata:  metadata,
+		Messages:  []Message{},
+		CreatedAt: time.Now(),
 	}
 }
 
