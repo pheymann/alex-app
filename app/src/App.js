@@ -21,7 +21,12 @@ export function App({ loadAwsCtx , buildAwsFetch, defaultLanguage }) {
   const [awsContext, setAwsContext] = useState(null);
   const [awsFetch, setAwsFetch] = useState(null);
   const [language, setLanguage] = useState(defaultLanguage);
+
   const navigate = useNavigate();
+
+  const urlSearchParams = new URLSearchParams(window.location.search);
+  const params = Object.fromEntries(urlSearchParams.entries());
+  const forceReload = params.forceReload;
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -44,7 +49,7 @@ export function App({ loadAwsCtx , buildAwsFetch, defaultLanguage }) {
     if (localLanguage !== null) {
       setLanguage(decodeLanguage(localLanguage));
     }
-  }, [navigate, loadAwsCtx, buildAwsFetch, language]);
+  }, [navigate, loadAwsCtx, buildAwsFetch, language, forceReload]);
 
   if (loading) {
     return(
