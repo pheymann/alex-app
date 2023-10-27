@@ -12,6 +12,8 @@ build-backends:
 	GOOS=linux go build -o build/talktome-getconversation cmd/getconversation/main.go
 	GOOS=linux go build -o build/talktome-listconversations cmd/listconversations/main.go
 	GOOS=linux go build -o build/talktome-applogs cmd/applogs/main.go
+	GOOS=linux go build -o build/talktome-pollassistantresponse cmd/pollassistantresponse/main.go
+	GOOS=linux go build -o build/talktome-assistant cmd/assistant/main.go
 
 .PHONY: zip-backends
 zip-backends:
@@ -20,6 +22,8 @@ zip-backends:
 	zip -j build/zip/talktome-getconversation.zip build/talktome-getconversation
 	zip -j build/zip/talktome-listconversations.zip build/talktome-listconversations
 	zip -j build/zip/talktome-applogs.zip build/talktome-applogs
+	zip -j build/zip/talktome-pollassistantresponse.zip build/talktome-pollassistantresponse
+	zip -j build/zip/talktome-assistant.zip build/talktome-assistant
 
 .PHONY: deploy-backends
 deploy-backends:
@@ -29,6 +33,8 @@ deploy-backends:
 	aws lambda update-function-code --function-name talktome-getconversation --s3-bucket talktome-backends --s3-key talktome-getconversation.zip
 	aws lambda update-function-code --function-name talktome-listconversations --s3-bucket talktome-backends --s3-key talktome-listconversations.zip
 	aws lambda update-function-code --function-name talktome-applogs --s3-bucket talktome-backends --s3-key talktome-applogs.zip
+	aws lambda update-function-code --function-name talktome-pollassistantresponse --s3-bucket talktome-backends --s3-key talktome-pollassistantresponse.zip
+	aws lambda update-function-code --function-name talktome-assistant --s3-bucket talktome-backends --s3-key talktome-assistant.zip
 
 .PHONY: clean
 clean:

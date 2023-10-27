@@ -3,8 +3,11 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"flag"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -14,11 +17,14 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"talktome.com/internal/cmd/applogs"
+	"talktome.com/internal/cmd/assistant"
 	"talktome.com/internal/cmd/continueconversation"
 	"talktome.com/internal/cmd/getconversation"
 	"talktome.com/internal/cmd/listconversations"
+	"talktome.com/internal/cmd/pollassistantresponse"
 	"talktome.com/internal/cmd/startartconversation"
 	"talktome.com/internal/conversation"
+	"talktome.com/internal/processqueue"
 	"talktome.com/internal/shared"
 	"talktome.com/internal/testutil"
 	"talktome.com/internal/user"
@@ -64,6 +70,10 @@ var (
 		ClipKey:      "prompt.mp3",
 		PresignedUrl: "/aws/presigned/prompt.mp3",
 	}
+
+	mockProcessQueue = &testutil.MockProcessQueue{
+		Queue: make(chan processqueue.Task, 20),
+	}
 )
 
 func handleStartArtConversation(ctx startartconversation.HandlerCtx) func(w http.ResponseWriter, r *http.Request) {
@@ -74,6 +84,7 @@ func handleStartArtConversation(ctx startartconversation.HandlerCtx) func(w http
 		headers := make(map[string]string)
 		for k, v := range r.Header {
 			headers[k] = v[0]
+			headers[strings.ToLower(k)] = v[0]
 		}
 
 		event := events.APIGatewayProxyRequest{
@@ -108,6 +119,7 @@ func handleContinueConversation(ctx continueconversation.HandlerCtx) func(w http
 		headers := make(map[string]string)
 		for k, v := range r.Header {
 			headers[k] = v[0]
+			headers[strings.ToLower(k)] = v[0]
 		}
 
 		event := events.APIGatewayProxyRequest{
@@ -136,6 +148,33 @@ func handleContinueConversation(ctx continueconversation.HandlerCtx) func(w http
 }
 
 func handleGetConversation(ctx getconversation.HandlerCtx) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+
+		event := events.APIGatewayProxyRequest{
+			HTTPMethod: r.Method,
+			PathParameters: map[string]string{
+				"uuid": vars["id"],
+			},
+			RequestContext: testUserRequestCtx,
+		}
+
+		response, err := ctx.AWSHandler(context.TODO(), event)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(response.StatusCode)
+		if _, err := w.Write([]byte(response.Body)); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+func handlePollConversation(ctx pollassistantresponse.HandlerCtx) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 
@@ -222,22 +261,20 @@ func main() {
 	var continueConvCtx continueconversation.HandlerCtx
 	var listConvCtx listconversations.HandlerCtx
 	var getConvCtx getconversation.HandlerCtx
+	var assistantCtx *assistant.HandlerCtx
+	var pollAssistantCtx pollassistantresponse.HandlerCtx
 
 	if *mode == "mock" {
 		startArtConvCtx = startartconversation.HandlerCtx{
 			ConversationStore: mockConversationStore,
 			UserStore:         mockUserStorage,
-			AudioClipStore:    mockAudioClipStore,
-			TextGen:           mockTextGen,
-			SpeechGen:         mockSpeechGen,
+			ProcessQueue:      mockProcessQueue,
 		}
 
 		continueConvCtx = continueconversation.HandlerCtx{
 			ConversationStore: mockConversationStore,
 			UserStore:         mockUserStorage,
-			AudioClipStore:    mockAudioClipStore,
-			TextGen:           mockTextGen,
-			SpeechGen:         mockSpeechGen,
+			ProcessQueue:      mockProcessQueue,
 		}
 
 		listConvCtx = listconversations.HandlerCtx{
@@ -246,6 +283,19 @@ func main() {
 		}
 
 		getConvCtx = getconversation.HandlerCtx{
+			ConversationStore: mockConversationStore,
+			UserStore:         mockUserStorage,
+		}
+
+		assistantCtx = &assistant.HandlerCtx{
+			ConversationStore: mockConversationStore,
+			UserStore:         mockUserStorage,
+			AudioClipStore:    mockAudioClipStore,
+			TextGen:           mockTextGen,
+			SpeechGen:         mockSpeechGen,
+		}
+
+		pollAssistantCtx = pollassistantresponse.HandlerCtx{
 			ConversationStore: mockConversationStore,
 			UserStore:         mockUserStorage,
 		}
@@ -259,23 +309,20 @@ func main() {
 
 		conversationTable := shared.MustReadEnvVar("TALKTOME_CONVERSATION_TABLE")
 		userTable := shared.MustReadEnvVar("TALKTOME_USER_TABLE")
-		openAIToken := shared.MustReadEnvVar("TALKTOME_OPEN_AI_TOKEN")
-		clipBucket := shared.MustReadEnvVar("TALKTOME_CONVERSATION_CLIP_BUCKET")
+		processQueue := shared.MustReadEnvVar("TALKTOME_SQS_TASK")
 
 		startArtConvCtx = startartconversation.UnsafeNewHandlerCtx(
 			sess,
 			conversationTable,
 			userTable,
-			openAIToken,
-			clipBucket,
+			processQueue,
 		)
 
 		continueConvCtx = continueconversation.UnsafeNewHandlerCtx(
 			sess,
 			conversationTable,
 			userTable,
-			openAIToken,
-			clipBucket,
+			processQueue,
 		)
 
 		listConvCtx = listconversations.UnsafeNewHandlerCtx(
@@ -289,8 +336,39 @@ func main() {
 			conversationTable,
 			userTable,
 		)
+
+		pollAssistantCtx = pollassistantresponse.UnsafeNewHandlerCtx(
+			sess,
+			conversationTable,
+			userTable,
+		)
 	} else {
 		panic("unknown mode: " + *mode)
+	}
+
+	if assistantCtx != nil {
+		go func() {
+			for task := range mockProcessQueue.Queue {
+				fmt.Printf("processing task: %+v\n", task)
+
+				taskJson, err := json.Marshal(task)
+				if err != nil {
+					panic(err)
+				}
+
+				sqsEvent := events.SQSEvent{
+					Records: []events.SQSMessage{
+						{
+							Body: string(taskJson),
+						},
+					},
+				}
+
+				if err := assistantCtx.AWSHandler(context.Background(), sqsEvent); err != nil {
+					panic(err)
+				}
+			}
+		}()
 	}
 
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
@@ -300,6 +378,7 @@ func main() {
 	router.HandleFunc("/api/conversation/list", handleListConversations(listConvCtx)).Methods(http.MethodGet)
 	router.HandleFunc("/api/conversation/{id}/continue", handleContinueConversation(continueConvCtx)).Methods(http.MethodPost)
 	router.HandleFunc("/api/conversation/{id}", handleGetConversation(getConvCtx)).Methods(http.MethodGet)
+	router.HandleFunc("/api/conversation/{id}/poll", handlePollConversation(pollAssistantCtx)).Methods(http.MethodGet)
 	router.HandleFunc("/api/app/logs", handleAppLogs).Methods(http.MethodPost)
 	router.HandleFunc("/aws/presigned/{id}", fileHandler).Methods(http.MethodGet)
 

@@ -39,35 +39,65 @@ export default function ArtContextPromptField({
     };
     setConversation(conversation);
 
-    awsFetch.call(`/api/conversation/create/art`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        artContext: artContext,
-      }),
-    })
-      .then(rawData => {
-        pushLogMessage(logEntriesRef, { level: 'debug', message: rawData });
+    const startProcessing = async () => {
+      try {
+        const createResponse = await awsFetch.callResponse(`/api/conversation/create/art`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            artContext: artContext,
+          }),
+        })
 
-        const json = JSON.parse(rawData);
+        const createdJson = await createResponse.json();
+
+        // remove loading message
         const responseConversation = {
-          ...json,
+          ...createdJson,
           messages: [
             conversation.messages[0],
-            ...json.messages,
-            {
-              role: 'prompt-user-question',
-            },
           ],
         };
-        setConversation(responseConversation);
-      })
-      .catch(error => {
-        logError({ awsFetch, error, logEntriesRef: logEntriesRef});
-        navigate('/?errorCode=' + errorToCode(Errors.StartingConversationError));
-      });
+
+        if (createResponse.ok) {
+          const pollingInterval = setInterval(async () => {
+            try {
+              const pollResponse = await awsFetch.callResponse(`/api/conversation/${responseConversation.id}/poll`,  {
+                method: 'GET',
+              });
+
+              if (pollResponse.status === 200) {
+                clearInterval(pollingInterval);
+
+                const message = await pollResponse.json();
+                pushLogMessage(logEntriesRef, { level: 'debug', message: message });
+
+                responseConversation.messages = [
+                  ...responseConversation.messages,
+                  message,
+                  {
+                    role: 'prompt-user-question',
+                  },
+                ];
+
+                setConversation(responseConversation);
+              }
+            } catch (error) {
+              clearInterval(pollingInterval);
+              logError({ awsFetch, error, logEntriesRef: logEntriesRef});
+              navigate('/?errorCode=' + errorToCode(Errors.StartingConversationError));
+            }
+          }, 1000);
+        }
+      } catch (error) {
+          logError({ awsFetch, error, logEntriesRef: logEntriesRef});
+          navigate('/?errorCode=' + errorToCode(Errors.StartingConversationError));
+      }
+    };
+
+    startProcessing();
   };
 
   return (

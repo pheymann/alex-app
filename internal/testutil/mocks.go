@@ -7,6 +7,7 @@ import (
 
 	"github.com/rs/zerolog"
 	"talktome.com/internal/conversation"
+	"talktome.com/internal/processqueue"
 	"talktome.com/internal/shared"
 	"talktome.com/internal/textgeneration"
 	"talktome.com/internal/user"
@@ -70,6 +71,7 @@ func MockConversationStore(initData map[string]*conversation.Conversation) *Mock
 				ID:       conv.ID,
 				Metadata: conv.Metadata,
 				Messages: []conversation.Message{},
+				State:    conv.State,
 			}
 
 			// deep copy
@@ -151,4 +153,21 @@ func (mock *MockAssetStore) GenerateTemporaryAccessURL(audioClipUUID string, log
 	expirationDate := time.Now().In(location).Add(urlValidFor)
 
 	return mock.PresignedUrl, &expirationDate, nil
+}
+
+type MockProcessQueue struct {
+	Queue chan processqueue.Task
+}
+
+func (mock *MockProcessQueue) Enqueue(task processqueue.Task, logCtx zerolog.Context) error {
+	mock.Queue <- task
+	return nil
+}
+
+type MockIDGenerator struct {
+	GeneratedID string
+}
+
+func (mock *MockIDGenerator) GenerateID(_ map[string]string) string {
+	return mock.GeneratedID
 }

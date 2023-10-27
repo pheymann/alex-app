@@ -7,25 +7,22 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/polly"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/rs/zerolog/log"
-	"talktome.com/internal/assetstore"
 	"talktome.com/internal/cmd/awsutil"
 	"talktome.com/internal/conversation"
 	"talktome.com/internal/entitystore"
+	"talktome.com/internal/idgenerator"
+	"talktome.com/internal/processqueue"
 	"talktome.com/internal/shared"
-	"talktome.com/internal/speechgeneration"
-	"talktome.com/internal/textgeneration"
 	"talktome.com/internal/user"
 )
 
 type HandlerCtx struct {
 	ConversationStore entitystore.EntityStore[conversation.Conversation]
 	UserStore         entitystore.EntityStore[user.User]
-	AudioClipStore    assetstore.AssetStore
-	TextGen           textgeneration.TextGenerationService
-	SpeechGen         speechgeneration.SpeechGenerator
+	ProcessQueue      processqueue.ProcessQueue
+	IDGenerator       idgenerator.IDGenerator
 }
 
 type ArtContext struct {
@@ -37,10 +34,10 @@ func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGat
 	if error != nil {
 		return awsutil.ReturnError(error, "failed to extract user uuid", log.With())
 	}
-	logCtx := log.With().Str("user_uuid", userUUID)
+	logCtx := log.With().Str("lambda", "startartconversation").Str("user_uuid", userUUID)
 
 	var language = shared.LanguageGerman
-	if languageStr, ok := event.Headers["Accept-Language"]; ok {
+	if languageStr, ok := event.Headers["accept-language"]; ok {
 		shared.GetLogger(logCtx).Debug().Msgf("found language header: %s", languageStr)
 		language = shared.DecodeLanguage(languageStr)
 	}
@@ -58,42 +55,36 @@ func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGat
 		LogCtx:            logCtx,
 		ConversationStore: handlerCtx.ConversationStore,
 		UserStore:         handlerCtx.UserStore,
-		AudioClipStore:    handlerCtx.AudioClipStore,
-		TextGen:           handlerCtx.TextGen,
-		SpeechGen:         handlerCtx.SpeechGen,
+		ProcessQueue:      handlerCtx.ProcessQueue,
+		IDGenerator:       handlerCtx.IDGenerator,
 	}
 
-	conversation, err := Handle(convCtx, artContext.Context)
+	conv, err := Handle(convCtx, artContext.Context)
 	if err != nil {
 		return awsutil.ReturnError(err, "failed to start art conversation", logCtx)
 	}
 
-	return awsutil.ReturnSuccessJson(conversation, logCtx)
+	return awsutil.ReturnSuccessJson(conv, logCtx)
 }
 
 func UnsafeNewHandlerCtx(
 	sess *session.Session,
 	conversationDynamoDBTable string,
 	userTable string,
-	openAIToken string,
-	conversationClipBucket string,
+	queueURL string,
 ) HandlerCtx {
 	dynamoDBClient := dynamodb.New(sess)
-	s3 := s3.New(sess)
-	pollyClient := polly.New(sess)
+	sqs := sqs.New(sess)
 
 	// internal init
-	textGen := textgeneration.NewOpenAIGenerator(openAIToken)
-	speechGen := speechgeneration.NewAWSPollySpeechGenerator(pollyClient)
 	convStorage := entitystore.NewAWSDynamoDBCtx[conversation.Conversation](dynamoDBClient, conversationDynamoDBTable)
 	userStorage := entitystore.NewAWSDynamoDBCtx[user.User](dynamoDBClient, userTable)
-	audioClipStore := assetstore.NewAWSS3Context(s3, conversationClipBucket)
+	processQueue := processqueue.NewAWSSQSContext(sqs, queueURL)
 
 	return HandlerCtx{
 		ConversationStore: convStorage,
 		UserStore:         userStorage,
-		AudioClipStore:    audioClipStore,
-		TextGen:           textGen,
-		SpeechGen:         speechGen,
+		ProcessQueue:      processQueue,
+		IDGenerator:       idgenerator.NewRandomIDGenerator(),
 	}
 }

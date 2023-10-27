@@ -30,9 +30,24 @@ callChain:
         id: abc
         metadata:
           artContext: art
-        messages:
-          - text: some answer
-            role: assistant
-            speechClipUuid: clip0
-            speechClipUrl: https://some.url/clip0
-            speechClipIsExpired: false
+        messages: []
+  - request:
+      uri: /api/conversation/abc/poll
+      method: GET
+      pathParameters:
+        - name: uuid
+          value: abc
+      headers:
+        - name: Authorization
+          value: Bearer ignore
+        - name: "Accept-Language"
+          value: "English"
+    response:
+      type: success
+      status: 200
+      body:
+        text: some answer
+        role: assistant
+        speechClipUuid: clip0
+        speechClipUrl: https://some.url/clip0
+        speechClipIsExpired: false

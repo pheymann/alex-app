@@ -59,7 +59,7 @@ func runConversationContracts(
 	if strings.Contains(event.Path, "/api/conversation/list") {
 		return MockListConversations(event, users, conversations)
 	} else if strings.Contains(event.Path, "/api/conversation/create/art") {
-		response, err := MockStartArtConversations(event, users, conversations, "some answer")
+		response, err := MockStartArtConversations(event, users, conversations, "abc", "some answer")
 		if err != nil {
 			return response, err
 		}
@@ -82,6 +82,8 @@ func runConversationContracts(
 	} else if strings.Contains(event.Path, "/api/conversation/") {
 		if strings.Contains(event.Path, "continue") {
 			return MockContinueConversation(event, users, conversations, "another answer")
+		} else if strings.Contains(event.Path, "poll") {
+			return MockPollAssistantResponse(event, users, conversations)
 		}
 		return MockGetConversation(event, users, conversations)
 	} else if strings.Contains(event.Path, "/api/app/logs") {

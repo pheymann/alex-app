@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"talktome.com/internal/conversation"
+	"talktome.com/internal/processqueue"
 	"talktome.com/internal/shared"
 	"talktome.com/internal/textgeneration"
 )
@@ -25,9 +26,10 @@ func Handle(ctx conversation.Context, artContext string) (*conversation.Conversa
 	metadata := map[string]string{
 		"artContext": artContext,
 	}
-	conv := conversation.NewConversation(metadata)
+	conv := conversation.NewConversation(metadata, ctx.IDGenerator)
 	ctx.LogCtx = ctx.LogCtx.Str("conversation_uuid", conv.ID)
 
+	conv.State = conversation.StateGenerating
 	conv.Messages = []conversation.Message{
 		{
 			Role: textgeneration.RoleSystem,
@@ -43,20 +45,49 @@ func Handle(ctx conversation.Context, artContext string) (*conversation.Conversa
 
 	ctx.ConversationUUID = conv.ID
 
+	user, err := ctx.UserStore.Find(ctx.UserUUID, ctx.LogCtx)
+	if err != nil {
+		return nil, err
+	} else if user == nil {
+		return nil, &shared.NotFoundError{Message: fmt.Sprintf("user with UUID %s does not exist", ctx.UserUUID)}
+	}
+
+	if err := ctx.ConversationStore.Save(conv, ctx.LogCtx); err != nil {
+		return nil, err
+	}
+
+	user.ConversationUUIDs = append(user.ConversationUUIDs, conv.ID)
+	if err := ctx.UserStore.Save(*user, ctx.LogCtx); err != nil {
+		return nil, err
+	}
+
 	var userCommand string
 	switch ctx.Language {
 	case shared.LanguageEnglish:
 		userCommand = englishUserCommand(artContext)
+
 	case shared.LanguageGerman:
 		userCommand = germanUserCommand(artContext)
+
 	default:
 		return nil, &shared.UserInputError{Message: "unsupported language"}
 	}
 
-	return ctx.StartConversation(
-		conv,
-		userCommand,
-	)
+	task := processqueue.Task{
+		ConversationUUID: conv.ID,
+		UserUUID:         ctx.UserUUID,
+		Language:         ctx.Language,
+		Message:          userCommand,
+	}
+
+	if err := ctx.ProcessQueue.Enqueue(task, ctx.LogCtx); err != nil {
+		return nil, err
+	}
+
+	// system messages are not relevant to the client
+	conv.Messages = []conversation.Message{}
+
+	return &conv, nil
 }
 
 func englishUserCommand(artContext string) string {

@@ -24,7 +24,7 @@ func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGat
 	if err != nil {
 		return awsutil.ReturnError(err, "failed to extract user uuid", log.With())
 	}
-	logCtx := log.With().Str("user_uuid", userUUID)
+	logCtx := log.With().Str("lambda", "listconversations").Str("user_uuid", userUUID)
 
 	convCtx := conversation.Context{
 		UserUUID:          userUUID,

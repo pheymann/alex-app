@@ -1,4 +1,4 @@
-package getconversation
+package pollassistantresponse
 
 import (
 	"context"
@@ -24,7 +24,7 @@ func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGat
 	if convUUID == "" {
 		return awsutil.ReturnError(nil, "conversation uuid is empty", log.With())
 	}
-	var logCtx = log.With().Str("lambda", "getconversation").Str("conversation_uuid", convUUID)
+	var logCtx = log.With().Str("lambda", "pollassistantmessage").Str("conversation_uuid", convUUID)
 
 	userUUID, error := shared.ExtractUserUUID(event)
 	if error != nil {
@@ -40,12 +40,15 @@ func (handlerCtx HandlerCtx) AWSHandler(ctx context.Context, event events.APIGat
 		UserStore:         handlerCtx.UserStore,
 	}
 
-	conversation, err := Handle(convCtx)
+	message, err := Handle(convCtx)
 	if err != nil {
-		return awsutil.ReturnError(err, "failed to get conversation", logCtx)
+		return awsutil.ReturnError(err, "failed to poll assistant response", logCtx)
+	}
+	if message == nil {
+		return awsutil.ReturnStatus(204)
 	}
 
-	return awsutil.ReturnSuccessJson(conversation, logCtx)
+	return awsutil.ReturnSuccessJson(message, logCtx)
 }
 
 func UnsafeNewHandlerCtx(

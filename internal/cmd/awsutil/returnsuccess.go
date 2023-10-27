@@ -19,3 +19,9 @@ func ReturnSuccessJson(body any, logCtx zerolog.Context) (events.APIGatewayProxy
 		Body:       string(jsonBody),
 	}, nil
 }
+
+func ReturnStatus(statusCode int) (events.APIGatewayProxyResponse, error) {
+	return events.APIGatewayProxyResponse{
+		StatusCode: statusCode,
+	}, nil
+}

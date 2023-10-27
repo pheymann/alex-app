@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"time"
 
+	"talktome.com/internal/idgenerator"
 	"talktome.com/internal/textgeneration"
 )
 
@@ -14,6 +15,7 @@ type Conversation struct {
 	Metadata  map[string]string `json:"metadata" yaml:"metadata" dynamodbav:"metadata"`
 	Messages  []Message         `json:"messages" yaml:"messages" dynamodbav:"messages"`
 	CreatedAt time.Time         `json:"createdAt" yaml:"createdAt" dynamodbav:"createdAt"`
+	State     State             `json:"state" yaml:"state" dynamodbav:"state"`
 }
 
 type Message struct {
@@ -33,9 +35,16 @@ const (
 	RoleSystem    Role = "system"
 )
 
-func NewConversation(metadata map[string]string) Conversation {
+type State = string
+
+const (
+	StateGenerating State = "generating"
+	StateReady      State = "ready"
+)
+
+func NewConversation(metadata map[string]string, idGen idgenerator.IDGenerator) Conversation {
 	return Conversation{
-		ID:        GenerateStableID(metadata),
+		ID:        idGen.GenerateID(metadata),
 		Metadata:  metadata,
 		Messages:  []Message{},
 		CreatedAt: time.Now(),

@@ -17,6 +17,7 @@ database:
     - id: abc
       metadata:
         artContext: some context
+      state: ready
       messages:
         - role: system
           text: initial system message 1
@@ -71,6 +72,20 @@ callChain:
           value: "English"
       body:
         question: another question
+    response:
+      type: success
+      status: 202
+  - request:
+      uri: /api/conversation/abc/poll
+      pathParameters:
+        - name: uuid
+          value: abc
+      method: GET
+      headers:
+        - name: Authorization
+          value: Bearer ignore
+        - name: "Accept-Language"
+          value: "English"
     response:
       type: success
       status: 200

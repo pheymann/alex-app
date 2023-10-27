@@ -28,8 +28,7 @@ func main() {
 		sess,
 		shared.MustReadParameter("talktome-table-conversation", ssmClient),
 		shared.MustReadParameter("talktome-table-user", ssmClient),
-		shared.MustReadParameter("talktome-secret-openai-token", ssmClient),
-		shared.MustReadParameter("talktome-bucket-conversation-clips", ssmClient),
+		shared.MustReadParameter("talktome-sqs-task", ssmClient),
 	)
 
 	log.Info().Msg("starting 'continue conversation' lambda")

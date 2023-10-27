@@ -40,43 +40,80 @@ export default function QuestionPromptField({
     };
     setConversation(continuedConversation);
 
-    awsFetch.call(`/api/conversation/${conversation.id}/continue`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        question: question,
-      }),
-    })
-      .then(rawData => {
-        pushLogMessage(logEntriesRef, { level: 'debug', message: rawData });
+    const startProcessing = async () => {
+      try {
+        const continueResponse = await awsFetch.callResponse(`/api/conversation/${conversation.id}/continue`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            question: question,
+          }),
+        })
 
-        const json = JSON.parse(rawData);
+        if (continueResponse.ok) {
+          const pollingInterval = setInterval(async () => {
+            try {
+              const pollResponse = await awsFetch.callResponse(`/api/conversation/${conversation.id}/poll`,  {
+                method: 'GET',
+              });
 
-        // removing loading message
-        continuedConversation.messages.pop();
+              if (pollResponse.status === 200) {
+                clearInterval(pollingInterval);
 
-        const responseConversation = {
-          ...continuedConversation,
-          messages: [
-            ...continuedConversation.messages,
-            {
-              role: json.role,
-              text: json.text,
-              speechClipUuid: json.speechClipUuid,
-              speechClipUrl: json.speechClipUrl,
-            },
-            {
-              role: 'prompt-user-question',
+                const message = await pollResponse.json();
+                pushLogMessage(logEntriesRef, { level: 'debug', message: message });
+
+                // removing loading message
+                continuedConversation.messages.pop();
+
+                const responseConversation = {
+                  ...continuedConversation,
+                  messages: [
+                    ...continuedConversation.messages,
+                    {
+                      role: message.role,
+                      text: message.text,
+                      speechClipUuid: message.speechClipUuid,
+                      speechClipUrl: message.speechClipUrl,
+                    },
+                    {
+                      role: 'prompt-user-question',
+                    }
+                  ],
+                };
+
+                setConversation(responseConversation);
+                setQuestion('');
+              }
+            } catch (error) {
+              clearInterval(pollingInterval);
+              logError({ awsFetch, error, logEntriesRef: logEntriesRef});
+
+              // removing loading message
+              continuedConversation.messages.pop();
+
+              const responseConversation = {
+                ...continuedConversation,
+                messages: [
+                  ...continuedConversation.messages,
+                  {
+                    role: 'error',
+                    errorCode: Errors.QuestionError,
+                  },
+                  {
+                    role: 'prompt-user-question',
+                  }
+                ],
+              };
+
+              setConversation(responseConversation);
+              setQuestion('');
             }
-          ],
-        };
-
-        setConversation(responseConversation);
-        setQuestion('');
-      })
-      .catch(error => {
+          }, 1000);
+        }
+      } catch (error) {
         logError({ awsFetch, error, logEntriesRef: logEntriesRef});
 
         // removing loading message
@@ -98,8 +135,11 @@ export default function QuestionPromptField({
 
         setConversation(responseConversation);
         setQuestion('');
-      });
-  };
+    }
+    };
+
+    startProcessing();
+  }
 
   return (
     <PromptField  value={ question }

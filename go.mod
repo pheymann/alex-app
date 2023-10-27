@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/aws/aws-lambda-go v1.41.0
-	github.com/aws/aws-sdk-go v1.44.319
+	github.com/aws/aws-sdk-go v1.46.4
 	github.com/gorilla/mux v1.8.0
 	github.com/rs/zerolog v1.29.1
 	github.com/sashabaranov/go-openai v1.12.0

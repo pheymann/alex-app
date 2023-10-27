@@ -7,7 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ssm"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"talktome.com/internal/cmd/startartconversation"
+	"talktome.com/internal/cmd/assistant"
 	"talktome.com/internal/shared"
 )
 
@@ -24,13 +24,14 @@ func main() {
 
 	ssmClient := ssm.New(sess)
 
-	ctx := startartconversation.UnsafeNewHandlerCtx(
+	ctx := assistant.UnsafeNewHandlerCtx(
 		sess,
 		shared.MustReadParameter("talktome-table-conversation", ssmClient),
 		shared.MustReadParameter("talktome-table-user", ssmClient),
-		shared.MustReadParameter("talktome-sqs-task", ssmClient),
+		shared.MustReadParameter("talktome-secret-openai-token", ssmClient),
+		shared.MustReadParameter("talktome-bucket-conversation-clips", ssmClient),
 	)
 
-	log.Info().Msg("starting 'start art conversation' lambda")
+	log.Info().Msg("starting 'request processor' lambda")
 	lambda.Start(ctx.AWSHandler)
 }
