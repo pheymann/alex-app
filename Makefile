@@ -70,6 +70,7 @@ build-app:
 .PHONY: deploy-app
 deploy-app:
 	cd app && aws s3 sync build/ s3://talktome-app/
+	cd app && aws cloudfront create-invalidation --distribution-id E1ISHCTDVQ2M92 --paths "/*"
 
 .PHONY: release-app
 release-app: build-app deploy-app
