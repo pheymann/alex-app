@@ -28,6 +28,9 @@ func MockGetConversation(
 	ctx := getconversation.HandlerCtx{
 		ConversationStore: testutil.MockConversationStore(conversations),
 		UserStore:         testutil.MockUserStore(users),
+		AudioClipStore: &testutil.MockAssetStore{
+			PresignedUrl: "https://some.url/clip0",
+		},
 	}
 
 	return ctx.AWSHandler(context.TODO(), event)
@@ -69,7 +72,10 @@ func MockStartArtConversations(
 		ConversationStore: mockConvStore,
 		UserStore:         mockUserStore,
 		ProcessQueue:      &mockProcessQueue,
-		IDGenerator:       &testutil.MockIDGenerator{GeneratedID: startedConvID},
+		IDGenerator: &testutil.MockIDGenerator{
+			GeneratedID: startedConvID,
+			UseMetadata: false,
+		},
 	}
 
 	response, err := ctx.AWSHandler(context.TODO(), event)

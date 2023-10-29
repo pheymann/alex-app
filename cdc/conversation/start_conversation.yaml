@@ -50,4 +50,3 @@ callChain:
         role: assistant
         speechClipUuid: clip0
         speechClipUrl: https://some.url/clip0
-        speechClipIsExpired: false

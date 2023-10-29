@@ -52,14 +52,12 @@ func (ctx Context) ContinueConversation(message string) (*Conversation, error) {
 
 	conv.Messages[lastMessageIndex].SpeechClipUUID = clipFileName
 
-	preSignedURL, expirationDate, err := ctx.AudioClipStore.GenerateTemporaryAccessURL(clipFileName, ctx.LogCtx)
+	preSignedURL, err := ctx.AudioClipStore.GenerateTemporaryAccessURL(clipFileName, ctx.LogCtx)
 	if err != nil {
 		return nil, err
 	}
 
 	conv.Messages[lastMessageIndex].SpeechClipURL = preSignedURL
-	conv.Messages[lastMessageIndex].SpeechClipExpirationDate = expirationDate
-	conv.Messages[lastMessageIndex].SpeechClipIsExpired = false
 
 	if err := ctx.ConversationStore.Save(conv, ctx.LogCtx); err != nil {
 		return nil, err

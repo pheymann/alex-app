@@ -77,6 +77,7 @@ var (
 
 	mockIDGenerator = &testutil.MockIDGenerator{
 		GeneratedID: "abc",
+		UseMetadata: true,
 	}
 )
 
@@ -290,6 +291,7 @@ func main() {
 		getConvCtx = getconversation.HandlerCtx{
 			ConversationStore: mockConversationStore,
 			UserStore:         mockUserStorage,
+			AudioClipStore:    mockAudioClipStore,
 		}
 
 		assistantCtx = &assistant.HandlerCtx{
@@ -315,6 +317,7 @@ func main() {
 		conversationTable := shared.MustReadEnvVar("TALKTOME_CONVERSATION_TABLE")
 		userTable := shared.MustReadEnvVar("TALKTOME_USER_TABLE")
 		processQueue := shared.MustReadEnvVar("TALKTOME_SQS_TASK")
+		conversationClipBucket := shared.MustReadEnvVar("TALKTOME_CONVERSATION_CLIP_BUCKET")
 
 		startArtConvCtx = startartconversation.UnsafeNewHandlerCtx(
 			sess,
@@ -340,6 +343,7 @@ func main() {
 			sess,
 			conversationTable,
 			userTable,
+			conversationClipBucket,
 		)
 
 		pollAssistantCtx = pollassistantresponse.UnsafeNewHandlerCtx(

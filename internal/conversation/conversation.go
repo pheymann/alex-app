@@ -16,12 +16,10 @@ type Conversation struct {
 }
 
 type Message struct {
-	Text                     string     `json:"text" yaml:"text" dynamodbav:"text"`
-	Role                     string     `json:"role" yaml:"role" dynamodbav:"role"`
-	SpeechClipUUID           string     `json:"speechClipUuid" yaml:"speechClipUuid" dynamodbav:"speech_clip_uuid"`
-	SpeechClipURL            string     `json:"speechClipUrl" yaml:"speechClipUrl" dynamodbav:"speech_clip_url"`
-	SpeechClipExpirationDate *time.Time `json:"speechClipExpirationDate" dynamodbav:"speech_clip_expiration_date"`
-	SpeechClipIsExpired      bool       `json:"speechClipIsExpired" dynamodbav:"speech_clip_is_expired"`
+	Text           string `json:"text" yaml:"text" dynamodbav:"text"`
+	Role           string `json:"role" yaml:"role" dynamodbav:"role"`
+	SpeechClipUUID string `json:"speechClipUuid" yaml:"speechClipUuid" dynamodbav:"speech_clip_uuid"`
+	SpeechClipURL  string `json:"speechClipUrl" yaml:"speechClipUrl" dynamodbav:"speech_clip_url"`
 }
 
 type Role = string

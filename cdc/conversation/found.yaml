@@ -61,9 +61,7 @@ callChain:
         messages:
           - text: some question
             role: user
-            speechClipIsExpired: false
           - text: some answer
             role: assistant
             speechClipUuid: clip0
             speeachClipUrl: https://some.url/clip0
-            speechClipIsExpired: false

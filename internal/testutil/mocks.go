@@ -1,6 +1,7 @@
 package testutil
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"time"
@@ -68,10 +69,11 @@ func MockConversationStore(initData map[string]*conversation.Conversation) *Mock
 		LocalStore: initData,
 		MakeDeepCopy: func(conv *conversation.Conversation) *conversation.Conversation {
 			convCopy := conversation.Conversation{
-				ID:       conv.ID,
-				Metadata: conv.Metadata,
-				Messages: []conversation.Message{},
-				State:    conv.State,
+				ID:        conv.ID,
+				Metadata:  conv.Metadata,
+				Messages:  []conversation.Message{},
+				State:     conv.State,
+				CreatedAt: conv.CreatedAt,
 			}
 
 			// deep copy
@@ -143,16 +145,8 @@ func (mock *MockAssetStore) Save(file *os.File, logCtx zerolog.Context) (string,
 	return mock.ClipKey, nil
 }
 
-func (mock *MockAssetStore) GenerateTemporaryAccessURL(audioClipUUID string, logCtx zerolog.Context) (string, *time.Time, error) {
-	location, err := time.LoadLocation("UTC")
-	if err != nil {
-		return "", nil, err
-	}
-
-	urlValidFor := 1 * time.Minute
-	expirationDate := time.Now().In(location).Add(urlValidFor)
-
-	return mock.PresignedUrl, &expirationDate, nil
+func (mock *MockAssetStore) GenerateTemporaryAccessURL(audioClipUUID string, logCtx zerolog.Context) (string, error) {
+	return mock.PresignedUrl, nil
 }
 
 type MockProcessQueue struct {
@@ -166,8 +160,12 @@ func (mock *MockProcessQueue) Enqueue(task processqueue.Task, logCtx zerolog.Con
 
 type MockIDGenerator struct {
 	GeneratedID string
+	UseMetadata bool
 }
 
-func (mock *MockIDGenerator) GenerateID(_ map[string]string) string {
+func (mock *MockIDGenerator) GenerateID(metadata map[string]string) string {
+	if mock.UseMetadata {
+		return fmt.Sprintf("%s::%+v", mock.GeneratedID, metadata)
+	}
 	return mock.GeneratedID
 }

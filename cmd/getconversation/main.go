@@ -28,6 +28,7 @@ func main() {
 		sess,
 		shared.MustReadParameter("talktome-table-conversation", ssmClient),
 		shared.MustReadParameter("talktome-table-user", ssmClient),
+		shared.MustReadParameter("talktome-bucket-conversation-clips", ssmClient),
 	)
 
 	log.Info().Msg("starting 'get conversation' lambda")
