@@ -74,6 +74,10 @@ var (
 	mockProcessQueue = &testutil.MockProcessQueue{
 		Queue: make(chan processqueue.Task, 20),
 	}
+
+	mockIDGenerator = &testutil.MockIDGenerator{
+		GeneratedID: "abc",
+	}
 )
 
 func handleStartArtConversation(ctx startartconversation.HandlerCtx) func(w http.ResponseWriter, r *http.Request) {
@@ -269,6 +273,7 @@ func main() {
 			ConversationStore: mockConversationStore,
 			UserStore:         mockUserStorage,
 			ProcessQueue:      mockProcessQueue,
+			IDGenerator:       mockIDGenerator,
 		}
 
 		continueConvCtx = continueconversation.HandlerCtx{
