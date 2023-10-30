@@ -1,18 +1,21 @@
+import { Auth } from "aws-amplify";
 import { encodeLanguage } from "./language";
 
 export class AwsFetch {
 
-  constructor(awsContext, language, fetchFn = new FetchWrapper()) {
-    this.token = awsContext.token;
+  constructor(language, tokenLoader = new SessionTokenLoader(), fetchFn = new FetchWrapper()) {
     this.language = language;
+    this.tokenLoader = tokenLoader;
     this.fetchFn = fetchFn;
   }
 
-  call(uri, { method, headers, body }) {
+  async call(uri, { method, headers, body }) {
     if (headers === undefined) {
       headers = {};
     }
-    headers['Authorization'] = `Bearer ${this.token}`;
+
+    const token = await this.tokenLoader.load();
+    headers['Authorization'] = `Bearer ${token}`;
     headers['Accept-Language'] = encodeLanguage(this.language);
 
     return this.fetchFn.apply(uri, {
@@ -29,11 +32,13 @@ export class AwsFetch {
     });
   };
 
-  callResponse(uri, { method, headers, body }) {
+  async callResponse(uri, { method, headers, body }) {
     if (headers === undefined) {
       headers = {};
     }
-    headers['Authorization'] = `Bearer ${this.token}`;
+
+    const token = await this.tokenLoader.load();
+    headers['Authorization'] = `Bearer ${token}`;
     headers['Accept-Language'] = encodeLanguage(this.language);
 
     return this.fetchFn.apply(uri, {
@@ -54,5 +59,12 @@ export class AwsFetch {
 class FetchWrapper {
   apply(uri, props) {
     return fetch(uri, props);
+  }
+}
+
+class SessionTokenLoader {
+  async load() {
+    const awsSession = await Auth.currentSession();
+    return awsSession.getIdToken().getJwtToken();
   }
 }

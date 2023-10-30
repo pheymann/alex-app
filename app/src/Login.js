@@ -6,7 +6,7 @@ export default function Login() {
     <Authenticator>
       {_ =>{
         return(
-          <Link to='/?forceReload=true'>
+          <Link to='/'>
             Back to Home
           </Link>
         );

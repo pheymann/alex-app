@@ -16,28 +16,18 @@ Amplify.configure({
   }
 })
 
-export function App({ loadAwsCtx , buildAwsFetch, defaultLanguage }) {
+export function App({ validateSession, buildAwsFetch, defaultLanguage }) {
   const [loading, setLoading] = useState(true);
-  const [awsContext, setAwsContext] = useState(null);
-  const [awsFetch, setAwsFetch] = useState(null);
   const [language, setLanguage] = useState(defaultLanguage);
 
   const navigate = useNavigate();
 
-  const urlSearchParams = new URLSearchParams(window.location.search);
-  const params = Object.fromEntries(urlSearchParams.entries());
-  const forceReload = params.forceReload;
-
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const awsContext = await loadAwsCtx();
-
-        setAwsContext(awsContext);
-        setAwsFetch(buildAwsFetch(awsContext, language));
-        setLoading(false);
+        // check that we are signed in
+        await validateSession();
       } catch (error) {
-        console.log(error);
         setLoading(false);
         navigate('/login');
       }
@@ -49,7 +39,9 @@ export function App({ loadAwsCtx , buildAwsFetch, defaultLanguage }) {
     if (localLanguage !== null) {
       setLanguage(decodeLanguage(localLanguage));
     }
-  }, [navigate, loadAwsCtx, buildAwsFetch, language, forceReload]);
+
+    setLoading(false);
+  }, [navigate, validateSession, buildAwsFetch, language]);
 
   if (loading) {
     return(
@@ -65,27 +57,17 @@ export function App({ loadAwsCtx , buildAwsFetch, defaultLanguage }) {
     <Routes>
       <Route path='/login' element={<Login />} />
       <Route exact path='/' element={
-        <Home awsFetch={ awsFetch }
+        <Home awsFetch={ buildAwsFetch(language) }
               language={ language }
               setLanguage={ setLanguage }
-              signOut={ () => awsContext.signOut() } />
+              signOut={ () => Auth.signOut() } />
       } />
       <Route path='/conversation/:id' element={
-        <Conversation awsFetch={ awsFetch }
+        <Conversation awsFetch={ buildAwsFetch(language) }
                       language={ language }
                       setLanguage={ setLanguage }
-                      signOut={ () => awsContext.signOut() } />
+                      signOut={ () => Auth.signOut() } />
       } />
     </Routes>
   );
-}
-
-export async function defaultLoadAwsCtx() {
-  const awsSession = await Auth.currentSession();
-
-  return {
-    awsSession,
-    token: awsSession.getIdToken().getJwtToken(),
-    signOut: () => Auth.signOut(),
-  };
 }

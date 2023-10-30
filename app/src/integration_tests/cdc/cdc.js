@@ -9,12 +9,15 @@ import { Language } from '../../language';
 
 export function runContract(contractPath, assertFn, userInteractionFn = () => {}) {
   const contract = loadContract(contractPath);
-  const mock = new AwsFetch({ token: contract.authorizationToken }, Language.English, new MockFetchFn(contract.callChain))
+  const mock = new AwsFetch(Language.English, new MockSessionTokenLoader(contract.authorizationToken), new MockFetchFn(contract.callChain))
 
   test("Case: " + contract.name, async () => {
     render(
       <MemoryRouter initialEntries={[contract.view]}>
-        <App loadAwsCtx={ () => mockLoadAwsCtx(true) } buildAwsFetch={ (_) => mock } defaultLanguage={ Language.English } />,
+        <App  validateSession={ () => mockLoadAwsCtx(true) }
+              buildAwsFetch={ (_) => mock }
+              defaultLanguage={ Language.English }
+        />,
       </MemoryRouter>,
     );
 
@@ -57,10 +60,10 @@ class MockFetchFn {
     });
   }
 
-  apply(uri, { method, headers, _ }) {
+  apply(uri, { method, headers, body }) {
     const requestAndResponse = this.requestsAndResponsesMap.get(uri);
     if (requestAndResponse === undefined) {
-      fail(`No request and response found for uri: ${uri}`);
+      fail(`No request and response found for uri: ${uri}\n${body}`);
     }
 
     expect(method).toEqual(requestAndResponse.request.method);
@@ -73,6 +76,17 @@ class MockFetchFn {
       status: requestAndResponse.response.status,
       text: () => JSON.stringify(requestAndResponse.response.body),
     });
+  }
+}
+
+class MockSessionTokenLoader {
+
+  constructor(token) {
+    this.token = token;
+  }
+
+  load() {
+    return Promise.resolve(this.token);
   }
 }
 
