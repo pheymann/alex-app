@@ -17,7 +17,7 @@ export default function Header({ awsFetch, language, setLanguage, signOut }) {
       <div className="container header-container-limited-width">
         <div className="row">
           <div className="col-6">
-            <Link className="btn" to="/">
+            <Link className="app-header-home align-middle" to="/">
               { i18n.header.home }
             </Link>
           </div>

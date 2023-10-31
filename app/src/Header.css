@@ -5,6 +5,19 @@ header {
   box-shadow: 0 0 5px black;
 }
 
+.app-header-home {
+  background-color: white;
+  border: none;
+  border-radius: 15px;
+  font-size: 1em;
+  font-weight: bold;
+  text-decoration: none;
+  color: #fd766a;
+  height: 100%;
+  padding-top: 7px;
+  display: inline-block;
+}
+
 .app-header-button {
   background-color: white;
   border: 1px solid black;
@@ -32,6 +45,11 @@ header {
   .app-header-button {
     margin-top: 15px;
     padding: 5px 10px 5px 10px;
+  }
+
+  .app-header-home {
+    padding-top: 15px;
+    padding-left: 10px;
   }
 }
 

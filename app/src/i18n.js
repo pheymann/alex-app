@@ -3,7 +3,7 @@ import { Language } from './language';
 
 const GermanTranslation = {
   header: {
-    home: 'Home',
+    home: 'Alex',
     signOut: 'Abmelden',
   },
   signIn: {
@@ -39,7 +39,7 @@ const GermanTranslation = {
 
 const EnglishTranslation = {
   header: {
-    home: 'Home',
+    home: 'Alex',
     signOut: 'Sign Out',
   },
   signIn: {
