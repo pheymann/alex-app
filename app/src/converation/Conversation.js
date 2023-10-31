@@ -5,6 +5,7 @@ import ArtContextPromptField from "./ArtContextPrompField";
 import UserMessageField from "./UserMessageField";
 import QuestionPromptField from "./QuestionPromptField";
 import './Conversation.css';
+import './../BasicStyling.css'
 import { LoadingPromptField } from "./PromptField";
 import AssistantResponseField from "./AssistantResponseField"
 import { logError, pushLogMessage } from "../logger";

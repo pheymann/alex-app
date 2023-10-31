@@ -1,6 +1,7 @@
 import {useState, useEffect, useRef} from 'react';
 import { Link } from 'react-router-dom';
 import './Home.css';
+import './BasicStyling.css'
 import NewConversationButton from './NewConversationButton';
 import BasicPage from './BasicPage';
 import { logError, pushLogMessage } from './logger';

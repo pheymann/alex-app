@@ -32,9 +32,3 @@
     padding: 20px 20px 20px 30px;
   }
 }
-
-@media (min-width: 1200px) {
-  .container-limited-width {
-      max-width: 700px;
-  }
-}

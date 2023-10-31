@@ -37,7 +37,7 @@ export default function Header({ awsFetch, language, setLanguage, signOut }) {
             <button className='app-header-button'
                     onClick={() => {
               signOut()
-                .then(() => navigate('/login'))
+                .then(() => navigate('/signin'))
                 .catch(err => {
                   logError({ awsFetch, error: err, logEntriesRef: logEntriesRef });
                   alert('Error signing out:\n' + err);

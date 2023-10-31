@@ -2,11 +2,11 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import { Amplify, Auth } from 'aws-amplify';
 import awsExports from './aws-exports';
 import Home from './Home';
-import Login from './Login';
 import Conversation from './converation/Conversation';
 import { useEffect, useState } from 'react';
 import './App.css';
 import { LanguageLocalStorageKey, decodeLanguage } from './language';
+import SignIn from './SignIn';
 
 Amplify.configure({
   Auth: {
@@ -27,20 +27,19 @@ export function App({ validateSession, buildAwsFetch, defaultLanguage }) {
       try {
         // check that we are signed in
         await validateSession();
+        setLoading(false);
       } catch (error) {
         setLoading(false);
-        navigate('/login');
+        navigate('/signin');
       }
     };
-
-    checkAuth();
 
     const localLanguage = localStorage.getItem(LanguageLocalStorageKey);
     if (localLanguage !== null) {
       setLanguage(decodeLanguage(localLanguage));
     }
 
-    setLoading(false);
+    checkAuth();
   }, [navigate, validateSession, buildAwsFetch, language]);
 
   if (loading) {
@@ -55,7 +54,12 @@ export function App({ validateSession, buildAwsFetch, defaultLanguage }) {
 
   return (
     <Routes>
-      <Route path='/login' element={<Login />} />
+      <Route path='/signin' element={
+        <SignIn awsFetch={ buildAwsFetch(language) }
+                language={ language }
+                setLanguage={ setLanguage }
+                signOut={ () => Auth.signOut() } />
+      } />
       <Route exact path='/' element={
         <Home awsFetch={ buildAwsFetch(language) }
               language={ language }

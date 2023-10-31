@@ -1,9 +1,10 @@
 
 export const Errors = Object.freeze({
-  UnknownError:              Symbol(0),
+  UnknownError:               Symbol(0),
   ConversationListingError:   Symbol(1),
   StartingConversationError:  Symbol(2),
   QuestionError:              Symbol(3),
+  SignInError:                Symbol(4),
 });
 
 export function errorToCode(error) {
@@ -16,6 +17,9 @@ export function errorToCode(error) {
 
     case Errors.QuestionError:
       return 3;
+
+    case Errors.SignInError:
+      return 4;
 
     default:
       return 0;
@@ -36,6 +40,10 @@ export function codeToError(errorCode) {
     case "3":
       return Errors.QuestionError;
 
+    case 4:
+    case "4":
+      return Errors.SignInError;
+
     default:
       return Errors.UnknownError;
   }
@@ -53,6 +61,9 @@ export function errorAlertMessage(error, i18n) {
 
     case Errors.QuestionError:
       return message = i18n.error.question;
+
+    case Errors.SignInError:
+      return message = i18n.error.signIn;
 
     default:
   }

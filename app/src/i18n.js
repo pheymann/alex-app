@@ -6,6 +6,11 @@ const GermanTranslation = {
     home: 'Home',
     signOut: 'Abmelden',
   },
+  signIn: {
+    emailPlaceholder: 'Email',
+    passwordPlaceholder: 'Passwort',
+    button: 'Anmelden',
+  },
   home: {
     exploreArtButton: 'Kunst entdecken',
   },
@@ -28,6 +33,7 @@ const GermanTranslation = {
     conversationListing: 'Etwas ist schief gelaufen, als wir versucht haben, deine Unterhaltungen zu laden.',
     startingConversation: 'Etwas ist schief gelaufen, als wir versucht haben, eine neue Unterhaltung zu starten.',
     question: 'Etwas ist schief gelaufen, als wir versucht haben, deine Frage zu beantworten.',
+    signIn: 'Entweder ist deine Email oder das Passwort falsch.',
   },
 };
 
@@ -35,6 +41,11 @@ const EnglishTranslation = {
   header: {
     home: 'Home',
     signOut: 'Sign Out',
+  },
+  signIn: {
+    emailPlaceholder: 'Email',
+    passwordPlaceholder: 'Password',
+    button: 'Sign In',
   },
   home: {
     exploreArtButton: 'Explore Art',
@@ -58,6 +69,7 @@ const EnglishTranslation = {
     conversationListing: 'Something went wrong while we tried to load your conversations.',
     startingConversation: 'Something went wrong while we tried to start a new conversation.',
     question: 'Something went wrong while we tried to answer your question.',
+    signIn: 'Either your email or password is invalid.',
   },
 };
 
