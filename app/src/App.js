@@ -19,12 +19,19 @@ Amplify.configure({
 export function App({ validateSession, buildAwsFetch, defaultLanguage }) {
   const [loading, setLoading] = useState(true);
   const [language, setLanguage] = useState(defaultLanguage);
+  const [subDomain, setSubDomain] = useState(null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        const subDomain = /:\/\/([^/.]+)\..+/.exec(window.location.href);
+        if (subDomain !== null && subDomain.length > 0) {
+          console.log(subDomain[1]);
+          setSubDomain(subDomain[1]);
+        }
+
         // check that we are signed in
         await validateSession();
         setLoading(false);
@@ -55,7 +62,8 @@ export function App({ validateSession, buildAwsFetch, defaultLanguage }) {
   return (
     <Routes>
       <Route path='/signin' element={
-        <SignIn awsFetch={ buildAwsFetch(language) }
+        <SignIn subDomain={ subDomain }
+                awsFetch={ buildAwsFetch(language) }
                 language={ language }
                 setLanguage={ setLanguage }
                 signOut={ () => Auth.signOut() } />
