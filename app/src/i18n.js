@@ -30,6 +30,7 @@ const GermanTranslation = {
   },
   prompt: {
     send: 'Senden',
+    loading: 'Ich denke nach ... das kann bis zu 30s dauern.',
   },
   error: {
     unknown: 'Ooops! Etwas ist schief gelaufen.',
@@ -70,6 +71,7 @@ const EnglishTranslation = {
   },
   prompt: {
     send: 'Send',
+    loading: 'Thinking ... that may take up to 30s.',
   },
   error: {
     unknown: 'Ooops! Something went wrong.',

@@ -151,7 +151,7 @@ export default function Conversation({ awsFetch, language, setLanguage, signOut 
                                               awsFetch={ awsFetch } />
 
                 case 'loading':
-                  return <LoadingPromptField key={ key } />
+                  return <LoadingPromptField key={ key } i18n={ i18n } />
 
                 default:
                   logError({ awsFetch, error: `unknown message role: ${message.role}`, logEntriesRef: logEntriesRef});

@@ -9,6 +9,10 @@
   box-shadow: black 0px 0px 0px 1px inset, #f0f0f0 -5px 4px 0px -1px, black -5px 4px;
 }
 
+.prompt-field > p {
+  padding-left: 1em;
+}
+
 .prompt-field-textarea {
   background-color: #f1efef;
   border: none;

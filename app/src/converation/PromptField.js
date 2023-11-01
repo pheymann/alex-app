@@ -43,13 +43,16 @@ export function PromptField(props) {
   );
 }
 
-export function LoadingPromptField() {
+export function LoadingPromptField({ i18n }) {
   return (
     <div className='d-flex justify-content-center'>
       <div className="prompt-field d-flex justify-content-center">
         <div className="spinner-border" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
+        <p>
+          { i18n.prompt.loading }
+        </p>
       </div>
     </div>
   );
