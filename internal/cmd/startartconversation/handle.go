@@ -30,16 +30,15 @@ func Handle(ctx conversation.Context, artContext string) (*conversation.Conversa
 	ctx.LogCtx = ctx.LogCtx.Str("conversation_uuid", conv.ID)
 
 	conv.State = conversation.StateGenerating
+
+	systemPrompt, err := systemPrompt(ctx.Language)
+	if err != nil {
+		return nil, err
+	}
 	conv.Messages = []conversation.Message{
 		{
 			Role: textgeneration.RoleSystem,
-			Text: `You are an art museum curator and show and explain art pieces to a visitor.
-							You have an engaging, friendly, and professional communication style. You talk to a single person and
-							you already discussed a couple of paintings. So that is not the beginning of this conversation.
-							Finally, you address the visitor with the word "you". Start your first response with one of the following
-							phrases: "Here, we stand in front of", "This is", "We are looking at", "This is a painting by".
-							Don't use more than 200 words in all your responses. If you don't know the answer say so. If I ask for
-							something not related to art or this art piece say "I don't know" or "I don't understand".`,
+			Text: systemPrompt,
 		},
 	}
 
@@ -61,23 +60,16 @@ func Handle(ctx conversation.Context, artContext string) (*conversation.Conversa
 		return nil, err
 	}
 
-	var userCommand string
-	switch ctx.Language {
-	case shared.LanguageEnglish:
-		userCommand = englishUserCommand(artContext)
-
-	case shared.LanguageGerman:
-		userCommand = germanUserCommand(artContext)
-
-	default:
-		return nil, &shared.UserInputError{Message: "unsupported language"}
+	userPromp, err := initialUserPrompt(artContext, ctx.Language)
+	if err != nil {
+		return nil, err
 	}
 
 	task := processqueue.Task{
 		ConversationUUID: conv.ID,
 		UserUUID:         ctx.UserUUID,
 		Language:         ctx.Language,
-		Message:          userCommand,
+		Message:          userPromp,
 	}
 
 	if err := ctx.ProcessQueue.Enqueue(task, ctx.LogCtx); err != nil {
@@ -90,14 +82,52 @@ func Handle(ctx conversation.Context, artContext string) (*conversation.Conversa
 	return &conv, nil
 }
 
-func englishUserCommand(artContext string) string {
-	return fmt.Sprintf(`The art piece we are discussion is "%s".`, artContext) +
-		`Introduce it to me, give some basic information like the creation date, and continue to explain
-	its meaning, what style it is, and how it fits into its time.`
+const (
+	englishSystemPrompt = `You are an art museum curator and explain art pieces, artists, and art techniques to a visitor.
+	You have an engaging, friendly, and professional communication style. You talk to a single person and
+		you already discussed a couple of topics. So that is not the beginning of this conversation.
+		Finally, you address the visitor with the word "you". Your answers should get immediately to the point with out any introduction.
+		Don't use more than 200 words in all your responses. If you don't know the answer say "I don't know". If I ask for
+		something not related to art, artists, or art techniques say "I don't know" or "I don't understand".`
+
+	germanSystemPrompt = `Du bist ein Museums Kurator und erklärst Kunstwerke, Künstler und künstlerische Techniken einem Besucher.
+	Du hast einen engagierten, freundlichen und professionellen Kommunikationsstil. Du sprichst mit einer einzelnen Person und
+		du hast bereits ein paar Themen besprochen. Das ist also nicht der Anfang dieses Gesprächs.
+		Zuletzt sprichst du den Besucher mit dem Wort "du" an. Deine Antworten sollten sofort auf den Punkt kommen, ohne jegliche Einleitung.
+		Verwende nicht mehr als 200 Wörter in all deinen Antworten. Wenn du die Antwort nicht weißt, sag "Ich weiß es nicht". Wenn ich nach
+		etwas frage, das nichts mit Kunst, Künstlern, oder Kunsttechniken zu tun hat, sag "Ich weiß es nicht" oder "Ich verstehe nicht".`
+)
+
+func systemPrompt(langauge shared.Language) (string, error) {
+	switch langauge {
+	case shared.LanguageEnglish:
+		return englishSystemPrompt, nil
+
+	case shared.LanguageGerman:
+		return germanSystemPrompt, nil
+
+	default:
+		return "", &shared.UserInputError{Message: "unsupported language"}
+	}
 }
 
-func germanUserCommand(artContext string) string {
-	return fmt.Sprintf(`Das Kunstwerk, über das wir sprechen, ist "%s".`, artContext) +
-		`Stelle es mir vor, gib einige grundlegende Informationen wie das Erstellungsdatum an, und fahre fort, indem du mir
-		die Bedeutung erklärst, welcher Stil es ist und wie es in seine Zeit passt.`
+func initialUserPrompt(artContext string, language shared.Language) (string, error) {
+	switch language {
+	case shared.LanguageEnglish:
+		return englishUserPrompt(artContext), nil
+
+	case shared.LanguageGerman:
+		return germanUserPrompt(artContext), nil
+
+	default:
+		return "", &shared.UserInputError{Message: "unsupported language"}
+	}
+}
+
+func englishUserPrompt(artContext string) string {
+	return fmt.Sprintf(`We discuss "%s".`, artContext) + `Give some basic information.`
+}
+
+func germanUserPrompt(artContext string) string {
+	return fmt.Sprintf(`Wir besprechen "%s".`, artContext) + `Gib einige grundlegende Informationen.`
 }
