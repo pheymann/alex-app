@@ -11,12 +11,15 @@ import { Translation } from './i18n';
 export default function Home({ awsFetch, language, setLanguage, signOut }) {
   const [conversations, setConversations] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const logEntriesRef = useRef([]);
 
   const i18n = Translation.get(language);
 
   useEffect(() => {
+    setLoading(true);
+
     awsFetch.call(`/api/conversation/list`, {
       method: 'GET',
     })
@@ -36,9 +39,38 @@ export default function Home({ awsFetch, language, setLanguage, signOut }) {
       const params = Object.fromEntries(urlSearchParams.entries());
 
       params.errorCode && setError(codeToError(params.errorCode));
+
+      setLoading(false);
   }, [awsFetch]);
 
   const errorMessage = errorAlertMessage(error, i18n);
+
+  if (loading) {
+    return(
+      <BasicPage  awsFetch={ awsFetch }
+                  language={ language }
+                  setLanguage={ setLanguage }
+                  signOut={ signOut }
+      >
+        <div className="container container-limited-width">
+          <div className='row'>
+            <div className='col text-center'>
+              <NewConversationButton  className='home-new-conversation-button'
+                                      i18n={ i18n }
+              />
+            </div>
+          </div>
+          <div className="row">
+            <div className="col d-flex justify-content-center">
+              <div className="spinner-border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </BasicPage>
+    );
+  }
 
   return (
     <BasicPage  awsFetch={ awsFetch }
