@@ -9,8 +9,6 @@ import './BasicStyling.css'
 
 const promotions = {
   "hamburger-kunsthalle": `W&bnQJ.X^hq3{wC"H'Pu4>`,
-  "claudi": `mC3YyS_-B=/RwJ:?WPZg(M`,
-  "luka": `n.Q;e7^EW=mdBT+9~*',A>`,
   "maciej": `aQK6q%xES#cwF;sDW~ZARm`,
 }
 
