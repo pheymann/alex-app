@@ -8,7 +8,8 @@
   color: black;
   width: 100%;
   background-color: white;
-  word-break: break-all;
+  word-break: normal;
+  overflow-wrap: anywhere;
 }
 
 .conversation-link:hover {

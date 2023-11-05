@@ -5,7 +5,8 @@
   padding: 15px;
   margin: 20px;
   border: 1px solid black;
-  word-break: break-all;
+  word-break: normal;
+  overflow-wrap: anywhere;
 }
 
 .assistant-response-field::after {
