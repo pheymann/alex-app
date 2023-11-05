@@ -112,7 +112,7 @@ export default function Conversation({ awsFetch, language, setLanguage, signOut 
                     return <UserMessageField key={ key } message={ message } />
 
                   case 'assistant':
-                    return <AssistantResponseField key={ key } index={ index } message={ message } />
+                    return <AssistantResponseField key={ key } index={ index } message={ message } i18n={ i18n } />
 
                   case 'error':
                     return <ErrorField key={ key } errorCode={ message.errorCode } i18n={ i18n }/>

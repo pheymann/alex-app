@@ -1,7 +1,7 @@
 import { useState } from "react";
 import './AssistantResponseField.css';
 
-export default function AssistantResponseField({ index, message }) {
+export default function AssistantResponseField({ index, message, i18n }) {
   const answerInTextId = `answerInText_${index}`;
   const [isCollapsed, setIsCollapsed] = useState(true);
 
@@ -20,7 +20,7 @@ export default function AssistantResponseField({ index, message }) {
                 data-bs-target={`#${answerInTextId}`}
                 aria-expanded='false'
                 onClick={_ => setIsCollapsed(!isCollapsed)}>
-          {isCollapsed ? 'Show Text' : 'Hide'}
+          {isCollapsed ? i18n.conversation.assistantResponse.show : i18n.conversation.assistantResponse.hide }
         </button>
       </div>
       <div className='col'>

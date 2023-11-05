@@ -19,6 +19,10 @@ const GermanTranslation = {
   },
   conversation: {
     initialField: 'Erzähl mir etwas über:',
+    assistantResponse:  {
+      hide: 'Verstecken',
+      show: 'Text anzeigen',
+    },
     artContextPrompt: {
       title: 'Erzähl mir etwas über: ',
       placeholder: 'Die Mona Lisa von Leonardo da Vinci',
@@ -60,6 +64,10 @@ const EnglishTranslation = {
   },
   conversation: {
     initialField: 'Tell me something about',
+    assistantResponse:  {
+      hide: 'Hide',
+      show: 'Show Text',
+    },
     artContextPrompt: {
       title: 'Tell me something about: ',
       placeholder: 'The Mona Lisa by Leonardo da Vinci',
