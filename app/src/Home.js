@@ -11,7 +11,7 @@ import { Translation } from './i18n';
 export default function Home({ awsFetch, language, setLanguage, signOut }) {
   const [conversations, setConversations] = useState([]);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const logEntriesRef = useRef([]);
 
@@ -20,27 +20,33 @@ export default function Home({ awsFetch, language, setLanguage, signOut }) {
   useEffect(() => {
     setLoading(true);
 
-    awsFetch.call(`/api/conversation/list`, {
-      method: 'GET',
-    })
-      .then(rawData => {
-        pushLogMessage(logEntriesRef, { level: 'debug', message: rawData });
-
-        const json = JSON.parse(rawData);
-        setConversations(json);
+    const fetchAllConversations = async () => {
+      await awsFetch.call(`/api/conversation/list`, {
+        method: 'GET',
       })
-      .catch(error => {
-        logError({ awsFetch, error, logEntriesRef: logEntriesRef});
-        setError(Errors.ConversationListingError);
-      });
+        .then(rawData => {
+          pushLogMessage(logEntriesRef, { level: 'debug', message: rawData });
 
-      // handle errors triggered by other views
-      const urlSearchParams = new URLSearchParams(window.location.search);
-      const params = Object.fromEntries(urlSearchParams.entries());
+          const json = JSON.parse(rawData);
+          setConversations(json);
+          setLoading(false);
+        })
+        .catch(error => {
+          logError({ awsFetch, error, logEntriesRef: logEntriesRef});
+          setError(Errors.ConversationListingError);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
 
-      params.errorCode && setError(codeToError(params.errorCode));
+    // handle errors triggered by other views
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    const params = Object.fromEntries(urlSearchParams.entries());
 
-      setLoading(false);
+    params.errorCode && setError(codeToError(params.errorCode));
+
+    fetchAllConversations();
   }, [awsFetch]);
 
   const errorMessage = errorAlertMessage(error, i18n);
