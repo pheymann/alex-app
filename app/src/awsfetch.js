@@ -54,11 +54,48 @@ export class AwsFetch {
       }
     });
   };
+
+  async poll(uri, { method, headers, body}, {handleSuccess, handleError}) {
+    if (headers === undefined) {
+      headers = {};
+    }
+
+    const token = await this.tokenLoader.load();
+    headers['Authorization'] = `Bearer ${token}`;
+    headers['Accept-Language'] = encodeLanguage(this.language);
+
+    return this.fetchFn.poll(uri, handleSuccess, handleError, {
+      method: method,
+      headers: headers,
+      body: body,
+    });
+  }
 }
 
 class FetchWrapper {
   apply(uri, props) {
     return fetch(uri, props);
+  }
+
+  poll(uri, handleSuccess, handleError, props) {
+    const interval = setInterval(() => {
+      this.apply(uri, props)
+        .then(response => {
+          if (response.status < 300) {
+            handleSuccess(response, () => clearInterval(interval));
+          }
+          else {
+            handleError(response);
+            clearInterval(interval)
+          }
+        })
+        .catch(error => {
+          handleError(error);
+          clearInterval(interval)
+        });
+    }, 1000);
+
+    return interval;
   }
 }
 

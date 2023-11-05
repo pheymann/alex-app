@@ -7,27 +7,23 @@ import { AwsFetch } from '../../awsfetch';
 import { fail } from 'assert';
 import { Language } from '../../language';
 
-export function runContract(contractPath, assertFn, userInteractionFn = () => {}) {
+export function runContract(contractPath, assertFn, userInteractionFn = async () => {}) {
   const contract = loadContract(contractPath);
   const mock = new AwsFetch(Language.English, new MockSessionTokenLoader(contract.authorizationToken), new MockFetchFn(contract.callChain))
 
   test("Case: " + contract.name, async () => {
-    render(
+    await render(
       <MemoryRouter initialEntries={[contract.view]}>
         <App  validateSession={ () => mockLoadAwsCtx(true) }
               buildAwsFetch={ (_) => mock }
               defaultLanguage={ Language.English }
         />,
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
-    await waitFor(() => {
-      userInteractionFn();
-    });
+    await userInteractionFn();
 
-    await waitFor(() => {
-      assertFn(contract.app, mock.fetchFn.requestAndResponseCallCounter);
-    })
+    await waitFor(() => assertFn(contract.app, mock.fetchFn.requestAndResponseCallCounter));
   });
 }
 
@@ -75,7 +71,20 @@ class MockFetchFn {
     return Promise.resolve({
       status: requestAndResponse.response.status,
       text: () => JSON.stringify(requestAndResponse.response.body),
+      json: () => requestAndResponse.response.body,
+      ok: requestAndResponse.response.status < 300,
     });
+  }
+
+  poll(uri, handleSuccess, handleError, props) {
+    return this.apply(uri, props).then(response => {
+      if (response.status < 300) {
+        handleSuccess(response, () => {});
+      }
+      else {
+        handleError(response);
+      }
+    })
   }
 }
 

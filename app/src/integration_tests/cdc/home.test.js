@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { runContract } from './cdc';
 
@@ -18,7 +18,8 @@ runContract("home/start_conversation.yaml",
   (_) => {
     expect(screen.getByText(/Tell me something about:/i)).toBeInTheDocument()
   },
-  () => {
+  async () => {
+    await waitFor(() => screen.findByText(/Explore Art/i));
     userEvent.click(screen.getByText(/Explore Art/i));
   }
 );

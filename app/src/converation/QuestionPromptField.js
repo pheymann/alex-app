@@ -53,17 +53,44 @@ export default function QuestionPromptField({
         })
 
         if (continueResponse.ok) {
-          const pollingInterval = setInterval(async () => {
-            try {
-              const pollResponse = await awsFetch.callResponse(`/api/conversation/${conversation.id}/poll`,  {
-                method: 'GET',
-              });
+          await awsFetch.poll(
+            `/api/conversation/${conversation.id}/poll`,
+            {
+              method: 'GET',
+            },
+            {
+              handleSuccess: async (pollResponse, clearInterval) => {
+                if (pollResponse.status === 200) {
+                  clearInterval();
 
-              if (pollResponse.status === 200) {
-                clearInterval(pollingInterval);
+                  const message = await pollResponse.json();
+                  pushLogMessage(logEntriesRef, { level: 'debug', message: message });
 
-                const message = await pollResponse.json();
-                pushLogMessage(logEntriesRef, { level: 'debug', message: message });
+                  // removing loading message
+                  continuedConversation.messages.pop();
+
+                  const responseConversation = {
+                    ...continuedConversation,
+                    messages: [
+                      ...continuedConversation.messages,
+                      {
+                        role: message.role,
+                        text: message.text,
+                        speechClipUuid: message.speechClipUuid,
+                        speechClipUrl: message.speechClipUrl,
+                      },
+                      {
+                        role: 'prompt-user-question',
+                      }
+                    ],
+                  };
+
+                  setConversation(responseConversation);
+                  setQuestion('');
+                }
+              },
+              handleError: (error) => {
+                logError({ awsFetch, error, logEntriesRef: logEntriesRef});
 
                 // removing loading message
                 continuedConversation.messages.pop();
@@ -73,10 +100,8 @@ export default function QuestionPromptField({
                   messages: [
                     ...continuedConversation.messages,
                     {
-                      role: message.role,
-                      text: message.text,
-                      speechClipUuid: message.speechClipUuid,
-                      speechClipUrl: message.speechClipUrl,
+                      role: 'error',
+                      errorCode: Errors.QuestionError,
                     },
                     {
                       role: 'prompt-user-question',
@@ -86,32 +111,9 @@ export default function QuestionPromptField({
 
                 setConversation(responseConversation);
                 setQuestion('');
-              }
-            } catch (error) {
-              clearInterval(pollingInterval);
-              logError({ awsFetch, error, logEntriesRef: logEntriesRef});
-
-              // removing loading message
-              continuedConversation.messages.pop();
-
-              const responseConversation = {
-                ...continuedConversation,
-                messages: [
-                  ...continuedConversation.messages,
-                  {
-                    role: 'error',
-                    errorCode: Errors.QuestionError,
-                  },
-                  {
-                    role: 'prompt-user-question',
-                  }
-                ],
-              };
-
-              setConversation(responseConversation);
-              setQuestion('');
-            }
-          }, 1000);
+              },
+            },
+          );
         }
       } catch (error) {
         logError({ awsFetch, error, logEntriesRef: logEntriesRef});
